@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const profile = await getCurrentProfile();
-  
+
   if (!profile) {
     redirect('/login');
   }

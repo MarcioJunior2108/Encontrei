@@ -27,6 +27,21 @@ export default async function AdminLeadsPage() {
     }
   });
 
+  const serializedRequests = requests.map(req => ({
+    id: req.id,
+    createdAt: req.createdAt,
+    description: req.description,
+    client: { name: req.client.name },
+    professional: {
+      profile: {
+        name: req.professional.profile.name,
+        status: req.professional.profile.status,
+        phone: req.professional.profile.phone,
+        claimToken: req.professional.profile.claimToken,
+      }
+    }
+  }));
+
   return (
     <div className="space-y-8">
       <div>
@@ -34,7 +49,7 @@ export default async function AdminLeadsPage() {
         <p className="text-[hsl(var(--muted-foreground))] mt-1">Gerencie e dispare mensagens via WhatsApp Web para profissionais não ativados.</p>
       </div>
 
-      <LeadsTable initialRequests={requests} />
+      <LeadsTable initialRequests={serializedRequests} />
     </div>
   );
 }

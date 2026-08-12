@@ -20,36 +20,27 @@ const sizeMap = {
 };
 
 function Avatar({ src, name, size = 'md', className, verified }: AvatarProps) {
-  const { container, text, badge } = sizeMap[size];
-  const initials = getInitials(name);
+  const { container, badge } = sizeMap[size];
+  
+  // Se não tiver src, gera um avatar divertido baseado no nome
+  const finalSrc = src || `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
 
   return (
     <div className={cn('relative flex-shrink-0', className)}>
       <div
         className={cn(
           container,
-          'relative overflow-hidden rounded-full bg-gradient-to-br from-[hsl(var(--primary-muted))] to-[hsl(var(--accent))] ring-2 ring-[hsl(var(--background))]'
+          'relative overflow-hidden rounded-full bg-[hsl(var(--muted))] ring-2 ring-[hsl(var(--background))]'
         )}
       >
-        {src ? (
-          <Image
-            src={src}
-            alt={name}
-            fill
-            className="object-cover"
-            sizes="96px"
-          />
-        ) : (
-          <span
-            className={cn(
-              text,
-              'absolute inset-0 flex items-center justify-center font-semibold text-[hsl(var(--primary))]'
-            )}
-            aria-label={name}
-          >
-            {initials}
-          </span>
-        )}
+        <Image
+          src={finalSrc}
+          alt={name}
+          fill
+          className="object-cover"
+          sizes="96px"
+          priority={true}
+        />
       </div>
       {verified && (
         <span

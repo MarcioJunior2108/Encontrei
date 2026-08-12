@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentProfile } from '@/app/actions/user';
-import { LayoutDashboard, Users, ShieldAlert, FileText, LogOut, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldAlert, FileText, LogOut, ArrowLeft, MapPin } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 import { Button } from '@/components/ui/button';
 
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 const adminLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/usuarios', label: 'Usuários', icon: Users },
+  { href: '/admin/importar-maps', label: 'Importar Maps', icon: MapPin },
   { href: '/admin/moderacao', label: 'Moderação', icon: ShieldAlert },
   { href: '/admin/auditoria', label: 'Auditoria', icon: FileText },
 ];

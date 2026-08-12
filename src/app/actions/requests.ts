@@ -27,7 +27,7 @@ export async function createServiceRequest({
 
     const safeDescription = sanitizeContactInfo(description);
 
-    await prisma.serviceRequest.create({
+    const newRequest = await prisma.serviceRequest.create({
       data: {
         clientId: clientProfile.id,
         professionalId,
@@ -37,6 +37,37 @@ export async function createServiceRequest({
         // isUnlocked defaults to false
       }
     });
+
+    // Webhook Logic para Shadow Profiles
+    const targetProfessional = await prisma.professional.findUnique({
+      where: { id: professionalId },
+      include: { profile: true }
+    });
+
+    if (targetProfessional?.profile.status === 'UNCLAIMED') {
+      try {
+        const webhookUrl = process.env.WHATSAPP_WEBHOOK_URL || 'https://webhook.site/placeholder';
+        const magicLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/claim?token=${targetProfessional.profile.claimToken}`;
+        
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'new_request_unclaimed',
+            professional: {
+              name: targetProfessional.profile.name,
+              phone: targetProfessional.profile.phone,
+            },
+            client: {
+              name: clientProfile.name,
+            },
+            magicLink,
+          })
+        });
+      } catch (webhookErr) {
+        console.error('Falha ao disparar webhook para shadow profile', webhookErr);
+      }
+    }
 
     revalidatePath('/dashboard');
     revalidatePath('/profissional');

@@ -37,11 +37,11 @@ export async function PATCH(
     }
 
     // Verificar autorização
-    if (profile.role === 'PROFESSIONAL' && serviceRequest.professional?.userId !== profile.id) {
+    if (profile.role === 'PROFESSIONAL' && serviceRequest.professional?.id !== profile.id) {
        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    if (profile.role === 'CLIENT' && serviceRequest.client?.userId !== profile.id) {
+    if (profile.role === 'CLIENT' && serviceRequest.client?.id !== profile.id) {
        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

@@ -21,8 +21,10 @@ model Profile {
   phone     String?
   city      String?
   state     String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  claimToken         String?  @unique @map("claim_token")
+  claimTokenExpires  DateTime? @map("claim_token_expires")
 
   professional Professional?
   sentRequests ServiceRequest[] @relation("ClientRequests")
@@ -86,6 +88,7 @@ enum Status {
   ACTIVE
   INACTIVE
   SUSPENDED
+  UNCLAIMED
 }
 
 enum VerificationStatus {

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentProfile } from './user';
 import { revalidatePath } from 'next/cache';
 import { sanitizeContactInfo } from '@/lib/sanitizer';
+import { sendWhatsappNotification } from '@/lib/whatsapp';
 
 export async function createServiceRequest({ 
   professionalId, 
@@ -44,28 +45,19 @@ export async function createServiceRequest({
       include: { profile: true }
     });
 
-    if (targetProfessional?.profile.status === 'UNCLAIMED') {
+    if (targetProfessional?.profile.status === 'UNCLAIMED' && targetProfessional.profile.phone) {
       try {
-        const webhookUrl = process.env.WHATSAPP_WEBHOOK_URL || 'https://webhook.site/placeholder';
         const magicLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/claim?token=${targetProfessional.profile.claimToken}`;
         
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            event: 'new_request_unclaimed',
-            professional: {
-              name: targetProfessional.profile.name,
-              phone: targetProfessional.profile.phone,
-            },
-            client: {
-              name: clientProfile.name,
-            },
-            magicLink,
-          })
+        const messageText = `*Encontrei - Novo Orçamento!*\n\nOlá ${targetProfessional.profile.name || 'Profissional'}! Temos um cliente (${clientProfile.name}) interessado nos seus serviços agora mesmo na nossa plataforma.\n\nPara visualizar os detalhes do pedido e responder ao cliente, você precisa ativar o seu perfil gratuito.\n\n*Clique no link abaixo para assumir seu perfil e ver o pedido:*\n${magicLink}\n\nEstamos aguardando você! 🚀`;
+
+        await sendWhatsappNotification({
+          phone: targetProfessional.profile.phone,
+          message: messageText
         });
+
       } catch (webhookErr) {
-        console.error('Falha ao disparar webhook para shadow profile', webhookErr);
+        console.error('Falha ao disparar whatsapp para shadow profile', webhookErr);
       }
     }
 

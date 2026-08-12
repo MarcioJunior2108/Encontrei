@@ -38,8 +38,22 @@ export async function POST(req: Request) {
             where: { id: requestId },
             data: { isUnlocked: true },
           });
-
           console.log(`Pedido ${requestId} desbloqueado pelo profissional ${professionalId} via Mercado Pago`);
+        } else if (type === 'UPGRADE_PRO' && professionalId) {
+          await prisma.professional.update({
+            where: { userId: professionalId },
+            data: { planType: 'PRO' }
+          });
+          console.log(`Profissional ${professionalId} fez upgrade para PRO via Mercado Pago`);
+        } else if (type === 'ADD_FUNDS' && professionalId) {
+          const amount = paymentInfo.transaction_amount || 50;
+          await prisma.professional.update({
+            where: { userId: professionalId },
+            data: { 
+              walletBalance: { increment: amount } 
+            }
+          });
+          console.log(`Adicionado R$${amount} na carteira do profissional ${professionalId} via Mercado Pago`);
         }
       }
     }

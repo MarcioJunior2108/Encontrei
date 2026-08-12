@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
+import { initMercadoPago, Payment, StatusScreen } from '@mercadopago/sdk-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,11 +23,13 @@ interface MercadoPagoModalProps {
 export function MercadoPagoModal({ isOpen, onClose, amount, description, metadata, onSuccess }: MercadoPagoModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [paymentId, setPaymentId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
       setError(null);
       setIsProcessing(false);
+      setPaymentId(null);
     }
   }, [isOpen]);
 
@@ -66,7 +68,7 @@ export function MercadoPagoModal({ isOpen, onClose, amount, description, metadat
             setError(data.error);
             reject();
           } else {
-            if (onSuccess) onSuccess();
+            setPaymentId(data.id.toString());
             resolve();
           }
         })
@@ -116,7 +118,13 @@ export function MercadoPagoModal({ isOpen, onClose, amount, description, metadat
               <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">{description}</p>
             </div>
             <button
-              onClick={onClose}
+              onClick={() => {
+                if (paymentId && onSuccess) {
+                  onSuccess();
+                } else {
+                  onClose();
+                }
+              }}
               disabled={isProcessing}
               className="p-2 rounded-full hover:bg-[hsl(var(--muted))] transition-colors text-[hsl(var(--muted-foreground))] disabled:opacity-50"
             >
@@ -133,13 +141,21 @@ export function MercadoPagoModal({ isOpen, onClose, amount, description, metadat
             )}
             
             <div className="min-h-[400px]">
-              <Payment
-                initialization={initialization}
-                customization={customization as any}
-                onSubmit={onSubmit}
-                onReady={onReady}
-                onError={onError}
-              />
+              {paymentId ? (
+                <StatusScreen
+                  initialization={{ paymentId: paymentId }}
+                  onReady={onReady}
+                  onError={onError}
+                />
+              ) : (
+                <Payment
+                  initialization={initialization}
+                  customization={customization as any}
+                  onSubmit={onSubmit}
+                  onReady={onReady}
+                  onError={onError}
+                />
+              )}
             </div>
           </div>
         </motion.div>

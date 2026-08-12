@@ -214,7 +214,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
               )}
             </div>
           )}
-          {activeTab === 'agenda' && <AgendaView />}
+          {activeTab === 'agenda' && <AgendaView requests={requests} />}
           {activeTab === 'metricas' && (
             <div className="py-12 text-center text-[hsl(var(--muted-foreground))]">
               Métricas e estatísticas estarão disponíveis em breve.

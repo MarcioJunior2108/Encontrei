@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { signup } from '@/app/actions/auth';
 import { AlertCircle } from 'lucide-react';
@@ -31,10 +32,14 @@ export default function CadastroPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 justify-center mb-8">
-          <div className="h-9 w-9 rounded-[var(--radius-lg)] bg-[hsl(var(--primary))] flex items-center justify-center">
-            <span className="text-white font-bold">E</span>
-          </div>
-          <span className="text-xl font-semibold text-[hsl(var(--foreground))]">Encontrei</span>
+          <Image 
+            src="/logo.png" 
+            alt="Encontrei Logo" 
+            width={200} 
+            height={80} 
+            className="h-16 w-auto object-contain scale-[1.3]"
+            priority
+          />
         </Link>
 
         {/* Card */}

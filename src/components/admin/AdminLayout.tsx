@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -70,9 +71,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         {/* Logo */}
         <div className="flex items-center h-16 px-4 border-b border-[hsl(var(--sidebar-border))] flex-shrink-0">
           <Link href="/admin" className="flex items-center gap-2.5 min-w-0">
-            <div className="h-8 w-8 rounded-[var(--radius-lg)] bg-[hsl(var(--primary))] flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-sm font-bold">E</span>
-            </div>
+            <Image 
+              src="/logo.png" 
+              alt="Encontrei Logo" 
+              width={160} 
+              height={60} 
+              className="h-12 w-auto flex-shrink-0 object-contain scale-[1.3] origin-left ml-2"
+              priority
+            />
             <AnimatePresence>
               {!collapsed && (
                 <motion.div

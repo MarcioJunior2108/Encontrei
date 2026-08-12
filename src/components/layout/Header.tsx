@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Sun, Moon, Bell, Menu, X } from 'lucide-react';
@@ -62,15 +63,14 @@ export function Header() {
               className="flex items-center gap-2 font-semibold text-[hsl(var(--foreground))] hover:opacity-80 transition-opacity"
               aria-label="Encontrei — Página inicial"
             >
-              <div className="h-8 w-8 rounded-[var(--radius-lg)] bg-[hsl(var(--primary))] flex items-center justify-center shadow-sm">
-                <span className="text-white text-sm font-bold leading-none">E</span>
-              </div>
-              <span className="text-lg tracking-tight">
-                Encontrei
-              </span>
-              <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded-full bg-[hsl(var(--primary-muted))] text-[hsl(var(--primary))] text-[10px] font-semibold uppercase tracking-wider">
-                Beta
-              </span>
+              <Image 
+                src="/logo.png" 
+                alt="Encontrei Logo" 
+                width={160} 
+                height={60} 
+                className="h-12 w-auto object-contain scale-[1.3] origin-left ml-2"
+                priority
+              />
             </Link>
 
             {/* Desktop nav */}

@@ -21,7 +21,7 @@ const floatingCards = [
 export function HeroSection() {
   return (
     <section
-      className="relative min-h-[100dvh] flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden gradient-hero"
+      className="relative min-h-[100dvh] flex flex-col items-center justify-center px-4 sm:px-6 pt-24 pb-16 overflow-hidden gradient-hero"
       aria-label="Seção principal"
     >
       {/* Background grid pattern */}
@@ -74,16 +74,6 @@ export function HeroSection() {
 
       {/* Main content */}
       <div className="relative z-10 w-full max-w-3xl mx-auto text-center">
-        {/* Eyebrow */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary-muted))] text-[hsl(var(--primary))] text-xs font-semibold tracking-wide mb-8"
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--primary))] animate-pulse" />
-          Plataforma em beta — acesso gratuito
-        </motion.div>
 
         {/* Main heading */}
         <motion.h1
@@ -156,7 +146,7 @@ export function HeroSection() {
           ))}
         </div>
         <p className="text-center text-[10px] text-[hsl(var(--muted-foreground)/0.6)] mt-2">
-          * Dados demonstrativos — ambiente beta
+          * Dados demonstrativos
         </p>
       </motion.div>
 

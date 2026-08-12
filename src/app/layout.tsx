@@ -50,13 +50,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  icons: {
-    icon: [
-      { url: '/icons/icon-32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-    ],
-    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
-  },
 };
 
 export const viewport: Viewport = {

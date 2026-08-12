@@ -46,11 +46,18 @@ export default async function ProfessionalDashboardPage() {
     }) as any;
   }
 
+  // Convert Decimals to numbers for the Client Component
+  const safeProfessionalData = professionalData ? {
+    ...professionalData,
+    basePrice: professionalData.basePrice ? Number(professionalData.basePrice) : null,
+    walletBalance: professionalData.walletBalance ? Number(professionalData.walletBalance) : 0,
+  } : null;
+
   return (
     <main id="main-content" className="min-h-dvh bg-[hsl(var(--background))]">
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <PortalOverview profile={profile} professional={professionalData} />
+        <PortalOverview profile={profile} professional={safeProfessionalData} />
       </div>
     </main>
   );

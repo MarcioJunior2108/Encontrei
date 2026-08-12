@@ -41,7 +41,6 @@ export function MercadoPagoModal({ isOpen, onClose, amount, description, metadat
       bankTransfer: "all",
       creditCard: "all",
       debitCard: "all",
-      mercadoPago: "all",
     },
     visual: {
       style: {

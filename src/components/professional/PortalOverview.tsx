@@ -13,30 +13,22 @@ import { Card, CardContent } from '@/components/ui/card';
 
 import { ProfileSettings } from './ProfileSettings';
 import { Badge } from '@/components/ui/badge';
+import { MercadoPagoModal } from '@/components/checkout/MercadoPagoModal';
 
 export function PortalOverview({ profile, professional }: { profile: any, professional?: any }) {
   const [activeTab, setActiveTab] = useState('overview');
-  const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [checkoutData, setCheckoutData] = useState<{type: string, amount: number, description: string, requestId?: string} | null>(null);
 
   const handleCheckout = async (type: string, amount: number, description: string, requestId?: string) => {
-    try {
-      setIsLoadingCheckout(true);
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, amount, description, requestId })
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else if (data.init_point) {
-        window.location.href = data.init_point;
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoadingCheckout(false);
-    }
+    setCheckoutData({ type, amount, description, requestId });
+    setIsCheckoutModalOpen(true);
+  };
+
+  const handleCheckoutSuccess = () => {
+    setIsCheckoutModalOpen(false);
+    // Idealmente faríamos um reload ou atualizaríamos o estado para refletir a mudança
+    window.location.reload();
   };
 
   const requests = professional?.receivedRequests || [];
@@ -258,6 +250,17 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
           )}
         </motion.div>
       </div>
+      
+      {checkoutData && (
+        <MercadoPagoModal
+          isOpen={isCheckoutModalOpen}
+          onClose={() => setIsCheckoutModalOpen(false)}
+          amount={checkoutData.amount}
+          description={checkoutData.description}
+          metadata={{ type: checkoutData.type, requestId: checkoutData.requestId }}
+          onSuccess={handleCheckoutSuccess}
+        />
+      )}
     </div>
   );
 }

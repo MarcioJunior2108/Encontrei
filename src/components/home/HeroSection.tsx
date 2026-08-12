@@ -13,9 +13,9 @@ const stats = [
 ];
 
 const floatingCards = [
-  { name: 'João S.', service: 'Eletricista', rating: 4.9, color: '#F59E0B' },
-  { name: 'Maria L.', service: 'Designer', rating: 5.0, color: '#8B5CF6' },
-  { name: 'Carlos R.', service: 'Encanador', rating: 4.8, color: '#3B82F6' },
+  { name: 'João S.', service: 'Eletricista', rating: 4.9, color: '#F59E0B', image: '/images/profiles/eletricista.png' },
+  { name: 'Maria L.', service: 'Designer', rating: 5.0, color: '#8B5CF6', image: '/images/profiles/designer.png' },
+  { name: 'Carlos R.', service: 'Encanador', rating: 4.8, color: '#3B82F6', image: '/images/profiles/encanador.png' },
 ];
 
 export function HeroSection() {
@@ -52,12 +52,20 @@ export function HeroSection() {
               delay: i * 1.2,
             }}
           >
-            <div
-              className="h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-              style={{ backgroundColor: card.color }}
-            >
-              {card.name.split(' ').map(n => n[0]).join('')}
-            </div>
+            {card.image ? (
+              <img
+                src={card.image}
+                alt={card.name}
+                className="h-8 w-8 rounded-full object-cover flex-shrink-0"
+              />
+            ) : (
+              <div
+                className="h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                style={{ backgroundColor: card.color }}
+              >
+                {card.name.split(' ').map(n => n[0]).join('')}
+              </div>
+            )}
             <div>
               <p className="text-xs font-semibold text-[hsl(var(--foreground))]">{card.name}</p>
               <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{card.service}</p>

@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------
+// USER & PROFILES
+// ---------------------------------------------
+model Profile {
+  id        String   @id @default(uuid()) @db.Uuid // Mapeado para o auth.users do Supabase
+  email     String   @unique
+  name      String?
+  avatarUrl String?  @map("avatar_url")
+  role      Role     @default(CLIENT)
+  status    Status   @default(ACTIVE)
+  phone     String?
+  city      String?
+  state     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  professional Professional?
+  sentRequests ServiceRequest[] @relation("ClientRequests")
+
+  @@map("profiles")
+}
+
+model Professional {
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @unique @map("user_id") @db.Uuid
+  profile            Profile            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headline           String?
+  bio                String?
+  verificationStatus VerificationStatus @default(UNVERIFIED) @map("verification_status")
+  availability       Availability       @default(AVAILABLE)
+  basePrice          Decimal?           @map("base_price") @db.Decimal(10, 2)
+  planType           PlanType           @default(BASIC) @map("plan_type")
+  walletBalance      Decimal            @default(0) @map("wallet_balance") @db.Decimal(10, 2)
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  receivedRequests   ServiceRequest[]   @relation("ProfessionalRequests")
+
+  @@map("professionals")
+}
+
+// ---------------------------------------------
+// TRANSACTIONS & REQUESTS
+// ---------------------------------------------
+model ServiceRequest {
+  id             String        @id @default(uuid()) @db.Uuid
+  clientId       String        @map("client_id") @db.Uuid
+  professionalId String        @map("professional_id") @db.Uuid
+  
+  client         Profile       @relation("ClientRequests", fields: [clientId], references: [id], onDelete: Cascade)
+  professional   Professional  @relation("ProfessionalRequests", fields: [professionalId], references: [id], onDelete: Cascade)
+  
+  description    String
+  proposedPrice  Decimal?      @map("proposed_price") @db.Decimal(10, 2)
+  scheduledDate  DateTime?     @map("scheduled_date")
+  
+  status         RequestStatus @default(PENDING)
+  isUnlocked     Boolean       @default(false) @map("is_unlocked")
+  
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  @@map("service_requests")
+}
+
+// ---------------------------------------------
+// ENUMS
+// ---------------------------------------------
+enum Role {
+  CLIENT
+  PROFESSIONAL
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+}
+
+enum Availability {
+  AVAILABLE
+  BUSY
+  UNAVAILABLE
+}
+
+enum PlanType {
+  BASIC
+  PRO
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}

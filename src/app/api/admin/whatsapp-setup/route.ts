@@ -37,11 +37,12 @@ export async function POST() {
       })
     });
 
-    let data = await response.json();
+    let data = await response.json().catch(() => ({}));
 
     // Se a instância já existir, a Evolution API retorna um erro ou não retorna o QR Code.
     // Vamos chamar o endpoint connect para forçar a geração do QR Code se não tivermos recebido
     if (!response.ok || !data.qrcode) {
+      const errorMsg = data.message || data.error || 'Erro desconhecido na Evolution API';
       const connectResponse = await fetch(`${baseUrl}/instance/connect/${instanceName}`, {
         method: 'GET',
         headers: {

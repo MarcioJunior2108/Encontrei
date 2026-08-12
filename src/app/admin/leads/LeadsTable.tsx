@@ -8,7 +8,7 @@ import { MessageSquare, Calendar } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/utils';
 
 export function LeadsTable({ initialRequests }: { initialRequests: any[] }) {
-  const [filter, setFilter] = useState('UNCLAIMED');
+  const [filter, setFilter] = useState('ALL');
 
   const filteredRequests = initialRequests.filter(req => {
     if (filter === 'ALL') return true;
@@ -20,13 +20,20 @@ export function LeadsTable({ initialRequests }: { initialRequests: any[] }) {
     const phone = req.professional.profile.phone;
     const clientName = req.client.name || 'Um cliente';
     const professionalName = req.professional.profile.name || 'Profissional';
-    const claimToken = req.professional.profile.claimToken;
-    const magicLink = `${window.location.origin}/claim?token=${claimToken}`;
+    const isUnclaimed = req.professional.profile.status === 'UNCLAIMED';
+    
+    let message = `*Encontrei - Novo Orçamento!*\n\nOlá ${professionalName}! Sou da plataforma Encontrei. Temos um cliente (${clientName}) precisando de um serviço seu agora mesmo!\n\n`;
 
-    const message = `*Encontrei - Novo Orçamento!*\n\nOlá ${professionalName}! Sou da plataforma Encontrei. Temos um cliente (${clientName}) precisando de um serviço seu agora mesmo!\n\nPara visualizar os detalhes do pedido e responder ao cliente, você precisa ativar o seu perfil gratuito.\n\n*Clique no link abaixo para assumir seu perfil e ver o pedido:*\n${magicLink}\n\nEstamos aguardando você! 🚀`;
+    if (isUnclaimed) {
+      const claimToken = req.professional.profile.claimToken;
+      const magicLink = `${window.location.origin}/claim?token=${claimToken}`;
+      message += `Para visualizar os detalhes do pedido e responder ao cliente, você precisa ativar o seu perfil gratuito.\n\n*Clique no link abaixo para assumir seu perfil e ver o pedido:*\n${magicLink}\n\nEstamos aguardando você! 🚀`;
+    } else {
+      const loginLink = `${window.location.origin}/login`;
+      message += `Para visualizar os detalhes do pedido e responder ao cliente, acesse agora mesmo o seu painel em nosso site.\n\n*Clique no link abaixo para fazer login e ver o pedido:*\n${loginLink}\n\nEstamos aguardando você! 🚀`;
+    }
 
     const cleanPhone = phone ? phone.replace(/\D/g, '') : '';
-    
     return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(message)}`;
   };
 
@@ -83,7 +90,7 @@ export function LeadsTable({ initialRequests }: { initialRequests: any[] }) {
                     {req.description}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    {req.professional.profile.status === 'UNCLAIMED' && req.professional.profile.phone ? (
+                    {req.professional.profile.phone ? (
                       <Button asChild size="sm" className="bg-[#25D366] hover:bg-[#128C7E] text-white">
                         <a href={generateWhatsappLink(req)} target="_blank" rel="noopener noreferrer">
                           <MessageSquare className="mr-2 h-4 w-4" />
@@ -92,7 +99,7 @@ export function LeadsTable({ initialRequests }: { initialRequests: any[] }) {
                       </Button>
                     ) : (
                       <Badge variant="outline">
-                        {req.professional.profile.phone ? 'Já Ativado' : 'Sem Telefone'}
+                        Sem Telefone
                       </Badge>
                     )}
                   </td>

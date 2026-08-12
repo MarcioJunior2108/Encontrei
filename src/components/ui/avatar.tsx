@@ -40,6 +40,7 @@ function Avatar({ src, name, size = 'md', className, verified }: AvatarProps) {
           className="object-cover"
           sizes="96px"
           priority={true}
+          unoptimized
         />
       </div>
       {verified && (

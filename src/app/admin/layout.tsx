@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentProfile } from '@/app/actions/user';
-import { LayoutDashboard, Users, ShieldAlert, FileText, LogOut, ArrowLeft, MapPin } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldAlert, FileText, LogOut, ArrowLeft, MapPin, QrCode } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/admin/ThemeToggle';
@@ -17,6 +17,7 @@ const adminLinks = [
   { href: '/admin/usuarios', label: 'Usuários', icon: Users },
   { href: '/admin/leads', label: 'Pedidos (Leads)', icon: FileText },
   { href: '/admin/importar-maps', label: 'Importar Maps', icon: MapPin },
+  { href: '/admin/whatsapp-setup', label: 'Robô do WhatsApp', icon: QrCode },
   { href: '/admin/moderacao', label: 'Moderação', icon: ShieldAlert },
   { href: '/admin/auditoria', label: 'Auditoria', icon: FileText },
 ];

@@ -37,6 +37,8 @@ export function MercadoPagoModal({ isOpen, onClose, amount, description, metadat
 
   const customization = {
     paymentMethods: {
+      ticket: "all",
+      bankTransfer: "all",
       creditCard: "all",
       debitCard: "all",
     },

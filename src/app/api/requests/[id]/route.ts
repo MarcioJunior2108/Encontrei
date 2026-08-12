@@ -37,7 +37,7 @@ export async function PATCH(
     }
 
     // Verificar autorização
-    if (profile.role === 'PROFESSIONAL' && serviceRequest.professional?.id !== profile.id) {
+    if (profile.role === 'PROFESSIONAL' && serviceRequest.professional?.userId !== profile.id) {
        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     

@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 const adminLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/usuarios', label: 'Usuários', icon: Users },
+  { href: '/admin/leads', label: 'Pedidos (Leads)', icon: FileText },
   { href: '/admin/importar-maps', label: 'Importar Maps', icon: MapPin },
   { href: '/admin/moderacao', label: 'Moderação', icon: ShieldAlert },
   { href: '/admin/auditoria', label: 'Auditoria', icon: FileText },

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next';
+import { NextResponse } from 'next/server';
 import { mpPreference } from '@/lib/mercadopago';
 import { getCurrentProfile } from '@/app/actions/user';
 

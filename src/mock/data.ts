@@ -18,7 +18,7 @@ import type {
   RealtimeEventType,
 } from '@/types';
 
-function pseudoRandom(seed) {
+function pseudoRandom(seed?: number) {
   const s = seed !== undefined ? seed : Date.now();
   const x = Math.sin(s + 1) * 10000;
   return x - Math.floor(x);
@@ -264,10 +264,10 @@ const eventTemplates: Array<{ type: RealtimeEventType; title: string; descriptio
 ];
 
 export function generateRealtimeEvent(): RealtimeEvent {
-  const template = eventTemplates[Math.floor(pseudoRandom(typeof i !== "undefined" ? i : undefined) * eventTemplates.length)];
-  const user = MOCK_USERS[Math.floor(pseudoRandom(typeof i !== "undefined" ? i : undefined) * 30)];
+  const template = eventTemplates[Math.floor(pseudoRandom() * eventTemplates.length)];
+  const user = MOCK_USERS[Math.floor(pseudoRandom() * 30)];
   return {
-    id: `evt-${Date.now()}-${pseudoRandom(typeof i !== "undefined" ? i : undefined).toString(36).slice(2)}`,
+    id: `evt-${Date.now()}-${pseudoRandom().toString(36).slice(2)}`,
     type: template.type,
     title: template.title,
     description: template.description(user.name.split(' ')[0]),

@@ -183,7 +183,7 @@ export function ProfessionalProfile({ professional: pro }: { professional: any }
                   <div className="border-t border-[hsl(var(--border))] pt-5 mt-5">
                     <h2 className="text-sm font-semibold text-[hsl(var(--foreground))] mb-3">Especialidades</h2>
                     <div className="flex flex-wrap gap-2">
-                      {pro.categories.map(cat => (
+                      {pro.categories.map((cat: any) => (
                         <span
                           key={cat.id}
                           className="text-xs px-3 py-1.5 rounded-full border border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
@@ -209,7 +209,7 @@ export function ProfessionalProfile({ professional: pro }: { professional: any }
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {pro.services.map(svc => (
+                    {pro.services.map((svc: any) => (
                       <div
                         key={svc.id}
                         className="flex items-center justify-between p-4 rounded-[var(--radius-lg)] border border-[hsl(var(--border))] hover:border-[hsl(var(--primary)/0.3)] transition-colors"

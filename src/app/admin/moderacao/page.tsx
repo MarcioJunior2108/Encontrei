@@ -33,7 +33,7 @@ export default function AdminModerationPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-semibold text-[hsl(var(--foreground))]">{report.targetUser.name}</span>
-                    <Badge variant={report.status === 'PENDING' ? 'destructive' : 'secondary'} className="text-[10px]">
+                    <Badge variant={report.status === 'PENDING' ? 'error' : 'secondary'} className="text-[10px]">
                       {report.type}
                     </Badge>
                   </div>

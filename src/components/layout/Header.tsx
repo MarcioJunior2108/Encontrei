@@ -133,7 +133,7 @@ export function Header() {
                         {profile.name?.split(' ')[0] || 'Painel'}
                       </span>
                     </Link>
-                    <form action={logout}>
+                    <form action={async (formData) => { await logout(formData); }}>
                       <Button variant="ghost" size="sm" type="submit" className="text-[hsl(var(--muted-foreground))] hover:text-red-500 hover:bg-red-500/10 transition-colors">
                         Sair
                       </Button>
@@ -190,7 +190,7 @@ export function Header() {
                   <Button variant="outline" className="flex-1" asChild>
                     <Link href="/dashboard">Meu Painel</Link>
                   </Button>
-                  <form action={logout} className="flex-1 flex">
+                  <form action={async (formData) => { await logout(formData); }} className="flex-1 flex">
                     <Button variant="destructive" className="flex-1" type="submit">
                       Sair
                     </Button>

@@ -12,6 +12,7 @@ import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 
 import { ProfileSettings } from './ProfileSettings';
+import { Badge } from '@/components/ui/badge';
 
 export function PortalOverview({ profile, professional }: { profile: any, professional?: any }) {
   const [activeTab, setActiveTab] = useState('overview');

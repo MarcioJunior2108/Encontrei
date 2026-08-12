@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 export async function POST(request: Request) {
   try {
     const profile = await getCurrentProfile();
-    if (!profile || profile.role !== 'PROFESSIONAL') {
+    if (!profile || (profile.role !== 'PROFESSIONAL' && profile.role !== 'ADMIN')) {
       return NextResponse.json({ error: 'Acesso negado' }, { status: 401 });
     }
 

@@ -18,16 +18,18 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoadingCheckout, setIsLoadingCheckout] = useState(false);
 
-  const handleCheckout = async (type: string, amount: number, description: string) => {
+  const handleCheckout = async (type: string, amount: number, description: string, requestId?: string) => {
     try {
       setIsLoadingCheckout(true);
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, amount, description })
+        body: JSON.stringify({ type, amount, description, requestId })
       });
       const data = await res.json();
-      if (data.init_point) {
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.init_point) {
         window.location.href = data.init_point;
       }
     } catch (e) {
@@ -159,7 +161,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                               {!isUnlocked ? (
                                 <Button 
                                   className="w-full bg-[hsl(var(--primary))]"
-                                  onClick={() => handleCheckout('UNLOCK_LEAD', 10, 'Desbloqueio de Contato de Cliente')}
+                                  onClick={() => handleCheckout('UNLOCK_LEAD', 10, 'Desbloqueio de Contato de Cliente', req.id)}
                                   disabled={isLoadingCheckout}
                                 >
                                   <Wallet className="h-4 w-4 mr-2" />

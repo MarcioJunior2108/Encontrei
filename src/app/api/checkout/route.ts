@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
-import { mpPreference } from '@/lib/mercadopago';
+import Stripe from 'stripe';
 import { getCurrentProfile } from '@/app/actions/user';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: '2026-07-29.dahlia',
+});
 
 export async function POST(request: Request) {
   try {
@@ -10,48 +14,47 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { amount, description, type } = body;
+    const { amount, description, type, requestId } = body;
 
-    // Se a chave não existir no .env, devolvemos um link fake para testes locais
-    if (!process.env.MP_ACCESS_TOKEN) {
+    if (!process.env.STRIPE_SECRET_KEY) {
       return NextResponse.json({
-        init_point: 'https://sandbox.mercadopago.com.br/checkout/v1/redirect?pref_id=TEST-FAKE-ID',
+        url: 'https://sandbox.stripe.com/checkout/test-fake-id',
         id: 'TEST-FAKE-ID'
       });
     }
 
-    // Criar a preferência real de pagamento
-    const result = await mpPreference.create({
-      body: {
-        items: [
-          {
-            id: type, // ex: 'ADD_FUNDS' ou 'UPGRADE_PRO'
-            title: description,
-            quantity: 1,
-            unit_price: Number(amount),
-            currency_id: 'BRL',
-          }
-        ],
-        payer: {
-          email: profile.email,
-          name: profile.name || 'Profissional',
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card', 'pix'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'brl',
+            product_data: {
+              name: description,
+              description: `Acesso ao lead no Encontrei App`,
+            },
+            unit_amount: Math.round(Number(amount) * 100), // Stripe usa centavos
+          },
+          quantity: 1,
         },
-        back_urls: {
-          success: `${process.env.NEXT_PUBLIC_APP_URL}/profissional?payment=success`,
-          failure: `${process.env.NEXT_PUBLIC_APP_URL}/profissional?payment=failure`,
-          pending: `${process.env.NEXT_PUBLIC_APP_URL}/profissional?payment=pending`
-        },
-        auto_return: 'approved',
-        external_reference: profile.id, // Para sabermos de quem é o pagamento no Webhook
-      }
+      ],
+      mode: 'payment',
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/profissional?payment=success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/profissional?payment=failure`,
+      customer_email: profile.email,
+      metadata: {
+        type: type, // 'UNLOCK_LEAD'
+        requestId: requestId || '',
+        professionalId: profile.id,
+      },
     });
 
     return NextResponse.json({
-      id: result.id,
-      init_point: result.init_point, // Link para o checkout
+      id: session.id,
+      url: session.url,
     });
   } catch (error: any) {
     console.error('Checkout Error:', error);
-    return NextResponse.json({ error: 'Erro ao gerar pagamento' }, { status: 500 });
+    return NextResponse.json({ error: 'Erro ao gerar pagamento com Stripe' }, { status: 500 });
   }
 }

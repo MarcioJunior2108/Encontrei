@@ -8,7 +8,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, CheckCircle, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ClaimPage() {
+import { Suspense } from 'react';
+
+function ClaimContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get('token');
@@ -160,5 +162,13 @@ export default function ClaimPage() {
         </CardFooter>
       </Card>
     </div>
+  );
+}
+
+export default function ClaimPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center bg-gray-50"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <ClaimContent />
+    </Suspense>
   );
 }

@@ -154,7 +154,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                                 <Button 
                                   className="w-full bg-[hsl(var(--primary))]"
                                   onClick={() => handleCheckout('UNLOCK_LEAD', 10, 'Desbloqueio de Contato de Cliente', req.id)}
-                                  disabled={isLoadingCheckout}
+                                  disabled={isCheckoutModalOpen}
                                 >
                                   <Wallet className="h-4 w-4 mr-2" />
                                   Desbloquear (R$ 10)
@@ -207,7 +207,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                       <Button 
                         className="w-full"
                         onClick={() => handleCheckout('UPGRADE_PRO', 97, 'Assinatura Plano PRO Mensal')}
-                        disabled={isLoadingCheckout}
+                        disabled={isCheckoutModalOpen}
                       >
                         <Star className="h-4 w-4 mr-2" />
                         Fazer Upgrade para PRO (R$ 97/mês)
@@ -236,7 +236,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                   <Button 
                     className="w-full mb-2 bg-[hsl(var(--success))] hover:bg-[hsl(var(--success-muted))] hover:text-[hsl(var(--success))] text-white"
                     onClick={() => handleCheckout('ADD_FUNDS', 50, 'Adicionar R$50 na Carteira Encontrei')}
-                    disabled={isLoadingCheckout}
+                    disabled={isCheckoutModalOpen}
                   >
                     <Wallet className="h-4 w-4 mr-2" />
                     Adicionar Créditos (R$ 50)

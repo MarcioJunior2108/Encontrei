@@ -19,6 +19,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
   const [activeTab, setActiveTab] = useState('overview');
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [checkoutData, setCheckoutData] = useState<{type: string, amount: number, description: string, requestId?: string} | null>(null);
+  const [isRejecting, setIsRejecting] = useState<string | null>(null);
 
   const handleCheckout = async (type: string, amount: number, description: string, requestId?: string) => {
     setCheckoutData({ type, amount, description, requestId });
@@ -29,6 +30,27 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
     setIsCheckoutModalOpen(false);
     // Idealmente faríamos um reload ou atualizaríamos o estado para refletir a mudança
     window.location.reload();
+  };
+
+  const handleReject = async (requestId: string) => {
+    try {
+      setIsRejecting(requestId);
+      const res = await fetch(`/api/requests/${requestId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'REJECTED' }),
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('Erro ao recusar pedido.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao recusar pedido.');
+    } finally {
+      setIsRejecting(null);
+    }
   };
 
   const requests = professional?.receivedRequests || [];
@@ -131,9 +153,9 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                         <div>
                           <div className="flex items-center gap-2 mb-2">
                             <h3 className="font-bold text-lg">{clientName}</h3>
-                            <Badge variant={req.status === 'PENDING' ? 'warning' : req.status === 'ACCEPTED' ? 'success' : 'secondary'}>
-                              {req.status === 'PENDING' ? 'Novo' : req.status === 'ACCEPTED' ? 'Aceito' : 'Fechado'}
-                            </Badge>
+                            {req.status === 'PENDING' && <Badge variant="secondary" className="bg-orange-100 text-orange-700 hover:bg-orange-100">Novo</Badge>}
+                            {req.status === 'REJECTED' && <Badge variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-100">Recusado</Badge>}
+                            {req.status === 'ACCEPTED' && <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">Aceito</Badge>}
                           </div>
                           <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4 whitespace-pre-wrap">{req.description}</p>
                           
@@ -154,7 +176,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                                 <Button 
                                   className="w-full bg-[hsl(var(--primary))]"
                                   onClick={() => handleCheckout('UNLOCK_LEAD', 10, 'Desbloqueio de Contato de Cliente', req.id)}
-                                  disabled={isCheckoutModalOpen}
+                                  disabled={isCheckoutModalOpen || isRejecting === req.id}
                                 >
                                   <Wallet className="h-4 w-4 mr-2" />
                                   Desbloquear (R$ 10)
@@ -164,14 +186,24 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                                   Aceitar Pedido
                                 </Button>
                               )}
-                              <Button variant="outline" className="w-full text-red-500 hover:bg-red-500/10 hover:text-red-500 border-red-200">
-                                Recusar
+                              <Button 
+                                variant="outline" 
+                                className="w-full text-red-500 hover:bg-red-500/10 hover:text-red-500 border-red-200"
+                                onClick={() => handleReject(req.id)}
+                                disabled={isRejecting === req.id}
+                              >
+                                {isRejecting === req.id ? 'Recusando...' : 'Recusar'}
                               </Button>
                             </>
                           )}
                           {req.status === 'ACCEPTED' && isUnlocked && (
                             <Button variant="outline" className="w-full">
                               Ver WhatsApp
+                            </Button>
+                          )}
+                          {req.status === 'REJECTED' && (
+                            <Button variant="outline" className="w-full opacity-50 cursor-not-allowed" disabled>
+                              Solicitação Recusada
                             </Button>
                           )}
                         </div>

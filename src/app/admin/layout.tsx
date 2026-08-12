@@ -5,6 +5,7 @@ import { getCurrentProfile } from '@/app/actions/user';
 import { LayoutDashboard, Users, ShieldAlert, FileText, LogOut, ArrowLeft, MapPin } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/admin/ThemeToggle';
 
 export const metadata: Metadata = {
   title: 'Painel Admin | Encontrei',
@@ -65,6 +66,7 @@ export default async function AdminLayout({
               <p className="text-sm font-medium truncate">{profile.name}</p>
               <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">Deus (Admin)</p>
             </div>
+            <ThemeToggle />
           </div>
           
           <Button variant="outline" className="w-full justify-start text-red-500 hover:text-red-500 hover:bg-red-500/10" asChild>
@@ -80,6 +82,7 @@ export default async function AdminLayout({
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="h-16 border-b border-[hsl(var(--border))] bg-[hsl(var(--card))] flex items-center justify-between px-6 md:hidden">
            <span className="font-bold">Admin Mobile</span>
+           <ThemeToggle />
         </header>
         
         <div className="flex-1 overflow-y-auto p-6 lg:p-8">

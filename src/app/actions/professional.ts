@@ -15,6 +15,15 @@ export async function updateProfessionalProfile(formData: FormData) {
   const city = formData.get('city') as string;
   const state = formData.get('state') as string;
   const basePrice = formData.get('basePrice') ? Number(formData.get('basePrice')) : null;
+  const avatarFile = formData.get('avatar') as File | null;
+  
+  let avatarUrl: string | undefined = undefined;
+  if (avatarFile && avatarFile.size > 0) {
+    const arrayBuffer = await avatarFile.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64 = buffer.toString('base64');
+    avatarUrl = `data:${avatarFile.type};base64,${base64}`;
+  }
   
   try {
     await prisma.professional.update({
@@ -26,7 +35,8 @@ export async function updateProfessionalProfile(formData: FormData) {
         profile: {
           update: {
             city,
-            state
+            state,
+            ...(avatarUrl && { avatarUrl })
           }
         }
       }

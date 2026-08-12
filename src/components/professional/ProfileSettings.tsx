@@ -13,6 +13,7 @@ interface ProfileSettingsProps {
 export function ProfileSettings({ profile }: ProfileSettingsProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(profile?.avatarUrl || null);
   
   const professional = profile?.professional;
 
@@ -39,6 +40,32 @@ export function ProfileSettings({ profile }: ProfileSettingsProps) {
         </CardHeader>
         <CardContent>
           <form action={handleSubmit} className="space-y-6">
+            <div className="space-y-2 flex flex-col items-center">
+              <div className="relative w-24 h-24 rounded-full overflow-hidden bg-[hsl(var(--muted))] border-2 border-[hsl(var(--border))]">
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <UserCircle className="w-full h-full text-[hsl(var(--muted-foreground))]" />
+                )}
+              </div>
+              <label htmlFor="avatar" className="cursor-pointer text-sm text-[hsl(var(--primary))] hover:underline">
+                Alterar foto
+              </label>
+              <input 
+                id="avatar" 
+                name="avatar" 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setPreviewUrl(URL.createObjectURL(file));
+                  }
+                }}
+              />
+            </div>
+
             <div className="space-y-2">
               <label htmlFor="headline" className="text-sm font-medium flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />

@@ -63,14 +63,24 @@ export function Header() {
               className="flex items-center gap-2 font-semibold text-[hsl(var(--foreground))] hover:opacity-80 transition-opacity"
               aria-label="Encontrei — Página inicial"
             >
-              <Image 
-                src="/logo.png" 
-                alt="Encontrei Logo" 
-                width={160} 
-                height={60} 
-                className="h-12 w-auto object-contain scale-[1.3] origin-left ml-2"
-                priority
-              />
+              <>
+                <Image 
+                  src="/logo.png" 
+                  alt="Encontrei Logo" 
+                  width={160} 
+                  height={60} 
+                  className="h-12 w-auto object-contain scale-[1.3] origin-left ml-2 dark:hidden"
+                  priority
+                />
+                <Image 
+                  src="/logo-dark.png" 
+                  alt="Encontrei Logo" 
+                  width={160} 
+                  height={60} 
+                  className="h-12 w-auto object-contain scale-[1.3] origin-left ml-2 hidden dark:block"
+                  priority
+                />
+              </>
             </Link>
 
             {/* Desktop nav */}

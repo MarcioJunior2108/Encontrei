@@ -71,14 +71,24 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         {/* Logo */}
         <div className="flex items-center h-16 px-4 border-b border-[hsl(var(--sidebar-border))] flex-shrink-0">
           <Link href="/admin" className="flex items-center gap-2.5 min-w-0">
-            <Image 
-              src="/logo.png" 
-              alt="Encontrei Logo" 
-              width={160} 
-              height={60} 
-              className="h-12 w-auto flex-shrink-0 object-contain scale-[1.3] origin-left ml-2"
-              priority
-            />
+            <>
+              <Image 
+                src="/logo.png" 
+                alt="Encontrei Logo" 
+                width={160} 
+                height={60} 
+                className="h-12 w-auto flex-shrink-0 object-contain scale-[1.3] origin-left ml-2 dark:hidden"
+                priority
+              />
+              <Image 
+                src="/logo-dark.png" 
+                alt="Encontrei Logo" 
+                width={160} 
+                height={60} 
+                className="h-12 w-auto flex-shrink-0 object-contain scale-[1.3] origin-left ml-2 hidden dark:block"
+                priority
+              />
+            </>
             <AnimatePresence>
               {!collapsed && (
                 <motion.div

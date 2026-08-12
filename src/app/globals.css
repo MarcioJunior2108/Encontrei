@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 /* ============================================================
    ENCONTREI — Design System
    Tokens, tipografia, base styles

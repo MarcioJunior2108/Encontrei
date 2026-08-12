@@ -32,14 +32,24 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 justify-center mb-8">
-          <Image 
-            src="/logo.png" 
-            alt="Encontrei Logo" 
-            width={200} 
-            height={80} 
-            className="h-16 w-auto object-contain scale-[1.3]"
-            priority
-          />
+          <>
+            <Image 
+              src="/logo.png" 
+              alt="Encontrei Logo" 
+              width={200} 
+              height={80} 
+              className="h-16 w-auto object-contain scale-[1.3] dark:hidden"
+              priority
+            />
+            <Image 
+              src="/logo-dark.png" 
+              alt="Encontrei Logo" 
+              width={200} 
+              height={80} 
+              className="h-16 w-auto object-contain scale-[1.3] hidden dark:block"
+              priority
+            />
+          </>
         </Link>
 
         {/* Card */}

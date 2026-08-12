@@ -1,33 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Loader2, QrCode, CheckCircle2 } from 'lucide-react';
+import { Loader2, QrCode, CheckCircle2, LogOut } from 'lucide-react';
 import Image from 'next/image';
 
 export default function WhatsAppSetupPage() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
-  const [status, setStatus] = useState<'idle' | 'connecting' | 'connected'>('idle');
+  const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const res = await fetch('/api/admin/whatsapp-setup');
+        const data = await res.json();
+        if (data.state === 'open') {
+          setStatus('connected');
+        } else {
+          setStatus('idle');
+        }
+      } catch (err) {
+        setStatus('idle');
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkStatus();
+  }, []);
+
   const createInstance = async () => {
-    setLoading(true);
+    setActionLoading(true);
     setError(null);
     setQrCode(null);
 
     try {
-      const response = await fetch('/api/admin/whatsapp-setup', {
-        method: 'POST',
-      });
-
+      const response = await fetch('/api/admin/whatsapp-setup', { method: 'POST' });
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao conectar com a Evolution API');
-      }
+      if (!response.ok) throw new Error(data.error || 'Erro ao conectar com a Evolution API');
 
       if (data.qrcode && data.qrcode.base64) {
         setQrCode(data.qrcode.base64);
@@ -39,10 +53,28 @@ export default function WhatsAppSetupPage() {
       }
     } catch (err: any) {
       setError(err.message);
+      setStatus('error');
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   };
+
+  const disconnectInstance = async () => {
+    setActionLoading(true);
+    try {
+      const res = await fetch('/api/admin/whatsapp-setup', { method: 'DELETE' });
+      if (!res.ok) throw new Error('Falha ao desconectar');
+      setStatus('idle');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="flex justify-center p-12"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+  }
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -50,10 +82,10 @@ export default function WhatsAppSetupPage() {
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
             <QrCode className="w-6 h-6" />
-            Conectar WhatsApp
+            Robô do WhatsApp
           </CardTitle>
           <CardDescription>
-            Use esta página para ler o QR Code e conectar o WhatsApp do robô à Evolution API.
+            Use esta página para gerenciar a conexão do robô disparador automático de orçamentos.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -63,14 +95,14 @@ export default function WhatsAppSetupPage() {
             </div>
           )}
 
-          {status === 'idle' && (
+          {(status === 'idle' || status === 'error') && (
             <div className="text-center py-6">
               <p className="text-muted-foreground mb-6">
-                Clique no botão abaixo para gerar o QR Code. Certifique-se de que configurou o arquivo .env com a URL e a KEY da API.
+                Status: <span className="font-bold text-red-500">Desconectado</span>. O robô não está enviando mensagens.
               </p>
-              <Button onClick={createInstance} disabled={loading} size="lg" className="w-full sm:w-auto">
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Gerar QR Code
+              <Button onClick={createInstance} disabled={actionLoading} size="lg" className="w-full sm:w-auto">
+                {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Conectar Aparelho (Gerar QR Code)
               </Button>
             </div>
           )}
@@ -80,33 +112,40 @@ export default function WhatsAppSetupPage() {
               <div className="text-center">
                 <h3 className="text-lg font-semibold mb-2">Leia o QR Code</h3>
                 <p className="text-sm text-muted-foreground">
-                  Abra o WhatsApp no celular que fará os disparos automáticos, vá em "Aparelhos Conectados" e aponte a câmera para o código abaixo.
+                  Abra o WhatsApp no celular do robô, vá em "Aparelhos Conectados" e escaneie.
                 </p>
               </div>
               
               <div className="bg-white p-4 rounded-xl border-4 border-dashed border-gray-200">
-                <Image 
-                  src={qrCode} 
-                  alt="WhatsApp QR Code" 
-                  width={256} 
-                  height={256} 
-                  className="rounded-lg"
-                />
+                <Image src={qrCode} alt="WhatsApp QR Code" width={256} height={256} className="rounded-lg" />
               </div>
               
               <Button onClick={() => window.location.reload()} variant="outline">
-                Já li o código (Atualizar página)
+                Já li o código (Atualizar status)
               </Button>
             </div>
           )}
 
           {status === 'connected' && (
-            <div className="flex flex-col items-center justify-center py-10 space-y-4 text-green-600">
-              <CheckCircle2 className="w-16 h-16" />
-              <h3 className="text-xl font-bold text-black">WhatsApp Conectado!</h3>
-              <p className="text-muted-foreground text-center">
-                A Evolution API já está com a sessão aberta. O sistema de disparos automáticos já está 100% operacional.
-              </p>
+            <div className="flex flex-col items-center justify-center py-10 space-y-6">
+              <div className="flex flex-col items-center space-y-3">
+                <CheckCircle2 className="w-16 h-16 text-green-600" />
+                <h3 className="text-xl font-bold text-black">WhatsApp Conectado e Operante!</h3>
+                <p className="text-muted-foreground text-center">
+                  A Evolution API já está com a sessão aberta. O sistema de disparos automáticos está online e enviando notificações.
+                </p>
+              </div>
+
+              <Button 
+                onClick={disconnectInstance} 
+                disabled={actionLoading} 
+                variant="destructive"
+                className="mt-4"
+              >
+                {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                <LogOut className="mr-2 h-4 w-4" />
+                Desconectar Sessão
+              </Button>
             </div>
           )}
         </CardContent>

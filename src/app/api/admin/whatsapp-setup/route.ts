@@ -76,3 +76,58 @@ export async function POST() {
     );
   }
 }
+
+export async function GET() {
+  try {
+    const profile = await getCurrentProfile();
+    if (!profile || profile.role !== 'ADMIN') return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+
+    const apiUrl = process.env.EVOLUTION_API_URL;
+    const apiKey = process.env.EVOLUTION_API_KEY;
+    const instanceName = process.env.EVOLUTION_INSTANCE_NAME;
+
+    if (!apiUrl || !apiKey || !instanceName) return NextResponse.json({ error: 'Faltam vars de ambiente' }, { status: 400 });
+
+    const baseUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
+
+    const response = await fetch(`${baseUrl}/instance/connectionState/${instanceName}`, {
+      headers: { 'apikey': apiKey }
+    });
+    
+    if (!response.ok) return NextResponse.json({ state: 'disconnected' });
+    
+    const data = await response.json();
+    return NextResponse.json({ state: data?.instance?.state || 'disconnected' });
+  } catch (error) {
+    return NextResponse.json({ state: 'error' }, { status: 500 });
+  }
+}
+
+export async function DELETE() {
+  try {
+    const profile = await getCurrentProfile();
+    if (!profile || profile.role !== 'ADMIN') return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+
+    const apiUrl = process.env.EVOLUTION_API_URL;
+    const apiKey = process.env.EVOLUTION_API_KEY;
+    const instanceName = process.env.EVOLUTION_INSTANCE_NAME;
+
+    if (!apiUrl || !apiKey || !instanceName) return NextResponse.json({ error: 'Faltam vars de ambiente' }, { status: 400 });
+
+    const baseUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
+
+    const response = await fetch(`${baseUrl}/instance/logout/${instanceName}`, {
+      method: 'DELETE',
+      headers: { 'apikey': apiKey }
+    });
+
+    if (!response.ok) {
+       const err = await response.json().catch(()=>({}));
+       return NextResponse.json({ error: err.message || 'Erro ao desconectar' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+  }
+}

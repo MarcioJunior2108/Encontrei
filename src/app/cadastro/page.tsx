@@ -8,6 +8,15 @@ import { Button } from '@/components/ui/button';
 import { signup } from '@/app/actions/auth';
 import { AlertCircle } from 'lucide-react';
 import { Slottable } from '@radix-ui/react-slot';
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+function NextUrlInput() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get('next');
+  if (!next) return null;
+  return <input type="hidden" name="next" value={next} />;
+}
 
 export default function CadastroPage() {
   const [error, setError] = useState('');
@@ -64,6 +73,10 @@ export default function CadastroPage() {
                 {error}
               </div>
             )}
+            
+            <Suspense fallback={null}>
+              <NextUrlInput />
+            </Suspense>
             
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-[hsl(var(--foreground))] mb-1.5">

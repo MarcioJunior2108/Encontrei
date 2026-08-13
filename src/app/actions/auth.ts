@@ -77,9 +77,17 @@ export async function signup(formData: FormData) {
     }
   }
 
-  // Depois de criar, redireciona para o onboarding se tudo deu certo
+  // Lê o parâmetro next (se houver, ex: veio do /claim)
+  const nextUrl = formData.get('next') as string;
+
+  // Depois de criar, redireciona para o fluxo correto
   revalidatePath('/', 'layout');
-  redirect('/onboarding');
+  
+  if (nextUrl) {
+    redirect(nextUrl);
+  } else {
+    redirect('/onboarding');
+  }
 }
 
 export async function logout() {

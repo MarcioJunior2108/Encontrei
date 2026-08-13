@@ -22,6 +22,27 @@ export default async function AdminDashboardPage() {
 
   const totalClients = totalProfiles - totalProfessionals;
 
+  // Calcula crescimento real (últimos 7 dias)
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
+
+  const recentProfilesForChart = await prisma.profile.findMany({
+    where: { createdAt: { gte: sevenDaysAgo } },
+    select: { createdAt: true }
+  });
+
+  const dailyCounts = new Array(7).fill(0);
+  recentProfilesForChart.forEach(p => {
+    const dayDiff = Math.floor((p.createdAt.getTime() - sevenDaysAgo.getTime()) / (1000 * 60 * 60 * 24));
+    if (dayDiff >= 0 && dayDiff < 7) {
+      dailyCounts[dayDiff]++;
+    }
+  });
+
+  const maxCount = Math.max(...dailyCounts, 1);
+  const chartHeights = dailyCounts.map(count => Math.max((count / maxCount) * 100, 5));
+
   return (
     <div className="space-y-8">
       <div>
@@ -85,12 +106,17 @@ export default async function AdminDashboardPage() {
         {/* Gráfico Falso para preencher a tela como Dashboard Premium */}
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Crescimento da Plataforma (Mock)</CardTitle>
+            <CardTitle>Crescimento da Plataforma (Últimos 7 dias)</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
             <div className="h-[300px] w-full flex items-end justify-between px-6 pb-6 pt-4 gap-2">
-              {[30, 45, 25, 60, 75, 45, 90].map((height, i) => (
-                <div key={i} className="w-full bg-[hsl(var(--primary-muted))] rounded-t-sm relative group cursor-pointer" style={{ height: `${height}%` }}>
+              {chartHeights.map((height, i) => (
+                <div 
+                  key={i} 
+                  className="w-full bg-[hsl(var(--primary-muted))] rounded-t-sm relative group cursor-pointer flex flex-col justify-end" 
+                  style={{ height: `${height}%` }}
+                  title={`${dailyCounts[i]} novo(s) usuário(s)`}
+                >
                   <div className="absolute inset-0 bg-[hsl(var(--primary))] opacity-0 group-hover:opacity-100 transition-opacity rounded-t-sm" />
                 </div>
               ))}

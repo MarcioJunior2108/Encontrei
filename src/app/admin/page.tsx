@@ -9,13 +9,15 @@ export default async function AdminDashboardPage() {
     totalProfessionals,
     totalRequests,
     recentUsers,
-    pendingRequests
+    pendingRequests,
+    paidRequests
   ] = await Promise.all([
     prisma.profile.count(),
     prisma.professional.count(),
     prisma.serviceRequest.count(),
     prisma.profile.findMany({ orderBy: { createdAt: 'desc' }, take: 5 }),
-    prisma.serviceRequest.count({ where: { status: 'PENDING' } })
+    prisma.serviceRequest.count({ where: { status: 'PENDING' } }),
+    prisma.serviceRequest.count({ where: { isUnlocked: true } })
   ]);
 
   const totalClients = totalProfiles - totalProfessionals;
@@ -71,7 +73,7 @@ export default async function AdminDashboardPage() {
             <TrendingUp className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalRequests * 10)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(paidRequests * 10)}</div>
             <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
               Cálculo baseado na taxa de lead (R$10)
             </p>

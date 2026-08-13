@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Providers } from '@/providers';
+import { SplashScreen } from '@/components/SplashScreen';
 import './globals.css';
 
 const geistSans = Geist({
@@ -76,6 +77,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="font-sans antialiased">
+        <SplashScreen />
         <Providers>{children}</Providers>
         <script
           dangerouslySetInnerHTML={{

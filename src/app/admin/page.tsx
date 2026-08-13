@@ -113,11 +113,13 @@ export default async function AdminDashboardPage() {
               {chartHeights.map((height, i) => (
                 <div 
                   key={i} 
-                  className="w-full bg-[hsl(var(--primary-muted))] rounded-t-sm relative group cursor-pointer flex flex-col justify-end" 
+                  className="w-full bg-[hsl(var(--primary)/0.7)] hover:bg-[hsl(var(--primary))] transition-colors rounded-t-md relative flex flex-col items-center justify-start pt-2 cursor-pointer" 
                   style={{ height: `${height}%` }}
                   title={`${dailyCounts[i]} novo(s) usuário(s)`}
                 >
-                  <div className="absolute inset-0 bg-[hsl(var(--primary))] opacity-0 group-hover:opacity-100 transition-opacity rounded-t-sm" />
+                  <span className={`text-xs font-bold ${height > 15 ? 'text-white' : 'absolute -top-6 text-[hsl(var(--foreground))]'}`}>
+                    {dailyCounts[i]}
+                  </span>
                 </div>
               ))}
             </div>

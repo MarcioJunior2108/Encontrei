@@ -269,7 +269,7 @@ export function ProfessionalProfile({ professional: pro }: { professional: any }
                                   />
                                 ))}
                               </div>
-                              <span className="text-[10px] text-[hsl(var(--muted-foreground))]">
+                              <span className="text-[10px] text-[hsl(var(--muted-foreground))]" suppressHydrationWarning>
                                 {formatRelativeTime(review.createdAt)}
                               </span>
                             </div>

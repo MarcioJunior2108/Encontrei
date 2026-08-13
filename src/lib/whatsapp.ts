@@ -45,9 +45,7 @@ export async function sendAutomatedWhatsAppMessage(phone: string, message: strin
           presence: 'composing',
           linkPreview: false
         },
-        textMessage: {
-          text: message
-        }
+        text: message
       })
     });
 

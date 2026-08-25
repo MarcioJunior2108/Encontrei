@@ -12,6 +12,7 @@ import {
   Settings, User, MapPin, Calendar, FileText, ChevronRight, MessageSquare, Lock, AlertCircle, Phone, LockKeyhole
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/utils';
 import { updateRequestStatus } from '@/app/actions/requests';
 
 import { ProfileSettings } from './ProfileSettings';

@@ -106,8 +106,11 @@ export async function loginWithGoogle(formData?: FormData): Promise<void> {
   const supabase = await createClient();
   
   const nextUrl = formData?.get('next') as string;
+  const role = (formData?.get('role') as string) || 'CLIENT';
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const callbackUrl = `${baseUrl}/auth/callback${nextUrl ? `?next=${encodeURIComponent(nextUrl)}` : ''}`;
+  
+  // Encode role in the callback URL so we can apply it after OAuth
+  const callbackUrl = `${baseUrl}/auth/callback?role=${encodeURIComponent(role)}${nextUrl ? `&next=${encodeURIComponent(nextUrl)}` : ''}`;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',

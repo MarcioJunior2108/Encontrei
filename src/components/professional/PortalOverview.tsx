@@ -8,7 +8,7 @@ import { MetricsView } from './MetricsView';
 import { AgendaView } from './AgendaView';
 import { Button } from '@/components/ui/button';
 import { 
-  Wallet, TrendingUp, Star, Clock, CheckCircle2, 
+  Bell, Wallet, TrendingUp, Star, Clock, CheckCircle2, 
   Settings, User, MapPin, Calendar, FileText, ChevronRight, MessageSquare, Lock, AlertCircle, Phone, LockKeyhole
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';

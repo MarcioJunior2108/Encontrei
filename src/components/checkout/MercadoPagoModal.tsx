@@ -17,7 +17,7 @@ interface MercadoPagoModalProps {
   amount: number;
   description: string;
   metadata: any;
-  onSuccess?: () => void;
+  onSuccess?: (paymentId: string) => void;
 }
 
 export function MercadoPagoModal({ isOpen, onClose, amount, description, metadata, onSuccess }: MercadoPagoModalProps) {
@@ -118,7 +118,7 @@ export function MercadoPagoModal({ isOpen, onClose, amount, description, metadat
             <button
               onClick={() => {
                 if (paymentId && onSuccess) {
-                  onSuccess();
+                  onSuccess(paymentId);
                 } else {
                   onClose();
                 }

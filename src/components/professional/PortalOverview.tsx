@@ -14,6 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { updateRequestStatus } from '@/app/actions/requests';
+import { verifyPaymentStatus } from '@/app/actions/payments';
 
 import { ProfileSettings } from './ProfileSettings';
 import { Badge } from '@/components/ui/badge';
@@ -30,9 +31,19 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
     setIsCheckoutModalOpen(true);
   };
 
-  const handleCheckoutSuccess = () => {
+  const handleCheckoutSuccess = async (paymentId: string) => {
+    // Para funcionar no localhost onde o Webhook do Mercado Pago não chega,
+    // nós fazemos uma verificação manual do status da transação.
+    if (paymentId) {
+      const result = await verifyPaymentStatus(paymentId);
+      if (result.success && result.status === 'approved') {
+        alert('Pagamento aprovado com sucesso!');
+      } else if (result.success && result.status === 'pending') {
+        alert('Pagamento ainda está pendente. Assim que for compensado, o lead será liberado automaticamente.');
+      }
+    }
+    
     setIsCheckoutModalOpen(false);
-    // Idealmente faríamos um reload ou atualizaríamos o estado para refletir a mudança
     window.location.reload();
   };
 

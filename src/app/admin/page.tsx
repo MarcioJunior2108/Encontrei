@@ -56,37 +56,37 @@ export default async function AdminDashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Orçamentos (Total)</CardTitle>
+            <CardTitle className="text-sm font-medium">Orçamentos Gerados</CardTitle>
             <FileText className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalRequests}</div>
             <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
-              Pedidos de serviço transacionados
+              Total de pedidos criados por clientes
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Orçamentos Pendentes</CardTitle>
+            <CardTitle className="text-sm font-medium">Leads Desbloqueados</CardTitle>
             <AlertTriangle className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingRequests}</div>
+            <div className="text-2xl font-bold">{paidRequests}</div>
             <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
-              Aguardando resposta do profissional
+              Contatos comprados pelos profissionais
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Receita Estimada</CardTitle>
+            <CardTitle className="text-sm font-medium">Receita Realizada</CardTitle>
             <TrendingUp className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(paidRequests * 10)}</div>
             <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
-              Cálculo baseado na taxa de lead (R$10)
+              Receita gerada por desbloqueios (R$ 10)
             </p>
           </CardContent>
         </Card>

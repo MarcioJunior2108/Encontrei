@@ -1,3 +1,4 @@
+import type { NextConfig } from 'next';
 import withPWAInit from "@ducanh2912/next-pwa";
 
 const withPWA = withPWAInit({
@@ -5,8 +6,7 @@ const withPWA = withPWAInit({
   disable: process.env.NODE_ENV === "development",
 });
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   turbopack: {},
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion'],
@@ -14,9 +14,11 @@ const nextConfig = {
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [
-      { protocol: 'https', hostname: 'api.dicebear.com' },
-      { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https' as const, hostname: 'api.dicebear.com' },
+      { protocol: 'https' as const, hostname: 'images.unsplash.com' },
+      { protocol: 'https' as const, hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https' as const, hostname: '*.supabase.co' },
+      { protocol: 'https' as const, hostname: 'lh3.googleusercontent.com' },
     ],
   },
 };

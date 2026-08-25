@@ -102,7 +102,7 @@ export async function logout() {
   redirect('/login');
 }
 
-export async function loginWithGoogle(formData?: FormData) {
+export async function loginWithGoogle(formData?: FormData): Promise<void> {
   const supabase = await createClient();
   
   const nextUrl = formData?.get('next') as string;
@@ -116,11 +116,9 @@ export async function loginWithGoogle(formData?: FormData) {
     },
   });
 
-  if (error) {
-    return { error: error.message };
+  if (error || !data?.url) {
+    redirect(`/login?error=${encodeURIComponent(error?.message ?? 'google-auth-failed')}`);
   }
 
-  if (data?.url) {
-    redirect(data.url);
-  }
+  redirect(data.url);
 }

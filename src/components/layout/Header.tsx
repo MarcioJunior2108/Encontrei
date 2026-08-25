@@ -10,8 +10,7 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/avatar';
-import { getCurrentProfile } from '@/app/actions/user';
-import { logout } from '@/app/actions/auth';
+import { createClient } from '@/lib/supabase/client';
 
 const navLinks = [
   { href: '/buscar', label: 'Explorar' },
@@ -26,10 +25,46 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  useEffect(() => { 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = '/';
+  };
+
+  useEffect(() => {
     setMounted(true);
-    getCurrentProfile().then(p => setProfile(p));
+    const supabase = createClient();
+
+    // Get initial session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('id, name, avatar_url, role')
+          .eq('id', session.user.id)
+          .single();
+        setProfile(data);
+      }
+    });
+
+    // Listen for auth state changes (login/logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('id, name, avatar_url, role')
+          .eq('id', session.user.id)
+          .single();
+        setProfile(data);
+      } else {
+        setProfile(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -67,17 +102,19 @@ export function Header() {
                 <Image 
                   src="/logo.png" 
                   alt="Encontrei Logo" 
-                  width={160} 
-                  height={60} 
-                  className="h-12 w-auto object-contain scale-[1.3] origin-left ml-2 dark:hidden"
+                  width={140} 
+                  height={40} 
+                  style={{ width: 'auto', height: '40px' }}
+                  className="object-contain ml-2 dark:hidden"
                   priority
                 />
                 <Image 
                   src="/logo-dark.png" 
                   alt="Encontrei Logo" 
-                  width={160} 
-                  height={60} 
-                  className="h-12 w-auto object-contain scale-[1.3] origin-left ml-2 hidden dark:block"
+                  width={140} 
+                  height={40} 
+                  style={{ width: 'auto', height: '40px' }}
+                  className="object-contain ml-2 hidden dark:block"
                   priority
                 />
               </>
@@ -135,7 +172,7 @@ export function Header() {
                   <div className="flex items-center gap-3">
                     <Link href={profile.role === 'PROFESSIONAL' ? '/profissional' : '/dashboard'} className="flex items-center gap-2 hover:bg-[hsl(var(--muted))] p-1 pr-3 rounded-full transition-colors">
                       <Avatar 
-                        src={profile.avatarUrl} 
+                        src={profile.avatar_url} 
                         name={profile.name || 'Usuário'} 
                         size="sm" 
                       />
@@ -143,11 +180,15 @@ export function Header() {
                         {profile.name?.split(' ')[0] || 'Painel'}
                       </span>
                     </Link>
-                    <form action={async () => { await logout(); }}>
-                      <Button variant="ghost" size="sm" type="submit" className="text-[hsl(var(--muted-foreground))] hover:text-red-500 hover:bg-red-500/10 transition-colors">
-                        Sair
-                      </Button>
-                    </form>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleLogout}
+                      disabled={loggingOut}
+                      className="text-[hsl(var(--muted-foreground))] hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                    >
+                      {loggingOut ? 'Saindo...' : 'Sair'}
+                    </Button>
                   </div>
                 ) : (
                   <>
@@ -200,11 +241,14 @@ export function Header() {
                   <Button variant="outline" className="flex-1" asChild>
                     <Link href="/dashboard">Meu Painel</Link>
                   </Button>
-                  <form action={async () => { await logout(); }} className="flex-1 flex">
-                    <Button variant="destructive" className="flex-1" type="submit">
-                      Sair
-                    </Button>
-                  </form>
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={handleLogout}
+                    disabled={loggingOut}
+                  >
+                    {loggingOut ? 'Saindo...' : 'Sair'}
+                  </Button>
                 </>
               ) : (
                 <>

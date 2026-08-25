@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Shield, Ban, Search } from 'lucide-react';
+import { Shield, Ban, Search, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { bulkBanUsers, bulkDeleteUsers } from '@/app/actions/admin';
 
 interface User {
   id: string;
@@ -20,6 +21,8 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [phoneTerm, setPhoneTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const filteredUsers = initialUsers.filter((u) => {
     // Busca por Nome ou Email
@@ -36,6 +39,36 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
 
     return searchMatch && phoneMatch && statusMatch;
   });
+
+  const toggleAll = () => {
+    if (selectedUserIds.length === filteredUsers.length) {
+      setSelectedUserIds([]);
+    } else {
+      setSelectedUserIds(filteredUsers.map(u => u.id));
+    }
+  };
+
+  const toggleUser = (id: string) => {
+    setSelectedUserIds(prev => 
+      prev.includes(id) ? prev.filter(uid => uid !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkBan = async () => {
+    if (!confirm(`Tem certeza que deseja bloquear ${selectedUserIds.length} usuários?`)) return;
+    setIsProcessing(true);
+    await bulkBanUsers(selectedUserIds);
+    setSelectedUserIds([]);
+    setIsProcessing(false);
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`ATENÇÃO: Deseja EXCLUIR DEFINITIVAMENTE ${selectedUserIds.length} usuários? Esta ação não pode ser desfeita.`)) return;
+    setIsProcessing(true);
+    await bulkDeleteUsers(selectedUserIds);
+    setSelectedUserIds([]);
+    setIsProcessing(false);
+  };
 
   return (
     <Card>
@@ -77,13 +110,37 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
             </select>
           </div>
         </div>
+
+        {selectedUserIds.length > 0 && (
+          <div className="mt-4 p-3 bg-[hsl(var(--primary-muted))] border border-[hsl(var(--primary)/0.2)] rounded-lg flex items-center justify-between">
+            <span className="text-sm font-medium text-[hsl(var(--foreground))]">
+              {selectedUserIds.length} usuário(s) selecionado(s)
+            </span>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="text-orange-500 hover:text-orange-600 hover:bg-orange-50" onClick={handleBulkBan} disabled={isProcessing}>
+                <Ban className="h-4 w-4 mr-2" /> Bloquear
+              </Button>
+              <Button size="sm" variant="outline" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={handleBulkDelete} disabled={isProcessing}>
+                <Trash2 className="h-4 w-4 mr-2" /> Excluir
+              </Button>
+            </div>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-[hsl(var(--muted-foreground))] uppercase bg-[hsl(var(--muted))] border-b border-[hsl(var(--border))]">
               <tr>
-                <th className="px-6 py-3 rounded-tl-lg">Usuário</th>
+                <th className="px-4 py-3 rounded-tl-lg w-10">
+                  <input 
+                    type="checkbox" 
+                    className="rounded border-[hsl(var(--border))] bg-transparent"
+                    checked={selectedUserIds.length > 0 && selectedUserIds.length === filteredUsers.length}
+                    onChange={toggleAll}
+                  />
+                </th>
+                <th className="px-6 py-3">Usuário</th>
                 <th className="px-6 py-3">Tipo</th>
                 <th className="px-6 py-3">Status</th>
                 <th className="px-6 py-3">Telefone</th>
@@ -93,13 +150,21 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
             <tbody>
               {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-center py-10 text-[hsl(var(--muted-foreground))]">
+                  <td colSpan={6} className="text-center py-10 text-[hsl(var(--muted-foreground))]">
                     Nenhum usuário encontrado para estes filtros.
                   </td>
                 </tr>
               )}
               {filteredUsers.map((u) => (
-                <tr key={u.id} className="border-b border-[hsl(var(--border))] last:border-0 hover:bg-[hsl(var(--muted)/0.3)] transition-colors">
+                <tr key={u.id} className={`border-b border-[hsl(var(--border))] last:border-0 hover:bg-[hsl(var(--muted)/0.3)] transition-colors ${selectedUserIds.includes(u.id) ? 'bg-[hsl(var(--primary-muted)/0.5)]' : ''}`}>
+                  <td className="px-4 py-4">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-[hsl(var(--border))] bg-transparent"
+                      checked={selectedUserIds.includes(u.id)}
+                      onChange={() => toggleUser(u.id)}
+                    />
+                  </td>
                   <td className="px-6 py-4">
                     <div className="font-medium text-[hsl(var(--foreground))]">{u.name}</div>
                     <div className="text-[hsl(var(--muted-foreground))]">{u.email}</div>

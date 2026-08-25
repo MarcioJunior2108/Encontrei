@@ -101,3 +101,26 @@ export async function logout() {
   revalidatePath('/', 'layout');
   redirect('/login');
 }
+
+export async function loginWithGoogle(formData?: FormData) {
+  const supabase = await createClient();
+  
+  const nextUrl = formData?.get('next') as string;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const callbackUrl = `${baseUrl}/auth/callback${nextUrl ? `?next=${encodeURIComponent(nextUrl)}` : ''}`;
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: callbackUrl,
+    },
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  if (data?.url) {
+    redirect(data.url);
+  }
+}

@@ -78,3 +78,52 @@ export async function createServiceRequest({
     return { error: 'Ocorreu um erro ao enviar sua solicitação.' };
   }
 }
+
+export async function updateRequestStatus(requestId: string, status: 'ACCEPTED' | 'REJECTED' | 'COMPLETED' | 'CANCELLED') {
+  const profile = await getCurrentProfile();
+  
+  if (!profile) {
+    return { error: 'Não autorizado.' };
+  }
+
+  try {
+    const request = await prisma.serviceRequest.findUnique({
+      where: { id: requestId },
+      include: { professional: true }
+    });
+
+    if (!request) {
+      return { error: 'Solicitação não encontrada.' };
+    }
+
+    // Verifica se é o profissional dono da solicitação (para aceitar/rejeitar/concluir)
+    // ou se é o cliente dono da solicitação (para cancelar)
+    const isProfessional = request.professional.userId === profile.id;
+    const isClient = request.clientId === profile.id;
+
+    if (!isProfessional && !isClient) {
+      return { error: 'Não autorizado para modificar esta solicitação.' };
+    }
+
+    if (isClient && status !== 'CANCELLED') {
+      return { error: 'Cliente só pode cancelar a solicitação.' };
+    }
+
+    if (isProfessional && status === 'CANCELLED') {
+      return { error: 'Profissional não pode cancelar, deve rejeitar.' };
+    }
+
+    const updatedRequest = await prisma.serviceRequest.update({
+      where: { id: requestId },
+      data: { status, isUnlocked: status === 'ACCEPTED' ? true : request.isUnlocked },
+    });
+
+    revalidatePath('/dashboard');
+    revalidatePath('/profissional');
+
+    return { success: true, data: updatedRequest };
+  } catch (error: any) {
+    console.error('Error updating request:', error);
+    return { error: 'Falha ao atualizar solicitação.' };
+  }
+}

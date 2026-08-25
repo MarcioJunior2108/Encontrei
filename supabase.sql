@@ -55,17 +55,18 @@ CREATE POLICY "Usuários podem criar seu perfil profissional." ON public.profess
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, name, role)
+  INSERT INTO public.profiles (id, email, name, role, updated_at)
   VALUES (
     new.id,
     new.email,
     coalesce(new.raw_user_meta_data->>'name', ''),
-    coalesce(new.raw_user_meta_data->>'role', 'CLIENT')
+    coalesce(new.raw_user_meta_data->>'role', 'CLIENT')::"Role",
+    now()
   );
 
   -- Se for um profissional, já cria a tabela vazia para ele
   IF coalesce(new.raw_user_meta_data->>'role', '') = 'PROFESSIONAL' THEN
-    INSERT INTO public.professionals (user_id) VALUES (new.id);
+    INSERT INTO public.professionals (user_id, updated_at) VALUES (new.id, now());
   END IF;
 
   RETURN new;

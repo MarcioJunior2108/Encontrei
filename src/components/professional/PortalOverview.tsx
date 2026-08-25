@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Bell, Wallet, TrendingUp, Star } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
+import { updateRequestStatus } from '@/app/actions/requests';
 
 import { ProfileSettings } from './ProfileSettings';
 import { Badge } from '@/components/ui/badge';
@@ -35,21 +36,31 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
   const handleReject = async (requestId: string) => {
     try {
       setIsRejecting(requestId);
-      const res = await fetch(`/api/requests/${requestId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'REJECTED' }),
-      });
-      if (res.ok) {
+      const res = await updateRequestStatus(requestId, 'REJECTED');
+      if (res.success) {
         window.location.reload();
       } else {
-        alert('Erro ao recusar pedido.');
+        alert(res.error || 'Erro ao recusar pedido.');
       }
     } catch (err) {
       console.error(err);
       alert('Erro ao recusar pedido.');
     } finally {
       setIsRejecting(null);
+    }
+  };
+
+  const handleAccept = async (requestId: string) => {
+    try {
+      const res = await updateRequestStatus(requestId, 'ACCEPTED');
+      if (res.success) {
+        window.location.reload();
+      } else {
+        alert(res.error || 'Erro ao aceitar pedido.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao aceitar pedido.');
     }
   };
 
@@ -182,7 +193,10 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                                   Desbloquear (R$ 10)
                                 </Button>
                               ) : (
-                                <Button className="w-full bg-[hsl(var(--success))] hover:bg-[hsl(var(--success-muted))] hover:text-[hsl(var(--success))] text-white">
+                                <Button 
+                                  className="w-full bg-[hsl(var(--success))] hover:bg-[hsl(var(--success-muted))] hover:text-[hsl(var(--success))] text-white"
+                                  onClick={() => handleAccept(req.id)}
+                                >
                                   Aceitar Pedido
                                 </Button>
                               )}

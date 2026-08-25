@@ -7,9 +7,11 @@ import { MOCK_PROFESSIONALS } from '@/mock/data';
 import { MetricsView } from './MetricsView';
 import { AgendaView } from './AgendaView';
 import { Button } from '@/components/ui/button';
-import { Bell, Wallet, TrendingUp, Star } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
-import { Card, CardContent } from '@/components/ui/card';
+import { 
+  Wallet, TrendingUp, Star, Clock, CheckCircle2, 
+  Settings, User, MapPin, Calendar, FileText, ChevronRight, MessageSquare, Lock, AlertCircle, Phone, LockKeyhole
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { updateRequestStatus } from '@/app/actions/requests';
 
 import { ProfileSettings } from './ProfileSettings';
@@ -156,42 +158,68 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
               ) : (
                 requests.map((req: any) => {
                   const isUnlocked = planType === 'PRO' || req.isUnlocked;
-                  const clientName = isUnlocked ? req.client.name : 'Cliente Confidencial';
+                  const clientFirstName = req.client.name ? req.client.name.split(' ')[0] : 'Cliente';
+                  const maskedName = isUnlocked ? req.client.name : `${clientFirstName} ***`;
                   
                   return (
-                    <Card key={req.id} className="overflow-hidden">
+                    <Card key={req.id} className={`overflow-hidden transition-all duration-200 ${!isUnlocked && req.status === 'PENDING' ? 'border-[hsl(var(--primary)/0.5)] shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]' : ''}`}>
+                      {/* Urgency Banner for Locked Leads */}
+                      {!isUnlocked && req.status === 'PENDING' && (
+                        <div className="bg-[hsl(var(--primary)/0.1)] px-5 py-2.5 flex items-center gap-2 border-b border-[hsl(var(--primary)/0.2)]">
+                          <AlertCircle className="h-4 w-4 text-[hsl(var(--primary))]" />
+                          <p className="text-xs font-medium text-[hsl(var(--primary))]">
+                            Dica: Profissionais que respondem rápido têm <strong className="font-bold">3x mais chances</strong> de fechar o serviço.
+                          </p>
+                        </div>
+                      )}
+
                       <CardContent className="p-5 flex flex-col md:flex-row gap-5 justify-between">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-bold text-lg">{clientName}</h3>
-                            {req.status === 'PENDING' && <Badge variant="secondary" className="bg-orange-100 text-orange-700 hover:bg-orange-100">Novo</Badge>}
-                            {req.status === 'REJECTED' && <Badge variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-100">Recusado</Badge>}
-                            {req.status === 'ACCEPTED' && <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">Aceito</Badge>}
+                        <div className="flex-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                              {!isUnlocked && <LockKeyhole className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />}
+                              {maskedName}
+                            </h3>
+                            {req.status === 'PENDING' && <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-none font-semibold px-2.5 py-0.5">Novo Pedido</Badge>}
+                            {req.status === 'REJECTED' && <Badge variant="secondary" className="bg-red-100 text-red-700">Recusado</Badge>}
+                            {req.status === 'ACCEPTED' && <Badge variant="secondary" className="bg-green-100 text-green-700">Aceito</Badge>}
                           </div>
-                          <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4 whitespace-pre-wrap">{req.description}</p>
                           
-                          <div className="flex gap-4 text-xs font-medium">
-                            <span className="bg-[hsl(var(--muted))] px-2 py-1 rounded-md">
-                              Data: {req.scheduledDate ? new Date(req.scheduledDate).toLocaleDateString() : 'A combinar'}
+                          <p className="text-sm text-[hsl(var(--foreground))] mb-4 whitespace-pre-wrap leading-relaxed relative">
+                            <span className="text-[hsl(var(--muted-foreground))]">"</span>
+                            {req.description}
+                            <span className="text-[hsl(var(--muted-foreground))]">"</span>
+                          </p>
+                          
+                          <div className="flex flex-wrap gap-4 text-xs font-medium text-[hsl(var(--muted-foreground))]">
+                            <span className="flex items-center gap-1.5 bg-[hsl(var(--muted))] px-2.5 py-1.5 rounded-md">
+                              <Calendar className="h-3.5 w-3.5" />
+                              Para: {req.scheduledDate ? new Date(req.scheduledDate).toLocaleDateString() : 'A combinar'}
                             </span>
-                            <span className="bg-[hsl(var(--muted))] px-2 py-1 rounded-md">
-                              Em: {new Date(req.createdAt).toLocaleDateString()}
+                            <span className="flex items-center gap-1.5 bg-[hsl(var(--muted))] px-2.5 py-1.5 rounded-md">
+                              <Clock className="h-3.5 w-3.5" />
+                              Recebido em: {new Date(req.createdAt).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
 
-                        <div className="flex flex-col gap-2 min-w-[200px] justify-center">
+                        <div className="flex flex-col gap-3 min-w-[220px] justify-center border-t md:border-t-0 md:border-l border-[hsl(var(--border))] pt-4 md:pt-0 md:pl-5">
                           {req.status === 'PENDING' && (
                             <>
                               {!isUnlocked ? (
-                                <Button 
-                                  className="w-full bg-[hsl(var(--primary))]"
-                                  onClick={() => handleCheckout('UNLOCK_LEAD', 10, 'Desbloqueio de Contato de Cliente', req.id)}
-                                  disabled={isCheckoutModalOpen || isRejecting === req.id}
-                                >
-                                  <Wallet className="h-4 w-4 mr-2" />
-                                  Desbloquear (R$ 10)
-                                </Button>
+                                <div className="space-y-2">
+                                  <Button 
+                                    className="w-full bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)] text-white font-semibold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5"
+                                    onClick={() => handleCheckout('UNLOCK_LEAD', 10, 'Desbloqueio de Contato de Cliente', req.id)}
+                                    disabled={isCheckoutModalOpen || isRejecting === req.id}
+                                  >
+                                    <Phone className="h-4 w-4 mr-2" />
+                                    Liberar Contato (R$ 10)
+                                  </Button>
+                                  <p className="text-[10px] text-center text-[hsl(var(--muted-foreground))]">
+                                    O valor é retornado caso o cliente não responda em 24h.
+                                  </p>
+                                </div>
                               ) : (
                                 <Button 
                                   className="w-full bg-[hsl(var(--success))] hover:bg-[hsl(var(--success-muted))] hover:text-[hsl(var(--success))] text-white"
@@ -201,12 +229,12 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                                 </Button>
                               )}
                               <Button 
-                                variant="outline" 
-                                className="w-full text-red-500 hover:bg-red-500/10 hover:text-red-500 border-red-200"
+                                variant="ghost" 
+                                className="w-full text-[hsl(var(--muted-foreground))] hover:text-red-500 hover:bg-red-500/10 transition-colors text-xs"
                                 onClick={() => handleReject(req.id)}
                                 disabled={isRejecting === req.id}
                               >
-                                {isRejecting === req.id ? 'Recusando...' : 'Recusar'}
+                                {isRejecting === req.id ? 'Recusando...' : 'Não tenho interesse'}
                               </Button>
                             </>
                           )}

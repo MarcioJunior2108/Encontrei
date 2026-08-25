@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { createServiceRequest } from '@/app/actions/requests';
 import { Button } from '@/components/ui/button';
 
@@ -18,12 +19,33 @@ export function RequestServiceModal({ professionalId, professionalName, isOpen, 
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (isOpen) {
+      const saved = sessionStorage.getItem('pendingRequest');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.description) setDescription(parsed.description);
+          if (parsed.date) setDate(parsed.date);
+        } catch (e) {
+          // invalid json
+        }
+      }
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const needsLogin = error === 'Você precisa estar logado para solicitar um orçamento.';
+  const loginNextUrl = `/perfil/${professionalId}?openModal=true`;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    
+    // Always save state before submitting in case they need to login
+    sessionStorage.setItem('pendingRequest', JSON.stringify({ description, date }));
 
     const res = await createServiceRequest({ professionalId, description, date });
     if (res.error) {
@@ -32,6 +54,7 @@ export function RequestServiceModal({ professionalId, professionalName, isOpen, 
     } else {
       setSuccess(true);
       setIsSubmitting(false);
+      sessionStorage.removeItem('pendingRequest');
     }
   }
 
@@ -62,8 +85,18 @@ export function RequestServiceModal({ professionalId, professionalName, isOpen, 
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 bg-red-500/10 text-red-500 rounded-md text-sm">
-                  {error}
+                <div className={`p-4 rounded-[var(--radius-lg)] text-sm flex flex-col gap-3 ${needsLogin ? 'bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))] border border-[hsl(var(--warning)/0.2)]' : 'bg-red-500/10 text-red-500'}`}>
+                  <p className="font-medium text-base">{error}</p>
+                  {needsLogin && (
+                    <div className="flex gap-2">
+                      <Button asChild variant="default" size="sm" className="flex-1 bg-[hsl(var(--warning))] text-white hover:bg-[hsl(var(--warning)/0.8)]">
+                        <Link href={`/login?next=${encodeURIComponent(loginNextUrl)}`}>Fazer Login</Link>
+                      </Button>
+                      <Button asChild variant="outline" size="sm" className="flex-1 border-[hsl(var(--warning)/0.5)] text-[hsl(var(--warning))] hover:bg-[hsl(var(--warning)/0.1)] hover:text-[hsl(var(--warning))]">
+                        <Link href={`/cadastro?next=${encodeURIComponent(loginNextUrl)}`}>Criar Conta</Link>
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
               

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Star, MapPin, Clock, CheckCircle2, Shield, Zap,
@@ -77,7 +78,14 @@ function ReputationScore({ rep }: { rep: Professional['reputation'] }) {
 export function ProfessionalProfile({ professional: pro }: { professional: any }) {
   const [saved, setSaved] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const searchParams = useSearchParams();
   
+  useEffect(() => {
+    if (searchParams.get('openModal') === 'true') {
+      setIsModalOpen(true);
+    }
+  }, [searchParams]);
+
   const reviews = MOCK_REVIEWS.filter(r => r.professionalId === pro.id).slice(0, 6);
   // Fallback to some reviews if none for this pro
   const displayReviews = reviews.length > 0 ? reviews : MOCK_REVIEWS.slice(0, 4);

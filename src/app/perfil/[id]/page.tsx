@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import { Header } from '@/components/layout/Header';
 import { ProfessionalProfile } from '@/components/professionals/ProfessionalProfile';
 import { prisma } from '@/lib/prisma';
@@ -70,7 +71,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   return (
     <main id="main-content">
       <Header />
-      <ProfessionalProfile professional={formattedPro} />
+      <Suspense fallback={<div className="h-screen w-full flex items-center justify-center">Carregando perfil...</div>}>
+        <ProfessionalProfile professional={formattedPro} />
+      </Suspense>
     </main>
   );
 }

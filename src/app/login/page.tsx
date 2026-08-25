@@ -8,6 +8,15 @@ import { Button } from '@/components/ui/button';
 import { login, loginWithGoogle } from '@/app/actions/auth';
 import { AlertCircle } from 'lucide-react';
 import { Slottable } from '@radix-ui/react-slot';
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+function NextUrlInput() {
+  const searchParams = useSearchParams();
+  const next = searchParams.get('next');
+  if (!next) return null;
+  return <input type="hidden" name="next" value={next} />;
+}
 
 export default function LoginPage() {
   const [error, setError] = useState('');
@@ -58,6 +67,9 @@ export default function LoginPage() {
           <p className="text-sm text-[hsl(var(--muted-foreground))] mb-8">Entre para continuar na plataforma</p>
 
           <form action={loginWithGoogle} className="mb-4">
+            <Suspense fallback={null}>
+              <NextUrlInput />
+            </Suspense>
             <Button variant="outline" type="submit" className="w-full bg-[hsl(var(--background))] hover:bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] border-[hsl(var(--border))] h-11">
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path
@@ -92,6 +104,9 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" aria-label="Formulário de login">
+            <Suspense fallback={null}>
+              <NextUrlInput />
+            </Suspense>
             {error && (
               <div className="p-3 text-sm rounded-lg bg-[hsl(var(--error)/0.1)] text-[hsl(var(--error))] border border-[hsl(var(--error)/0.2)] flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />

@@ -42,6 +42,16 @@ export default function CadastroPage() {
     setGoogleLoading(true);
     const formData = new FormData();
     formData.set('role', accountType);
+    
+    // Grab 'next' from URL directly to avoid Next.js Suspense issues with useSearchParams at root level
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const nextParam = urlParams.get('next');
+      if (nextParam) {
+        formData.set('next', nextParam);
+      }
+    }
+    
     await loginWithGoogle(formData);
     setGoogleLoading(false);
   };

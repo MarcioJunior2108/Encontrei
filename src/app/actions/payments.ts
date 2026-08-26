@@ -41,6 +41,26 @@ export async function verifyPaymentStatus(paymentId: string) {
         // mas seria importante não adicionar fundos duplamente. O ideal é 
         // ter uma tabela de transações para evitar double-spending.
       }
+      
+      // Registrar a transação para auditoria e cálculo de receita
+      if (professionalId) {
+        const mercadopagoId = String(paymentId);
+        const existingTransaction = await prisma.transaction.findUnique({
+          where: { mercadopagoId }
+        });
+
+        if (!existingTransaction) {
+          await prisma.transaction.create({
+            data: {
+              professionalId,
+              amount: paymentInfo.transaction_amount || 0,
+              type: type || 'UNKNOWN',
+              paymentMethod: paymentInfo.payment_method_id || 'unknown',
+              mercadopagoId
+            }
+          });
+        }
+      }
 
       revalidatePath('/profissional');
       return { success: true, status: 'approved' };

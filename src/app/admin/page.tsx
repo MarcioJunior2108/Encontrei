@@ -11,15 +11,19 @@ export default async function AdminDashboardPage() {
     totalRequests,
     recentUsers,
     pendingRequests,
-    paidRequests
+    paidRequests,
+    transactionsSum
   ] = await Promise.all([
     prisma.profile.count(),
     prisma.professional.count(),
     prisma.serviceRequest.count(),
     prisma.profile.findMany({ orderBy: { createdAt: 'desc' }, take: 5 }),
     prisma.serviceRequest.count({ where: { status: 'PENDING' } }),
-    prisma.serviceRequest.count({ where: { isUnlocked: true } })
+    prisma.serviceRequest.count({ where: { isUnlocked: true } }),
+    prisma.transaction.aggregate({ _sum: { amount: true } })
   ]);
+
+  const totalRevenue = Number(transactionsSum._sum.amount || 0);
 
   const totalClients = totalProfiles - totalProfessionals;
 
@@ -84,9 +88,9 @@ export default async function AdminDashboardPage() {
             <TrendingUp className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(paidRequests * 10)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
             <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
-              Receita gerada por desbloqueios (R$ 10)
+              Soma de todos os pagamentos aprovados
             </p>
           </CardContent>
         </Card>

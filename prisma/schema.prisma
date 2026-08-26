@@ -47,6 +47,7 @@ model Professional {
   updatedAt          DateTime           @updatedAt @map("updated_at")
 
   receivedRequests   ServiceRequest[]   @relation("ProfessionalRequests")
+  transactions       Transaction[]      @relation("ProfessionalTransactions")
 
   @@map("professionals")
 }
@@ -73,6 +74,19 @@ model ServiceRequest {
   updatedAt      DateTime      @updatedAt @map("updated_at")
 
   @@map("service_requests")
+}
+
+model Transaction {
+  id              String       @id @default(uuid()) @db.Uuid
+  professionalId  String       @map("professional_id") @db.Uuid
+  professional    Professional @relation("ProfessionalTransactions", fields: [professionalId], references: [id], onDelete: Cascade)
+  amount          Decimal      @db.Decimal(10, 2)
+  type            String       // 'UNLOCK_LEAD', 'ADD_FUNDS', 'UPGRADE_PRO'
+  paymentMethod   String       // 'pix', 'credit_card', etc.
+  mercadopagoId   String?      @unique
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  @@map("transactions")
 }
 
 // ---------------------------------------------

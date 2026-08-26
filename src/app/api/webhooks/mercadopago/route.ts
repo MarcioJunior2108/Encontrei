@@ -55,6 +55,26 @@ export async function POST(req: Request) {
           });
           console.log(`Adicionado R$${amount} na carteira do profissional ${professionalId} via Mercado Pago`);
         }
+        
+        // Registrar a transação para auditoria e cálculo de receita
+        if (professionalId) {
+          const mercadopagoId = String(id);
+          const existingTransaction = await prisma.transaction.findUnique({
+            where: { mercadopagoId }
+          });
+
+          if (!existingTransaction) {
+            await prisma.transaction.create({
+              data: {
+                professionalId,
+                amount: paymentInfo.transaction_amount || 0,
+                type: type || 'UNKNOWN',
+                paymentMethod: paymentInfo.payment_method_id || 'unknown',
+                mercadopagoId
+              }
+            });
+          }
+        }
       }
     }
 

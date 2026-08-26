@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
+import { PhoneRequestModal } from './PhoneRequestModal';
 
 const navLinks = [
   { href: '/buscar', label: 'Explorar' },
@@ -26,6 +27,7 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -43,10 +45,13 @@ export function Header() {
       if (session?.user) {
         const { data } = await supabase
           .from('profiles')
-          .select('id, name, avatar_url, role')
+          .select('id, name, avatar_url, role, phone')
           .eq('id', session.user.id)
           .single();
         setProfile(data);
+        if (data && !data.phone) {
+          setShowPhoneModal(true);
+        }
       }
     });
 
@@ -55,12 +60,16 @@ export function Header() {
       if (session?.user) {
         const { data } = await supabase
           .from('profiles')
-          .select('id, name, avatar_url, role')
+          .select('id, name, avatar_url, role, phone')
           .eq('id', session.user.id)
           .single();
         setProfile(data);
+        if (data && !data.phone) {
+          setShowPhoneModal(true);
+        }
       } else {
         setProfile(null);
+        setShowPhoneModal(false);
       }
     });
 
@@ -267,6 +276,11 @@ export function Header() {
 
       {/* Spacer */}
       {!isHome && <div className="h-16" />}
+      
+      <PhoneRequestModal 
+        isOpen={showPhoneModal} 
+        onSuccess={() => setShowPhoneModal(false)} 
+      />
     </>
   );
 }

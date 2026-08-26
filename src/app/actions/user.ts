@@ -28,3 +28,24 @@ export async function getCurrentProfile() {
 
   return serializedProfile;
 }
+
+export async function updateUserPhone(phone: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return { success: false, error: 'Usuário não autenticado.' };
+  }
+
+  try {
+    await prisma.profile.update({
+      where: { id: user.id },
+      data: { phone }
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erro ao atualizar telefone:', error);
+    return { success: false, error: 'Erro ao salvar o telefone. Tente novamente.' };
+  }
+}

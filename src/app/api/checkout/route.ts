@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getCurrentProfile } from '@/app/actions/user';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { getBaseUrl } from '@/lib/utils';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2026-07-29.dahlia', // Mantido para caso precisemos do Stripe depois
@@ -47,8 +48,8 @@ export async function POST(request: Request) {
           },
         ],
         mode: 'payment',
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/profissional?payment=success`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/profissional?payment=failure`,
+        success_url: `${getBaseUrl()}/profissional?payment=success`,
+        cancel_url: `${getBaseUrl()}/profissional?payment=failure`,
         customer_email: profile.email,
         metadata: {
           type: type, // 'UNLOCK_LEAD'
@@ -88,9 +89,9 @@ export async function POST(request: Request) {
           email: profile.email,
         },
         back_urls: {
-          success: `${process.env.NEXT_PUBLIC_APP_URL}/profissional?payment=success`,
-          failure: `${process.env.NEXT_PUBLIC_APP_URL}/profissional?payment=failure`,
-          pending: `${process.env.NEXT_PUBLIC_APP_URL}/profissional?payment=pending`,
+          success: `${getBaseUrl()}/profissional?payment=success`,
+          failure: `${getBaseUrl()}/profissional?payment=failure`,
+          pending: `${getBaseUrl()}/profissional?payment=pending`,
         },
         auto_return: 'approved',
         metadata: {
@@ -98,7 +99,7 @@ export async function POST(request: Request) {
           requestId: requestId || '',
           professionalId: profile.id,
         },
-        notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`
+        notification_url: `${getBaseUrl()}/api/webhooks/mercadopago`
       }
     });
 

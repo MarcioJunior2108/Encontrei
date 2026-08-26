@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { getBaseUrl } from '@/lib/utils';
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -107,7 +108,7 @@ export async function loginWithGoogle(formData?: FormData): Promise<void> {
   
   const nextUrl = formData?.get('next') as string;
   const role = (formData?.get('role') as string) || 'CLIENT';
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl = getBaseUrl();
   
   // Encode role in the callback URL so we can apply it after OAuth
   const callbackUrl = `${baseUrl}/auth/callback?role=${encodeURIComponent(role)}${nextUrl ? `&next=${encodeURIComponent(nextUrl)}` : ''}`;

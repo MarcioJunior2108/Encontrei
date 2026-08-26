@@ -33,11 +33,17 @@ export async function GET(request: Request) {
           });
         }
 
+        // IMPORTANTE: No update, NÃO sobrescrevemos a role existente.
+        // A role só é definida no CREATE (novo usuário) ou quando é um cadastro
+        // profissional explícito (role === 'PROFESSIONAL').
+        // Isso evita que o login com Google resete admins para CLIENT.
         await prisma.profile.upsert({
           where: { id: userId },
           update: { 
             name: userName || undefined,
-            role: role,
+            // Só atualiza a role se for um cadastro explícito como PROFESSIONAL
+            // (nunca deixa sobrescrever de volta para CLIENT um admin existente)
+            ...(role === 'PROFESSIONAL' ? { role } : {}),
           },
           create: {
             id: userId,

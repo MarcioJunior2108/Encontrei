@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Shield, Ban, Search, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { bulkBanUsers, bulkDeleteUsers } from '@/app/actions/admin';
+import { bulkBanUsers, bulkDeleteUsers, banUser, promoteToAdmin } from '@/app/actions/admin';
 
 interface User {
   id: string;
@@ -67,6 +67,20 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
     setIsProcessing(true);
     await bulkDeleteUsers(selectedUserIds);
     setSelectedUserIds([]);
+    setIsProcessing(false);
+  };
+
+  const handlePromote = async (id: string, name: string | null) => {
+    if (!confirm(`Tem certeza que deseja promover ${name || 'este usuário'} a Administrador?`)) return;
+    setIsProcessing(true);
+    await promoteToAdmin(id);
+    setIsProcessing(false);
+  };
+
+  const handleBan = async (id: string, name: string | null) => {
+    if (!confirm(`Tem certeza que deseja banir/suspender ${name || 'este usuário'}?`)) return;
+    setIsProcessing(true);
+    await banUser(id);
     setIsProcessing(false);
   };
 
@@ -185,11 +199,24 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
                       {u.role !== 'ADMIN' && (
-                        <Button variant="outline" size="sm" title="Promover a Admin">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          title="Promover a Admin"
+                          onClick={() => handlePromote(u.id, u.name)}
+                          disabled={isProcessing}
+                        >
                           <Shield className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button variant="outline" size="sm" className="text-red-500 hover:text-red-500 hover:bg-red-500/10" title="Banir Usuário">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-red-500 hover:text-red-500 hover:bg-red-500/10" 
+                        title="Banir Usuário"
+                        onClick={() => handleBan(u.id, u.name)}
+                        disabled={isProcessing}
+                      >
                         <Ban className="h-4 w-4" />
                       </Button>
                     </div>

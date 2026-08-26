@@ -9,11 +9,28 @@ export async function getCurrentProfile() {
   
   if (!user) return null;
   
-  const profile = await prisma.profile.findUnique({
+  let profile = await prisma.profile.findUnique({
     where: { id: user.id },
     include: { professional: true }
   });
   
+  if (!profile) {
+    try {
+      profile = await prisma.profile.create({
+        data: {
+          id: user.id,
+          email: user.email || '',
+          name: user.user_metadata?.full_name || user.user_metadata?.name || '',
+          role: 'CLIENT',
+        },
+        include: { professional: true }
+      });
+    } catch (error) {
+      console.error('Falha ao auto-criar perfil no Prisma:', error);
+      return null;
+    }
+  }
+
   if (!profile) return null;
 
   // Converter campos Decimal para Number para evitar erro em Client Components

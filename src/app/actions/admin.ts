@@ -67,6 +67,12 @@ export async function bulkDeleteUsers(userIds: string[]) {
     }
   }
 
+  // Deleta do Prisma explicitamente para garantir que não fiquem órfãos
+  // (caso o CASCADE do Supabase falhe ou não esteja configurado corretamente)
+  await prisma.profile.deleteMany({
+    where: { id: { in: userIds } }
+  });
+
   revalidatePath('/admin/usuarios');
   return { success: true };
 }

@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/avatar';
 import { createClient } from '@/lib/supabase/client';
+import { getCurrentProfile } from '@/app/actions/user';
 import { PhoneRequestModal } from './PhoneRequestModal';
 
 const navLinks = [
@@ -41,15 +42,10 @@ export function Header() {
     const supabase = createClient();
 
     // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('id, name, avatar_url, role, phone')
-          .eq('id', session.user.id)
-          .single();
+    getCurrentProfile().then((data) => {
+      if (data) {
         setProfile(data);
-        if (data && !data.phone) {
+        if (!data.phone) {
           setShowPhoneModal(true);
         }
       }
@@ -58,14 +54,12 @@ export function Header() {
     // Listen for auth state changes (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('id, name, avatar_url, role, phone')
-          .eq('id', session.user.id)
-          .single();
-        setProfile(data);
-        if (data && !data.phone) {
-          setShowPhoneModal(true);
+        const data = await getCurrentProfile();
+        if (data) {
+          setProfile(data);
+          if (!data.phone) {
+            setShowPhoneModal(true);
+          }
         }
       } else {
         setProfile(null);

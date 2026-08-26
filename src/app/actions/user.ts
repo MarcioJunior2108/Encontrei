@@ -16,6 +16,15 @@ export async function getCurrentProfile() {
   
   if (!profile) {
     try {
+      if (user.email) {
+        const existingProfile = await prisma.profile.findUnique({
+          where: { email: user.email }
+        });
+        if (existingProfile && existingProfile.id !== user.id) {
+          await prisma.profile.delete({ where: { id: existingProfile.id } });
+        }
+      }
+
       profile = await prisma.profile.create({
         data: {
           id: user.id,

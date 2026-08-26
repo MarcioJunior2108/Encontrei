@@ -60,6 +60,13 @@ export async function signup(formData: FormData) {
     const role = data.options.data.role === 'PROFESSIONAL' ? 'PROFESSIONAL' : 'CLIENT';
     
     try {
+      const existingProfile = await prisma.profile.findUnique({
+        where: { email: authData.user.email || data.email }
+      });
+      if (existingProfile && existingProfile.id !== authData.user.id) {
+        await prisma.profile.delete({ where: { id: existingProfile.id } });
+      }
+
       await prisma.profile.create({
         data: {
           id: authData.user.id,

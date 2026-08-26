@@ -21,6 +21,18 @@ export async function GET(request: Request) {
 
       // Upsert profile with the chosen role
       try {
+        const existingProfile = await prisma.profile.findUnique({
+          where: { email: userEmail }
+        });
+
+        // Se o usuário foi recriado no Supabase (novo ID) mas o perfil antigo ainda
+        // existe no Prisma com o mesmo email, deletamos o antigo para evitar erro de constraint única.
+        if (existingProfile && existingProfile.id !== userId) {
+          await prisma.profile.delete({
+            where: { id: existingProfile.id }
+          });
+        }
+
         await prisma.profile.upsert({
           where: { id: userId },
           update: { 

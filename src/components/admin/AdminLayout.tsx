@@ -74,7 +74,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <>
               <Image 
                 src="/logo.png" 
-                alt="Encontrei Logo" 
+                alt="AcheiYou Logo" 
                 width={160} 
                 height={60} 
                 className="h-12 w-auto flex-shrink-0 object-contain scale-[1.3] origin-left ml-2 dark:hidden"
@@ -82,7 +82,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               />
               <Image 
                 src="/logo-dark.png" 
-                alt="Encontrei Logo" 
+                alt="AcheiYou Logo" 
                 width={160} 
                 height={60} 
                 className="h-12 w-auto flex-shrink-0 object-contain scale-[1.3] origin-left ml-2 hidden dark:block"

@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
   if (!pro) return { title: 'Profissional não encontrado' };
   
   return {
-    title: `${pro.profile.name || 'Profissional'} — Encontrei`,
-    description: pro.bio || 'Perfil de profissional no Encontrei.',
+    title: `${pro.profile.name || 'Profissional'} — AcheiYou`,
+    description: pro.bio || 'Perfil de profissional no AcheiYou.',
   };
 }
 

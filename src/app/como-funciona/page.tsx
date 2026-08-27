@@ -3,7 +3,7 @@ import { Header } from '@/components/layout/Header';
 import { Search, MessageSquare, ShieldCheck, Star } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Como funciona | Encontrei',
+  title: 'Como funciona | AcheiYou',
   description: 'Entenda como é fácil e seguro contratar profissionais pela plataforma.',
 };
 

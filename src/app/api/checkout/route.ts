@@ -40,7 +40,7 @@ export async function POST(request: Request) {
               currency: 'brl',
               product_data: {
                 name: description,
-                description: `Acesso ao lead no Encontrei App`,
+                description: `Acesso ao lead no AcheiYou App`,
               },
               unit_amount: Math.round(Number(amount) * 100), // Stripe usa centavos
             },
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
           {
             id: type,
             title: description,
-            description: `Acesso ao lead no Encontrei App`,
+            description: `Acesso ao lead no AcheiYou App`,
             quantity: 1,
             unit_price: Number(amount), // Mercado Pago usa o valor real (não centavos)
             currency_id: 'BRL',

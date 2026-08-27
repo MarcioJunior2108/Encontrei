@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       }
 
       const claimToken = uuidv4();
-      const fakeEmail = `${phone.replace(/\D/g, '')}@temp.encontrei.com`;
+      const fakeEmail = `${phone.replace(/\D/g, '')}@temp.acheiyou.com`;
 
       // Crie o perfil sombra
       const profile = await prisma.profile.create({

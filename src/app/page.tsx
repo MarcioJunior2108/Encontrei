@@ -8,7 +8,7 @@ import { SocialProof } from '@/components/home/SocialProof';
 import { HomeFooter } from '@/components/home/HomeFooter';
 
 export const metadata: Metadata = {
-  title: 'Encontrei — O que você precisa?',
+  title: 'AcheiYou — O que você precisa?',
   description:
     'Diga o que você precisa e encontramos o profissional certo para você. Elétrica, limpeza, design, tecnologia e muito mais.',
 };

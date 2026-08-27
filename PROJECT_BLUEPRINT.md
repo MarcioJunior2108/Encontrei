@@ -1,4 +1,4 @@
-# PROJECT_BLUEPRINT.md — Encontrei
+# PROJECT_BLUEPRINT.md — AcheiYou
 
 > **"Transformar intenção humana em ação."**
 

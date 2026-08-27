@@ -7,7 +7,7 @@ export const mercadopago = new MercadoPagoConfig({
   accessToken: mpToken,
   options: {
     timeout: 5000,
-    idempotencyKey: 'encontrei-app-v1'
+    idempotencyKey: 'acheiyou-app-v1'
   }
 });
 

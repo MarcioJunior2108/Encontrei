@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/admin/ThemeToggle';
 
 export const metadata: Metadata = {
-  title: 'Painel Admin | Encontrei',
+  title: 'Painel Admin | AcheiYou',
   robots: { index: false, follow: false },
 };
 
@@ -42,7 +42,7 @@ export default async function AdminLayout({
             <div className="h-8 w-8 rounded bg-[hsl(var(--primary))] flex items-center justify-center">
               <span className="text-white text-sm">E</span>
             </div>
-            <span>Encontrei Admin</span>
+            <span>AcheiYou Admin</span>
           </Link>
         </div>
 

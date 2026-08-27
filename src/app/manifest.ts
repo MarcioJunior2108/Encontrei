@@ -2,8 +2,8 @@ import { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Encontrei | Profissionais de Confiança',
-    short_name: 'Encontrei',
+    name: 'AcheiYou | Profissionais de Confiança',
+    short_name: 'AcheiYou',
     description: 'Encontre e contrate os melhores profissionais para sua casa ou negócio.',
     start_url: '/',
     display: 'standalone',

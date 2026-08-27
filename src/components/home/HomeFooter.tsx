@@ -28,7 +28,7 @@ export function HomeFooter() {
                 <div className="h-7 w-7 rounded-[var(--radius-md)] bg-[hsl(var(--primary))] flex items-center justify-center">
                   <span className="text-white text-xs font-bold">E</span>
                 </div>
-                <span className="font-semibold text-[hsl(var(--foreground))]">Encontrei</span>
+                <span className="font-semibold text-[hsl(var(--foreground))]">AcheiYou</span>
               </Link>
               <p className="text-sm text-[hsl(var(--muted-foreground))] leading-relaxed max-w-[200px]">
                 Transformando intenção humana em ação.
@@ -77,7 +77,7 @@ export function HomeFooter() {
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-[hsl(var(--border))]">
             <p className="text-xs text-[hsl(var(--muted-foreground))]">
-              © {currentYear} Encontrei. Todos os direitos reservados.
+              © {currentYear} AcheiYou. Todos os direitos reservados.
             </p>
             <p className="text-xs text-[hsl(var(--muted-foreground)/0.6)]">
               Ambiente de demonstração — dados mockados

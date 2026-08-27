@@ -1,6 +1,6 @@
 # Guia de Configuração do Ambiente (.env)
 
-O arquivo `.env.local` é essencial para o funcionamento completo da aplicação Encontrei, quando conectada ao backend real. Na Fase de UI (mockada), as variáveis não são estritamente necessárias, mas caso configuradas, o sistema usará as chaves correspondentes.
+O arquivo `.env.local` é essencial para o funcionamento completo da aplicação AcheiYou, quando conectada ao backend real. Na Fase de UI (mockada), as variáveis não são estritamente necessárias, mas caso configuradas, o sistema usará as chaves correspondentes.
 
 ## Supabase (Banco de Dados e Auth)
 Necessário para autenticação, perfis de usuário, criação de pedidos de serviços e chat.

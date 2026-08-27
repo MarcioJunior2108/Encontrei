@@ -22,7 +22,7 @@ export function LeadsTable({ initialRequests }: { initialRequests: any[] }) {
     const professionalName = req.professional.profile.name || 'Profissional';
     const isUnclaimed = req.professional.profile.status === 'UNCLAIMED';
     
-    let message = `*Encontrei - Novo Orçamento!*\n\nOlá ${professionalName}! Sou da plataforma Encontrei. Temos um cliente (${clientName}) precisando de um serviço seu agora mesmo!\n\n`;
+    let message = `*AcheiYou - Novo Orçamento!*\n\nOlá ${professionalName}! Sou da plataforma AcheiYou. Temos um cliente (${clientName}) precisando de um serviço seu agora mesmo!\n\n`;
 
     if (isUnclaimed) {
       const claimToken = req.professional.profile.claimToken;

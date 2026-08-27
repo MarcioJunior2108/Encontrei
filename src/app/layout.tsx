@@ -17,29 +17,29 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://encontrei.app'),
+  metadataBase: new URL('https://acheiyou.app'),
   title: {
-    default: 'Encontrei — O que você precisa?',
-    template: '%s | Encontrei',
+    default: 'AcheiYou — O que você precisa?',
+    template: '%s | AcheiYou',
   },
   description:
     'A plataforma que transforma intenção em ação. Encontre profissionais, serviços e produtos com uma simples mensagem.',
   keywords: ['serviços', 'profissionais', 'marketplace', 'brasil', 'encontrar profissionais'],
-  authors: [{ name: 'Encontrei' }],
-  creator: 'Encontrei',
+  authors: [{ name: 'AcheiYou' }],
+  creator: 'AcheiYou',
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
-    url: 'https://encontrei.app',
-    siteName: 'Encontrei',
-    title: 'Encontrei — O que você precisa?',
+    url: 'https://acheiyou.app',
+    siteName: 'AcheiYou',
+    title: 'AcheiYou — O que você precisa?',
     description: 'A plataforma que transforma intenção em ação.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Encontrei — O que você precisa?',
+    title: 'AcheiYou — O que você precisa?',
     description: 'A plataforma que transforma intenção em ação.',
-    creator: '@encontreiapp',
+    creator: '@acheiyouapp',
   },
   robots: {
     index: true,

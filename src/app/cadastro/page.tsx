@@ -64,7 +64,7 @@ export default function CadastroPage() {
           <>
             <Image 
               src="/logo.png" 
-              alt="Encontrei Logo" 
+              alt="AcheiYou Logo" 
               width={200} 
               height={80} 
               className="h-16 w-auto object-contain scale-[1.3] dark:hidden"
@@ -72,7 +72,7 @@ export default function CadastroPage() {
             />
             <Image 
               src="/logo-dark.png" 
-              alt="Encontrei Logo" 
+              alt="AcheiYou Logo" 
               width={200} 
               height={80} 
               className="h-16 w-auto object-contain scale-[1.3] hidden dark:block"

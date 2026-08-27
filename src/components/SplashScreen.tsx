@@ -64,14 +64,14 @@ export function SplashScreen() {
               {/* O logo claro (usado no tema escuro) e o logo escuro (usado no tema claro) */}
               <Image 
                 src="/logo-dark.png" 
-                alt="Encontrei"
+                alt="AcheiYou"
                 fill
                 className="object-contain hidden dark:block"
                 priority
               />
               <Image 
                 src="/logo.png" 
-                alt="Encontrei"
+                alt="AcheiYou"
                 fill
                 className="object-contain block dark:hidden"
                 priority

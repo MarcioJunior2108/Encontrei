@@ -114,7 +114,7 @@ function ClaimContent() {
           </div>
           <CardTitle className="text-2xl">Você tem solicitações de clientes!</CardTitle>
           <CardDescription className="text-base mt-2">
-            Um cliente encontrou sua empresa no <strong>Encontrei</strong> e solicitou um serviço. 
+            Um cliente encontrou sua empresa no <strong>AcheiYou</strong> e solicitou um serviço. 
             Reivindique seu perfil agora para ver os detalhes e entrar em contato.
           </CardDescription>
         </CardHeader>

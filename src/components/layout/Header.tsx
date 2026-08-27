@@ -99,12 +99,12 @@ export function Header() {
             <Link
               href="/"
               className="flex items-center gap-2 font-semibold text-[hsl(var(--foreground))] hover:opacity-80 transition-opacity"
-              aria-label="Encontrei — Página inicial"
+              aria-label="AcheiYou — Página inicial"
             >
               <>
                 <Image 
                   src="/logo.png" 
-                  alt="Encontrei Logo" 
+                  alt="AcheiYou Logo" 
                   width={140} 
                   height={40} 
                   style={{ width: 'auto', height: '40px' }}
@@ -113,7 +113,7 @@ export function Header() {
                 />
                 <Image 
                   src="/logo-dark.png" 
-                  alt="Encontrei Logo" 
+                  alt="AcheiYou Logo" 
                   width={140} 
                   height={40} 
                   style={{ width: 'auto', height: '40px' }}

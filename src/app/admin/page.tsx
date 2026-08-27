@@ -41,7 +41,7 @@ export default async function AdminDashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Visão Geral</h1>
-        <p className="text-[hsl(var(--muted-foreground))] mt-1">Métricas em tempo real da plataforma Encontrei.</p>
+        <p className="text-[hsl(var(--muted-foreground))] mt-1">Métricas em tempo real da plataforma AcheiYou.</p>
       </div>
 
       {/* Metrics Cards */}

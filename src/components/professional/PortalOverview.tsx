@@ -321,7 +321,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                   
                   <Button 
                     className="w-full mb-2 bg-[hsl(var(--success))] hover:bg-[hsl(var(--success-muted))] hover:text-[hsl(var(--success))] text-white"
-                    onClick={() => handleCheckout('ADD_FUNDS', 50, 'Adicionar R$50 na Carteira Encontrei')}
+                    onClick={() => handleCheckout('ADD_FUNDS', 50, 'Adicionar R$50 na Carteira AcheiYou')}
                     disabled={isCheckoutModalOpen}
                   >
                     <Wallet className="h-4 w-4 mr-2" />

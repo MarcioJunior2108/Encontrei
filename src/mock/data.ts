@@ -280,7 +280,7 @@ export function generateRealtimeEvent(): RealtimeEvent {
 export const MOCK_AUDIT_LOGS: AuditLog[] = Array.from({ length: 50 }, (_, i) => ({
   id: `log-${i + 1}`,
   adminId: 'admin-1',
-  admin: { id: 'admin-1', email: 'admin@encontrei.app', name: 'Admin Principal', role: 'SUPER_ADMIN', createdAt: '2024-01-01T00:00:00Z' },
+  admin: { id: 'admin-1', email: 'admin@acheiyou.app', name: 'Admin Principal', role: 'SUPER_ADMIN', createdAt: '2024-01-01T00:00:00Z' },
   action: ['ADMIN_LOGIN', 'USER_SUSPENDED', 'PROFESSIONAL_VERIFIED', 'CONTENT_REMOVED', 'SETTING_CHANGED'][i % 5] as AuditLog['action'],
   resource: ['user', 'professional', 'content', 'setting', 'report'][i % 5],
   resourceId: `${['user', 'pro', 'req', 'rep', 'set'][i % 5]}-${Math.floor(pseudoRandom(typeof i !== "undefined" ? i : undefined) * 100)}`,

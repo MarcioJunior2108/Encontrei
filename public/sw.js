@@ -1,4 +1,4 @@
-const CACHE_NAME = 'encontrei-cache-v1';
+const CACHE_NAME = 'acheiyou-cache-v1';
 const OFFLINE_URL = '/offline.html';
 
 const FILES_TO_CACHE = [

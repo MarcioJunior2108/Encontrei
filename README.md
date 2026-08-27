@@ -1,6 +1,6 @@
-# Encontrei 🎯
+# AcheiYou 🎯
 
-A plataforma que transforma **intenção humana em ação**. O Encontrei não é apenas mais um diretório de profissionais — é um motor de busca semântico focado em conectar sua necessidade com as pessoas certas, na hora certa.
+A plataforma que transforma **intenção humana em ação**. O AcheiYou não é apenas mais um diretório de profissionais — é um motor de busca semântico focado em conectar sua necessidade com as pessoas certas, na hora certa.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.x-black?logo=next.js)
 ![React](https://img.shields.io/badge/React-19.x-blue?logo=react)
@@ -9,7 +9,7 @@ A plataforma que transforma **intenção humana em ação**. O Encontrei não é
 
 ## 🌟 O Projeto
 
-O **Encontrei** foi construído com uma premissa clara: **design excepcional e facilidade de uso extrema**. 
+O **AcheiYou** foi construído com uma premissa clara: **design excepcional e facilidade de uso extrema**. 
 Em vez de forçar o usuário a preencher formulários complexos, ele apenas digita o que quer (*"Preciso de alguém para consertar meu telhado urgente"*), e o sistema cuida do resto, fazendo o match perfeito.
 
 ### 🎨 Design System
@@ -27,8 +27,8 @@ Em vez de forçar o usuário a preencher formulários complexos, ele apenas digi
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/encontrei.git
-cd encontrei
+git clone https://github.com/seu-usuario/acheiyou.git
+cd acheiyou
 ```
 
 2. Instale as dependências:
@@ -62,7 +62,7 @@ O projeto utiliza um **Monólito Modular** focado no frontend robusto:
 
 ## 📱 PWA (Progressive Web App)
 
-O Encontrei já está pronto para ser instalado nativamente via navegadores suportados (Chrome/Safari), contando com `manifest.json` robusto e um *Service Worker* para fallback offline básico.
+O AcheiYou já está pronto para ser instalado nativamente via navegadores suportados (Chrome/Safari), contando com `manifest.json` robusto e um *Service Worker* para fallback offline básico.
 
 ---
 Feito com 🖤 para escalar.

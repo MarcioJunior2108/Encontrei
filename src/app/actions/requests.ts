@@ -52,7 +52,7 @@ export async function createServiceRequest({
       const clientName = clientProfile.name || 'Um cliente';
       
       // Montar a mensagem exatamente como fazíamos no painel
-      let message = `*Encontrei - Novo Orçamento!*\n\nOlá ${professionalName}! Sou da plataforma Encontrei. Temos um cliente (${clientName}) precisando de um serviço seu agora mesmo!\n\n`;
+      let message = `*AcheiYou - Novo Orçamento!*\n\nOlá ${professionalName}! Sou da plataforma AcheiYou. Temos um cliente (${clientName}) precisando de um serviço seu agora mesmo!\n\n`;
 
       if (isUnclaimed) {
         const claimToken = professional.profile.claimToken;

@@ -15,7 +15,7 @@ function ProfessionalCard({ pro }: { pro: Professional }) {
 
   return (
     <Link
-      href={`/perfil/${pro.id}`}
+      href="/buscar"
       className="group block rounded-[var(--radius-xl)] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 hover:border-[hsl(var(--primary)/0.3)] hover:shadow-[var(--shadow-lg)] hover:-translate-y-1 transition-all duration-200"
       aria-label={`Ver perfil de ${pro.user.name}`}
     >

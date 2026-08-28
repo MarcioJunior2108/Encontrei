@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Providers } from '@/providers';
 import { SplashScreen } from '@/components/SplashScreen';
+import { GlobalChatWidget } from '@/components/chat/GlobalChatWidget';
+import { getCurrentProfile } from '@/app/actions/user';
 import './globals.css';
 
 const geistSans = Geist({
@@ -64,11 +66,13 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const profile = await getCurrentProfile();
+
   return (
     <html
       lang="pt-BR"
@@ -79,6 +83,10 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <SplashScreen />
         <Providers>{children}</Providers>
+        
+        {/* Chat Flutuante Global para usuários logados */}
+        {profile && <GlobalChatWidget currentUserId={profile.id} />}
+        
         <script
           dangerouslySetInnerHTML={{
             __html: `

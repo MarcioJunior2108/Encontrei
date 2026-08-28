@@ -10,7 +10,7 @@ import { redirect } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Activity, Clock, FileText, Star } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
-import { DashboardContent } from '@/components/dashboard/DashboardContent';
+import { DashboardRequests } from '@/components/dashboard/DashboardRequests';
 
 export const metadata: Metadata = {
   title: 'Meu Painel',
@@ -75,8 +75,23 @@ export default async function DashboardPage() {
           ))}
         </div>
 
-        {/* Content Tabs */}
-        <DashboardContent requests={realRequests} profileId={profile.id} />
+        {/* Recent requests */}
+        <Card>
+          <div className="px-6 py-4 border-b border-[hsl(var(--border))] flex items-center justify-between">
+            <h2 className="font-semibold text-[hsl(var(--foreground))]">Solicitações recentes</h2>
+          </div>
+          <CardContent className="p-0">
+            {recentRequests.length === 0 ? (
+              <div className="py-12 text-center">
+                <FileText className="h-8 w-8 text-[hsl(var(--muted-foreground)/0.4)] mx-auto mb-3" />
+                <p className="text-sm font-medium text-[hsl(var(--foreground))]">Ainda não há solicitações</p>
+                <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Navegue pelos profissionais e peça um orçamento!</p>
+              </div>
+            ) : (
+              <DashboardRequests requests={recentRequests} profileId={profile.id} />
+            )}
+          </CardContent>
+        </Card>
       </div>
     </main>
   );

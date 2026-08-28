@@ -4,6 +4,42 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentProfile } from './user';
 import { revalidatePath } from 'next/cache';
 
+export async function getActiveChats() {
+  try {
+    const profile = await getCurrentProfile();
+    if (!profile) return { error: 'Não autorizado' };
+
+    // Buscar pedidos onde o usuário é o cliente ou o profissional (se o profissional estiver vinculado a esse profile)
+    // E os pedidos estão aceitos e desbloqueados
+    const requests = await prisma.serviceRequest.findMany({
+      where: {
+        status: 'ACCEPTED',
+        isUnlocked: true,
+        OR: [
+          { clientId: profile.id },
+          { professional: { userId: profile.id } }
+        ]
+      },
+      include: {
+        client: true,
+        professional: {
+          include: { profile: true }
+        },
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
+      },
+      orderBy: { updatedAt: 'desc' }
+    });
+
+    return { success: true, chats: requests };
+  } catch (error) {
+    console.error('Erro ao buscar chats ativos:', error);
+    return { error: 'Falha ao buscar conversas' };
+  }
+}
+
 export async function getChatMessages(requestId: string) {
   try {
     const profile = await getCurrentProfile();

@@ -7,12 +7,10 @@ import { MessageSquare } from 'lucide-react';
 
 export function DashboardRequests({ 
   requests, 
-  profileId,
-  onOpenChat 
+  profileId
 }: { 
   requests: any[], 
-  profileId: string,
-  onOpenChat: (id: string) => void
+  profileId: string
 }) {
 
   const statusColors: Record<string, 'success' | 'warning' | 'error' | 'info' | 'primary' | 'secondary'> = {
@@ -40,7 +38,7 @@ export function DashboardRequests({
                 <Button 
                   size="sm" 
                   variant="default"
-                  onClick={() => onOpenChat(req.id)}
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-chat', { detail: { requestId: req.id } }))}
                   className="text-xs h-8 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)] text-white"
                 >
                   <MessageSquare className="h-3 w-3 mr-1.5" />

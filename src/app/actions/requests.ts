@@ -61,16 +61,24 @@ export async function createServiceRequest({
       const professionalName = professional.profile.name || 'Profissional';
       const clientName = clientProfile.name || 'Um cliente';
       
-      // Montar a mensagem exatamente como fazíamos no painel
-      let message = `*AcheiYou - Novo Orçamento!*\n\nOlá ${professionalName}! Sou da plataforma AcheiYou. Temos um cliente (${clientName}) precisando de um serviço seu agora mesmo!\n\n`;
+      // Copywriting Persuasiva e Urgente
+      let message = `🚨 *Novo Lead ${isPremiumLead ? 'Premium ' : ''}na sua região!*\n\nOlá *${professionalName}*, o cliente *${clientName}* acabou de solicitar um orçamento para você.\n`;
+
+      if (isPremiumLead) {
+        message += `📸 _Ele enviou uma foto detalhada do problema._\n\n`;
+      } else {
+        message += `\n`;
+      }
+
+      message += `💰 *Desbloqueie agora por R$ 15 e garanta esse serviço antes da concorrência!*\n\n`;
 
       if (isUnclaimed) {
         const claimToken = professional.profile.claimToken;
         const magicLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://seu-site.com.br'}/claim?token=${claimToken}`;
-        message += `Para visualizar os detalhes do pedido e responder ao cliente, você precisa ativar o seu perfil gratuito.\n\n*Clique no link abaixo para assumir seu perfil e ver o pedido:*\n${magicLink}\n\nEstamos aguardando você! 🚀`;
+        message += `👉 *Clique no link abaixo para ativar sua conta e ver o pedido:*\n${magicLink}\n\nEstamos aguardando você! 🚀`;
       } else {
         const loginLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://seu-site.com.br'}/login`;
-        message += `Para visualizar os detalhes do pedido e responder ao cliente, acesse agora mesmo o seu painel em nosso site.\n\n*Clique no link abaixo para fazer login e ver o pedido:*\n${loginLink}\n\nEstamos aguardando você! 🚀`;
+        message += `👉 *Clique no link abaixo para acessar seu painel e desbloquear o contato:*\n${loginLink}\n\nAja rápido! 🚀`;
       }
 
       // Envia de forma não bloqueante (não usamos await se não quisermos segurar o carregamento, 

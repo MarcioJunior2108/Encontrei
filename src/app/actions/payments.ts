@@ -50,15 +50,26 @@ export async function verifyPaymentStatus(paymentId: string) {
         });
 
         if (!existingTransaction) {
-          await prisma.transaction.create({
-            data: {
-              professionalId,
-              amount: paymentInfo.transaction_amount || 0,
-              type: type || 'UNKNOWN',
-              paymentMethod: paymentInfo.payment_method_id || 'unknown',
-              mercadopagoId
-            }
+          // O professionalId do metadata é na verdade o userId (Profile.id). 
+          // Precisamos buscar o ID correto da tabela Professional.
+          const profRecord = await prisma.professional.findUnique({
+            where: { userId: professionalId }
           });
+
+          if (profRecord) {
+            await prisma.transaction.create({
+              data: {
+                professionalId: profRecord.id,
+                amount: paymentInfo.transaction_amount || 0,
+                type: type || 'UNKNOWN',
+                paymentMethod: paymentInfo.payment_method_id || 'unknown',
+                mercadopagoId
+              }
+            });
+            console.log(`[Pagamentos] Transação registrada com sucesso para o profissional ${profRecord.id}`);
+          } else {
+            console.error(`[Pagamentos] Profissional não encontrado para o userId: ${professionalId}`);
+          }
         }
       }
 

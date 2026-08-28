@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
   turbopack: {},
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion'],
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
   },
   images: {
     dangerouslyAllowSVG: true,

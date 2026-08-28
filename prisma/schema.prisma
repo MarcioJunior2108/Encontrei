@@ -70,21 +70,46 @@ model ServiceRequest {
   status         RequestStatus @default(PENDING)
   isUnlocked     Boolean       @default(false) @map("is_unlocked")
   
+  // Campos do Epic 1: Diagnóstico Visual (Leads Premium)
+  isPremiumLead  Boolean       @default(false) @map("is_premium_lead")
+  coinPrice      Int           @default(5)     @map("coin_price") // Custo padrão em moedas para destravar
+  aiDiagnosis    Json?         @map("ai_diagnosis") // Guarda o problema, materiais, e range de custo
+  imageUrl       String?       @map("image_url") // Foto enviada pelo cliente
+  
+  milestones     Milestone[]   @relation("RequestMilestones")
+
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
 
   @@map("service_requests")
 }
 
+model Milestone {
+  id               String          @id @default(uuid()) @db.Uuid
+  requestId        String          @map("request_id") @db.Uuid
+  request          ServiceRequest  @relation("RequestMilestones", fields: [requestId], references: [id], onDelete: Cascade)
+  
+  description      String
+  amountPercentage Int             @map("amount_percentage")
+  status           MilestoneStatus @default(PENDING)
+  proofImageUrl    String?         @map("proof_image_url")
+  
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  @@map("milestones")
+}
+
 model Transaction {
-  id              String       @id @default(uuid()) @db.Uuid
-  professionalId  String       @map("professional_id") @db.Uuid
-  professional    Professional @relation("ProfessionalTransactions", fields: [professionalId], references: [id], onDelete: Cascade)
-  amount          Decimal      @db.Decimal(10, 2)
-  type            String       // 'UNLOCK_LEAD', 'ADD_FUNDS', 'UPGRADE_PRO'
-  paymentMethod   String       // 'pix', 'credit_card', etc.
-  mercadopagoId   String?      @unique
-  createdAt       DateTime     @default(now()) @map("created_at")
+  id              String             @id @default(uuid()) @db.Uuid
+  professionalId  String             @map("professional_id") @db.Uuid
+  professional    Professional       @relation("ProfessionalTransactions", fields: [professionalId], references: [id], onDelete: Cascade)
+  amount          Decimal            @db.Decimal(10, 2)
+  type            String             // 'UNLOCK_LEAD', 'ADD_FUNDS', 'UPGRADE_PRO', 'ESCROW_PAYMENT', 'MILESTONE_RELEASE'
+  paymentMethod   String             // 'pix', 'credit_card', etc.
+  mercadopagoId   String?            @unique
+  status          TransactionStatus  @default(PENDING)
+  createdAt       DateTime           @default(now()) @map("created_at")
 
   @@map("transactions")
 }
@@ -128,4 +153,19 @@ enum RequestStatus {
   REJECTED
   COMPLETED
   CANCELLED
+}
+
+enum MilestoneStatus {
+  PENDING
+  AWAITING_VERIFICATION
+  COMPLETED
+  DISPUTED
+}
+
+enum TransactionStatus {
+  PENDING
+  ESCROW
+  RELEASED
+  REFUNDED
+  FAILED
 }

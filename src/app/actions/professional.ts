@@ -16,6 +16,10 @@ export async function updateProfessionalProfile(formData: FormData) {
   const state = formData.get('state') as string;
   const basePrice = formData.get('basePrice') ? Number(formData.get('basePrice')) : null;
   const avatarFile = formData.get('avatar') as File | null;
+  console.log('--- DEBUG AVATAR UPLOAD ---');
+  console.log('Avatar File exists?', !!avatarFile);
+  console.log('Avatar File size:', avatarFile?.size);
+  console.log('Avatar File type:', avatarFile?.type);
   
   let avatarUrl: string | undefined = undefined;
   if (avatarFile && avatarFile.size > 0) {
@@ -23,22 +27,34 @@ export async function updateProfessionalProfile(formData: FormData) {
     const buffer = Buffer.from(arrayBuffer);
     const base64 = buffer.toString('base64');
     avatarUrl = `data:${avatarFile.type};base64,${base64}`;
+    console.log('Avatar URL generated! Length:', avatarUrl.length);
+  } else {
+    console.log('No avatar file provided or size is 0.');
   }
+  console.log('---------------------------');
   
   try {
-    await prisma.professional.update({
-      where: { userId: user.id },
+    await prisma.profile.update({
+      where: { id: user.id },
       data: {
+        city,
+        state,
+        ...(avatarUrl && { avatarUrl })
+      }
+    });
+
+    await prisma.professional.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: user.id,
         headline,
         bio,
         basePrice,
-        profile: {
-          update: {
-            city,
-            state,
-            ...(avatarUrl && { avatarUrl })
-          }
-        }
+      },
+      update: {
+        headline,
+        bio,
+        basePrice,
       }
     });
     

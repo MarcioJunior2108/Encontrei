@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ArrowRight, Mic, Sparkles } from 'lucide-react';
+import { Search, ArrowRight, Mic, Sparkles, Camera, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { INTENT_EXAMPLES } from '@/mock/data';
 
@@ -12,7 +12,7 @@ interface IntentInputProps {
   placeholder?: string;
   autoFocus?: boolean;
   className?: string;
-  onSubmit?: (value: string) => void;
+  onSubmit?: (value: string, imageBase64?: string) => void;
   defaultValue?: string;
 }
 
@@ -30,6 +30,8 @@ export function IntentInput({
   const [isLoading, setIsLoading] = useState(false);
   const [exampleIndex, setExampleIndex] = useState(0);
   const [showExample, setShowExample] = useState(true);
+  const [imageBase64, setImageBase64] = useState<string | undefined>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Rotate examples when not focused and empty
   useEffect(() => {
@@ -54,18 +56,30 @@ export function IntentInput({
 
   const handleSubmit = useCallback(async () => {
     const trimmed = value.trim();
-    if (!trimmed || isLoading) return;
+    if ((!trimmed && !imageBase64) || isLoading) return;
 
     setIsLoading(true);
     if (onSubmit) {
-      onSubmit(trimmed);
+      onSubmit(trimmed, imageBase64);
     } else {
       router.push(`/buscar?q=${encodeURIComponent(trimmed)}`);
     }
     // Keep loading for brief moment to show feedback
     await new Promise(r => setTimeout(r, 600));
     setIsLoading(false);
-  }, [value, isLoading, onSubmit, router]);
+  }, [value, imageBase64, isLoading, onSubmit, router]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageBase64(reader.result as string);
+        setIsFocused(true); // Keep focus to show UI correctly
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -143,6 +157,26 @@ export function IntentInput({
               )}
               style={{ lineHeight: '1.6' }}
             />
+
+            {/* Image Preview */}
+            <AnimatePresence>
+              {imageBase64 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="mt-3 relative inline-block rounded-xl overflow-hidden border border-[hsl(var(--border))] shadow-sm"
+                >
+                  <img src={imageBase64} alt="Problema" className="h-24 w-auto object-cover" />
+                  <button
+                    onClick={() => setImageBase64(undefined)}
+                    className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full hover:bg-black transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -157,13 +191,30 @@ export function IntentInput({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Camera input for AI Vision */}
+            <button
+              type="button"
+              title="Anexar foto para Diagnóstico com IA"
+              onClick={() => fileInputRef.current?.click()}
+              className="h-8 w-8 rounded-full flex items-center justify-center text-[hsl(var(--primary))] bg-[hsl(var(--primary))/0.1] hover:bg-[hsl(var(--primary))/0.2] transition-colors relative"
+            >
+              <Camera className="h-4 w-4" />
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </button>
+
             {/* Voice input — UI ready, not functional yet */}
             <button
               type="button"
               title="Entrada por voz (em breve)"
               disabled
               className="h-8 w-8 rounded-full flex items-center justify-center text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label="Entrada por voz (em breve)"
             >
               <Mic className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -172,15 +223,15 @@ export function IntentInput({
             <motion.button
               type="button"
               onClick={handleSubmit}
-              disabled={!value.trim() || isLoading}
+              disabled={(!value.trim() && !imageBase64) || isLoading}
               className={cn(
                 'h-9 min-w-9 rounded-[var(--radius-lg)] px-3 flex items-center justify-center gap-1.5 text-sm font-semibold transition-all duration-200',
-                value.trim() && !isLoading
+                (value.trim() || imageBase64) && !isLoading
                   ? 'bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary-hover))] shadow-sm cursor-pointer'
                   : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] cursor-not-allowed'
               )}
-              whileHover={value.trim() ? { scale: 1.03 } : {}}
-              whileTap={value.trim() ? { scale: 0.97 } : {}}
+              whileHover={(value.trim() || imageBase64) ? { scale: 1.03 } : {}}
+              whileTap={(value.trim() || imageBase64) ? { scale: 0.97 } : {}}
               aria-label="Buscar"
             >
               {isLoading ? (

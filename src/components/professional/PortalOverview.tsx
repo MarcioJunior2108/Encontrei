@@ -9,7 +9,7 @@ import { AgendaView } from './AgendaView';
 import { Button } from '@/components/ui/button';
 import { 
   Bell, Wallet, TrendingUp, Star, Clock, CheckCircle2, 
-  Settings, User, MapPin, Calendar, FileText, ChevronRight, MessageSquare, Lock, AlertCircle, Phone, LockKeyhole
+  Settings, User, MapPin, Calendar, FileText, ChevronRight, MessageSquare, Lock, AlertCircle, Phone, LockKeyhole, Sparkles
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
@@ -174,13 +174,21 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                   const maskedName = isUnlocked ? req.client.name : `${clientFirstName} ***`;
                   
                   return (
-                    <Card key={req.id} className={`overflow-hidden transition-all duration-200 ${!isUnlocked && req.status === 'PENDING' ? 'border-[hsl(var(--primary)/0.5)] shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]' : ''}`}>
+                    <Card key={req.id} className={`overflow-hidden transition-all duration-200 ${!isUnlocked && req.status === 'PENDING' ? (req.isPremiumLead ? 'border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'border-[hsl(var(--primary)/0.5)] shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]') : ''}`}>
                       {/* Urgency Banner for Locked Leads */}
                       {!isUnlocked && req.status === 'PENDING' && (
-                        <div className="bg-[hsl(var(--primary)/0.1)] px-5 py-2.5 flex items-center gap-2 border-b border-[hsl(var(--primary)/0.2)]">
-                          <AlertCircle className="h-4 w-4 text-[hsl(var(--primary))]" />
-                          <p className="text-xs font-medium text-[hsl(var(--primary))]">
-                            Dica: Profissionais que respondem rápido têm <strong className="font-bold">3x mais chances</strong> de fechar o serviço.
+                        <div className={req.isPremiumLead ? "bg-amber-500/10 px-5 py-2.5 flex items-center gap-2 border-b border-amber-500/20" : "bg-[hsl(var(--primary)/0.1)] px-5 py-2.5 flex items-center gap-2 border-b border-[hsl(var(--primary)/0.2)]"}>
+                          {req.isPremiumLead ? (
+                            <Sparkles className="h-4 w-4 text-amber-500" />
+                          ) : (
+                            <AlertCircle className="h-4 w-4 text-[hsl(var(--primary))]" />
+                          )}
+                          <p className={req.isPremiumLead ? "text-xs font-medium text-amber-600" : "text-xs font-medium text-[hsl(var(--primary))]"}>
+                            {req.isPremiumLead ? (
+                              <>Dica: Este é um <strong className="font-bold">Lead Premium</strong> com diagnóstico gerado por Inteligência Artificial.</>
+                            ) : (
+                              <>Dica: Profissionais que respondem rápido têm <strong className="font-bold">3x mais chances</strong> de fechar o serviço.</>
+                            )}
                           </p>
                         </div>
                       )}
@@ -193,15 +201,46 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                               {maskedName}
                             </h3>
                             {req.status === 'PENDING' && <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-none font-semibold px-2.5 py-0.5">Novo Pedido</Badge>}
+                            {req.isPremiumLead && <Badge variant="secondary" className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-none font-semibold px-2.5 py-0.5 flex gap-1 items-center"><Sparkles className="h-3 w-3" /> IA Verificado</Badge>}
                             {req.status === 'REJECTED' && <Badge variant="secondary" className="bg-red-100 text-red-700">Recusado</Badge>}
                             {req.status === 'ACCEPTED' && <Badge variant="secondary" className="bg-green-100 text-green-700">Aceito</Badge>}
                           </div>
                           
-                          <p className="text-sm text-[hsl(var(--foreground))] mb-4 whitespace-pre-wrap leading-relaxed relative">
-                            <span className="text-[hsl(var(--muted-foreground))]">"</span>
-                            {req.description}
-                            <span className="text-[hsl(var(--muted-foreground))]">"</span>
-                          </p>
+                          {/* Descrição Original do Cliente */}
+                          <div className="flex gap-4">
+                            {req.imageUrl && (
+                              <div className="w-20 h-20 shrink-0 rounded-[var(--radius-md)] overflow-hidden bg-[hsl(var(--muted))] border border-[hsl(var(--border))]">
+                                <img src={req.imageUrl} alt="Foto enviada pelo cliente" className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                            <p className="text-sm text-[hsl(var(--foreground))] mb-4 whitespace-pre-wrap leading-relaxed relative flex-1">
+                              <span className="text-[hsl(var(--muted-foreground))]">"</span>
+                              {req.description}
+                              <span className="text-[hsl(var(--muted-foreground))]">"</span>
+                            </p>
+                          </div>
+
+                          {/* Diagnóstico da IA (se destravado) */}
+                          {req.isPremiumLead && isUnlocked && req.aiDiagnosis && (
+                            <div className="mb-4 mt-2 p-4 bg-amber-500/10 border border-amber-500/20 rounded-[var(--radius-lg)]">
+                              <h4 className="text-sm font-bold text-amber-700 flex items-center gap-1.5 mb-2">
+                                <Sparkles className="h-4 w-4" /> Diagnóstico Avançado (IA)
+                              </h4>
+                              <p className="text-xs text-[hsl(var(--foreground))] mb-2">
+                                <strong>Problema Identificado:</strong> {req.aiDiagnosis.problem}
+                              </p>
+                              {req.aiDiagnosis.materials && req.aiDiagnosis.materials.length > 0 && (
+                                <p className="text-xs text-[hsl(var(--foreground))] mb-2">
+                                  <strong>Materiais Necessários:</strong> {req.aiDiagnosis.materials.join(', ')}
+                                </p>
+                              )}
+                              {req.aiDiagnosis.estimatedCostRange && (
+                                <p className="text-xs text-amber-600 font-bold">
+                                  Estimativa de Custo Base: {formatCurrency(req.aiDiagnosis.estimatedCostRange.min)} - {formatCurrency(req.aiDiagnosis.estimatedCostRange.max)}
+                                </p>
+                              )}
+                            </div>
+                          )}
                           
                           <div className="flex flex-wrap gap-4 text-xs font-medium text-[hsl(var(--muted-foreground))]">
                             <span className="flex items-center gap-1.5 bg-[hsl(var(--muted))] px-2.5 py-1.5 rounded-md">
@@ -221,12 +260,12 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                               {!isUnlocked ? (
                                 <div className="space-y-2">
                                   <Button 
-                                    className="w-full bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)] text-white font-semibold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5"
-                                    onClick={() => handleCheckout('UNLOCK_LEAD', 10, 'Desbloqueio de Contato de Cliente', req.id)}
+                                    className={`w-full text-white font-semibold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5 ${req.isPremiumLead ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600' : 'bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)]'}`}
+                                    onClick={() => handleCheckout('UNLOCK_LEAD', req.coinPrice || 10, 'Desbloqueio de Contato de Cliente', req.id)}
                                     disabled={isCheckoutModalOpen || isRejecting === req.id}
                                   >
                                     <Phone className="h-4 w-4 mr-2" />
-                                    Liberar Contato (R$ 10)
+                                    {req.isPremiumLead ? `Liberar Lead Premium (R$ ${req.coinPrice || 15})` : `Liberar Contato (R$ ${req.coinPrice || 10})`}
                                   </Button>
                                   <p className="text-[10px] text-center text-[hsl(var(--muted-foreground))]">
                                     O valor é retornado caso o cliente não responda em 24h.

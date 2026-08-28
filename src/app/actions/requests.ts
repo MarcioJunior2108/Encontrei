@@ -10,11 +10,19 @@ import { sendAutomatedWhatsAppMessage } from '@/lib/whatsapp';
 export async function createServiceRequest({ 
   professionalId, 
   description, 
-  date 
+  date,
+  imageUrl,
+  aiDiagnosis,
+  isPremiumLead,
+  coinPrice = 5
 }: { 
   professionalId: string, 
   description: string, 
-  date: string 
+  date: string,
+  imageUrl?: string,
+  aiDiagnosis?: any,
+  isPremiumLead?: boolean,
+  coinPrice?: number
 }) {
   try {
     const clientProfile = await getCurrentProfile();
@@ -35,8 +43,10 @@ export async function createServiceRequest({
         professionalId,
         description: safeDescription,
         scheduledDate: date ? new Date(date) : null,
-        // The status defaults to PENDING
-        // isUnlocked defaults to false
+        imageUrl,
+        aiDiagnosis: aiDiagnosis || undefined,
+        isPremiumLead: isPremiumLead || false,
+        coinPrice: isPremiumLead ? 15 : coinPrice, // Premium leads custam 15 moedas
       }
     });
 

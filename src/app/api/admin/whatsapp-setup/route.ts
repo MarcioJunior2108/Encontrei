@@ -39,9 +39,10 @@ export async function POST() {
 
     let data = await response.json().catch(() => ({}));
 
-    // Se a instância já existir, a Evolution API retorna um erro ou não retorna o QR Code.
-    // Vamos chamar o endpoint connect para forçar a geração do QR Code se não tivermos recebido
-    if (!response.ok || !data.qrcode) {
+    // Se a API não retornar ok, ou não tiver QR code na primeira tentativa
+    let qrcodeBase64 = data?.hash?.qrcode || data?.qrcode?.base64;
+
+    if (!response.ok || !qrcodeBase64) {
       const errorMsg = data.message || data.error || 'Erro desconhecido na Evolution API';
       const connectResponse = await fetch(`${baseUrl}/instance/connect/${instanceName}`, {
         method: 'GET',
@@ -51,14 +52,15 @@ export async function POST() {
       });
       const connectData = await connectResponse.json();
       
-      if (!connectResponse.ok && connectData.error !== 'Instance already connected') {
+      if (!connectResponse.ok && connectData.error !== 'Instance already connected' && !connectData?.instance?.state) {
          return NextResponse.json({ error: 'Erro ao conectar à instância: ' + JSON.stringify(connectData) }, { status: 500 });
       }
 
-      // Se retornou o QR code do endpoint connect
-      if (connectData.base64) {
-        return NextResponse.json({ qrcode: { base64: connectData.base64 } });
-      } else if (connectData.instance?.state === 'open' || connectData.error === 'Instance already connected') {
+      qrcodeBase64 = connectData?.hash?.qrcode || connectData?.qrcode?.base64 || connectData?.base64;
+
+      if (qrcodeBase64) {
+        return NextResponse.json({ qrcode: { base64: `data:image/png;base64,${qrcodeBase64.replace(/^data:image\/png;base64,/, '')}` } });
+      } else if (connectData.instance?.state === 'open' || connectData.instance?.status === 'open' || connectData.error === 'Instance already connected') {
         return NextResponse.json({ instance: { state: 'open' } });
       } else {
         // Fallback pra retornar o que quer que tenha vindo
@@ -66,7 +68,10 @@ export async function POST() {
       }
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({
+      instance: data.instance,
+      qrcode: { base64: `data:image/png;base64,${qrcodeBase64.replace(/^data:image\/png;base64,/, '')}` }
+    });
 
   } catch (error: any) {
     console.error('[WhatsApp Setup API] Erro:', error);

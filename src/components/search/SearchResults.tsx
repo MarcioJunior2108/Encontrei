@@ -14,11 +14,12 @@ interface SearchResultsProps {
   query?: string;
   category?: string;
   initialResults?: any[];
+  aiIntent?: any;
 }
 
 type SortKey = 'rating' | 'price' | 'response' | 'services';
 
-export function SearchResults({ query, category, initialResults = [] }: SearchResultsProps) {
+export function SearchResults({ query, category, initialResults = [], aiIntent }: SearchResultsProps) {
   const [sort, setSort] = useState<SortKey>('rating');
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -73,10 +74,19 @@ export function SearchResults({ query, category, initialResults = [] }: SearchRe
                 ? `${filtered.length} profissionais encontrados`
                 : 'Nenhum resultado'}
             </h1>
-            {displayQuery && (
+            {displayQuery && !aiIntent && (
               <p className="text-sm text-[hsl(var(--muted-foreground))] mt-0.5">
                 para &ldquo;{displayQuery}&rdquo;
               </p>
+            )}
+            {aiIntent && (
+              <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)]">
+                <Zap className="h-3.5 w-3.5 text-[hsl(var(--primary))]" />
+                <span className="text-xs font-medium text-[hsl(var(--primary))]">
+                  IA detectou necessidade de: <strong className="font-bold">{aiIntent.profession || category}</strong> 
+                  {aiIntent.city ? ` em ${aiIntent.city}` : ''}
+                </span>
+              </div>
             )}
           </div>
 

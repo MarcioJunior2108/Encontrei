@@ -14,7 +14,7 @@ export async function createServiceRequest({
   imageUrl,
   aiDiagnosis,
   isPremiumLead,
-  coinPrice = 5
+  coinPrice = 15
 }: { 
   professionalId: string, 
   description: string, 
@@ -46,7 +46,7 @@ export async function createServiceRequest({
         imageUrl,
         aiDiagnosis: aiDiagnosis || undefined,
         isPremiumLead: isPremiumLead || false,
-        coinPrice: isPremiumLead ? 15 : coinPrice, // Premium leads custam 15 moedas
+        coinPrice: 15, // Valor fixo de 15 moedas para todos os leads
       }
     });
 

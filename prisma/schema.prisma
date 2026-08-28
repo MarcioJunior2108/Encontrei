@@ -72,7 +72,7 @@ model ServiceRequest {
   
   // Campos do Epic 1: Diagnóstico Visual (Leads Premium)
   isPremiumLead  Boolean       @default(false) @map("is_premium_lead")
-  coinPrice      Int           @default(5)     @map("coin_price") // Custo padrão em moedas para destravar
+  coinPrice      Int           @default(15)    @map("coin_price") // Custo fixo em moedas para destravar
   aiDiagnosis    Json?         @map("ai_diagnosis") // Guarda o problema, materiais, e range de custo
   imageUrl       String?       @map("image_url") // Foto enviada pelo cliente
   

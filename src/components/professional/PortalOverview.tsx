@@ -261,11 +261,11 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                                 <div className="space-y-2">
                                   <Button 
                                     className={`w-full text-white font-semibold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5 ${req.isPremiumLead ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600' : 'bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)]'}`}
-                                    onClick={() => handleCheckout('UNLOCK_LEAD', req.coinPrice || 10, 'Desbloqueio de Contato de Cliente', req.id)}
+                                    onClick={() => handleCheckout('UNLOCK_LEAD', req.coinPrice || 15, 'Desbloqueio de Contato de Cliente', req.id)}
                                     disabled={isCheckoutModalOpen || isRejecting === req.id}
                                   >
                                     <Phone className="h-4 w-4 mr-2" />
-                                    {req.isPremiumLead ? `Liberar Lead Premium (R$ ${req.coinPrice || 15})` : `Liberar Contato (R$ ${req.coinPrice || 10})`}
+                                    {req.isPremiumLead ? `Liberar Lead Premium (R$ ${req.coinPrice || 15})` : `Liberar Contato (R$ ${req.coinPrice || 15})`}
                                   </Button>
                                   <p className="text-[10px] text-center text-[hsl(var(--muted-foreground))]">
                                     O valor é retornado caso o cliente não responda em 24h.

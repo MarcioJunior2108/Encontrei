@@ -19,7 +19,7 @@ import { verifyPaymentStatus } from '@/app/actions/payments';
 import { ProfileSettings } from './ProfileSettings';
 import { Badge } from '@/components/ui/badge';
 import { MercadoPagoModal } from '@/components/checkout/MercadoPagoModal';
-import { ChatBox } from '@/components/chat/ChatBox';
+import { ChatView } from '@/components/chat/ChatView';
 
 export function PortalOverview({ profile, professional }: { profile: any, professional?: any }) {
   const [activeTab, setActiveTab] = useState('overview');
@@ -141,7 +141,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
       <div className="mt-8">
         <div className="border-b border-[hsl(var(--border))] mb-6">
           <div className="flex items-center gap-6 text-sm font-medium">
-            {['overview', 'agenda', 'metricas', 'pagamentos', 'perfil'].map((tab) => (
+            {['overview', 'mensagens', 'agenda', 'metricas', 'pagamentos', 'perfil'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -151,7 +151,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                     : 'border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'
                 }`}
               >
-                {tab === 'overview' ? 'Visão Geral' : tab === 'perfil' ? 'Meu Perfil' : tab}
+                {tab === 'overview' ? 'Visão Geral' : tab === 'mensagens' ? 'Mensagens' : tab === 'perfil' ? 'Meu Perfil' : tab}
               </button>
             ))}
           </div>
@@ -163,6 +163,18 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
+          {activeTab === 'mensagens' && (
+            <div className="-mx-4 sm:mx-0">
+              <ChatView 
+                requests={requests} 
+                currentUserId={profile.id} 
+                isProfessional={true}
+                activeChatId={activeChat}
+                onClose={() => setActiveTab('overview')}
+              />
+            </div>
+          )}
+
           {activeTab === 'overview' && (
             <div className="space-y-4">
               {requests.length === 0 ? (
@@ -330,10 +342,13 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                                   <Button 
                                     variant="default"
                                     className="w-full bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)] text-white shadow-sm"
-                                    onClick={() => setActiveChat(activeChat === req.id ? null : req.id)}
+                                    onClick={() => {
+                                      setActiveChat(req.id);
+                                      setActiveTab('mensagens');
+                                    }}
                                   >
                                     <MessageSquare className="h-4 w-4 mr-2" />
-                                    {activeChat === req.id ? 'Fechar Chat' : 'Abrir Chat Interno'}
+                                    Abrir Chat Interno
                                   </Button>
                                 </div>
                               )}
@@ -346,16 +361,6 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                           )}
                         </div>
                       </CardContent>
-                      {/* Área do Chat Expandida */}
-                      {activeChat === req.id && (
-                        <div className="border-t border-[hsl(var(--border))] p-0 bg-slate-50/50">
-                          <ChatBox 
-                            requestId={req.id} 
-                            currentUserId={profile.id} 
-                            participantName={req.client?.name || 'Cliente'} 
-                          />
-                        </div>
-                      )}
                     </Card>
                   );
                 })

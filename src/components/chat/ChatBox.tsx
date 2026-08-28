@@ -2,17 +2,21 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, ArrowLeft } from 'lucide-react';
 import { getChatMessages, sendChatMessage } from '@/app/actions/chat';
 
 export function ChatBox({ 
   requestId, 
   currentUserId,
-  participantName
+  participantName,
+  onBack,
+  fullHeight = false
 }: { 
   requestId: string, 
   currentUserId: string,
-  participantName: string
+  participantName: string,
+  onBack?: () => void,
+  fullHeight?: boolean
 }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,16 +67,25 @@ export function ChatBox({
   };
 
   return (
-    <div className="flex flex-col h-[280px] border border-[hsl(var(--border))] rounded-md overflow-hidden bg-[hsl(var(--background))] shadow-sm mt-2">
+    <div className={`flex flex-col ${fullHeight ? 'h-full border-0 rounded-none' : 'h-[280px] border border-[hsl(var(--border))] rounded-md shadow-sm mt-2'} overflow-hidden bg-[hsl(var(--background))]`}>
       {/* Header do Chat */}
-      <div className="bg-[hsl(var(--muted)/0.5)] px-3 py-2 border-b border-[hsl(var(--border))] flex items-center justify-between">
+      <div className="bg-[hsl(var(--muted)/0.5)] px-3 py-2 border-b border-[hsl(var(--border))] flex items-center justify-between shrink-0">
         <div className="flex items-center">
-          <div className="h-6 w-6 rounded-full bg-[hsl(var(--primary))] text-white flex items-center justify-center font-bold text-xs mr-2 shadow-sm">
+          {onBack && (
+            <button 
+              onClick={onBack}
+              className="md:hidden mr-3 p-1.5 -ml-1.5 text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))] rounded-full transition-colors"
+              aria-label="Voltar para a lista"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          )}
+          <div className="h-8 w-8 rounded-full bg-[hsl(var(--primary))] text-white flex items-center justify-center font-bold text-sm mr-3 shadow-sm">
             {participantName.charAt(0).toUpperCase()}
           </div>
           <div>
-            <p className="font-semibold text-xs text-[hsl(var(--foreground))]">{participantName}</p>
-            <p className="text-[10px] text-[hsl(var(--muted-foreground))] leading-none mt-0.5">Chat Interno</p>
+            <p className="font-semibold text-sm text-[hsl(var(--foreground))]">{participantName}</p>
+            <p className="text-xs text-[hsl(var(--muted-foreground))] leading-none mt-0.5">Chat Interno</p>
           </div>
         </div>
       </div>

@@ -4,10 +4,16 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MessageSquare } from 'lucide-react';
-import { ChatBox } from '@/components/chat/ChatBox';
 
-export function DashboardRequests({ requests, profileId }: { requests: any[], profileId: string }) {
-  const [activeChat, setActiveChat] = useState<string | null>(null);
+export function DashboardRequests({ 
+  requests, 
+  profileId,
+  onOpenChat 
+}: { 
+  requests: any[], 
+  profileId: string,
+  onOpenChat: (id: string) => void
+}) {
 
   const statusColors: Record<string, 'success' | 'warning' | 'error' | 'info' | 'primary' | 'secondary'> = {
     COMPLETED: 'success', PENDING: 'warning', REJECTED: 'error',
@@ -33,27 +39,16 @@ export function DashboardRequests({ requests, profileId }: { requests: any[], pr
               {req.status === 'ACCEPTED' && (
                 <Button 
                   size="sm" 
-                  variant="outline"
-                  onClick={() => setActiveChat(activeChat === req.id ? null : req.id)}
-                  className="text-xs h-8"
+                  variant="default"
+                  onClick={() => onOpenChat(req.id)}
+                  className="text-xs h-8 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)] text-white"
                 >
                   <MessageSquare className="h-3 w-3 mr-1.5" />
-                  {activeChat === req.id ? 'Fechar Chat' : 'Abrir Chat'}
+                  Abrir Chat Interno
                 </Button>
               )}
             </div>
           </div>
-          
-          {/* Chat Container */}
-          {activeChat === req.id && (
-            <div className="px-6 pb-4 bg-slate-50/30">
-              <ChatBox 
-                requestId={req.id}
-                currentUserId={profileId}
-                participantName={req.professional?.profile?.name || 'Profissional'}
-              />
-            </div>
-          )}
         </div>
       ))}
     </div>

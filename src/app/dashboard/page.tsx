@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
-import { IntentInput } from '@/components/intent/IntentInput';
+import { AICopilotSearch } from '@/components/intent/AICopilotSearch';
 import { Card, CardContent } from '@/components/ui/card';
 import { MOCK_REQUESTS } from '@/mock/data';
 import { formatRelativeTime, getStatusLabel, formatCurrency, cn } from '@/lib/utils';
@@ -49,9 +49,9 @@ export default async function DashboardPage() {
           <p className="text-[hsl(var(--muted-foreground))] mt-1">O que você precisa hoje?</p>
         </div>
 
-        {/* Intent input */}
-        <div className="mb-10">
-          <IntentInput />
+        {/* Hero Section (Search/Intent) */}
+        <div className="mb-12 relative z-10">
+          <AICopilotSearch size="large" autoFocus />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

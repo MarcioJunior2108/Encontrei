@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -12,22 +12,23 @@ datasource db {
 // USER & PROFILES
 // ---------------------------------------------
 model Profile {
-  id        String   @id @default(uuid()) @db.Uuid // Mapeado para o auth.users do Supabase
-  email     String   @unique
-  name      String?
-  avatarUrl String?  @map("avatar_url")
-  role      Role     @default(CLIENT)
-  status    Status   @default(ACTIVE)
-  phone     String?
-  city      String?
-  state     String?
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
-  claimToken         String?  @unique @map("claim_token")
-  claimTokenExpires  DateTime? @map("claim_token_expires")
+  id                String    @id @default(uuid()) @db.Uuid // Mapeado para o auth.users do Supabase
+  email             String    @unique
+  name              String?
+  avatarUrl         String?   @map("avatar_url")
+  role              Role      @default(CLIENT)
+  status            Status    @default(ACTIVE)
+  phone             String?
+  city              String?
+  state             String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  claimToken        String?   @unique @map("claim_token")
+  claimTokenExpires DateTime? @map("claim_token_expires")
 
   professional Professional?
   sentRequests ServiceRequest[] @relation("ClientRequests")
+  sentMessages ChatMessage[]
 
   @@map("profiles")
 }
@@ -46,8 +47,8 @@ model Professional {
   createdAt          DateTime           @default(now()) @map("created_at")
   updatedAt          DateTime           @updatedAt @map("updated_at")
 
-  receivedRequests   ServiceRequest[]   @relation("ProfessionalRequests")
-  transactions       Transaction[]      @relation("ProfessionalTransactions")
+  receivedRequests ServiceRequest[] @relation("ProfessionalRequests")
+  transactions     Transaction[]    @relation("ProfessionalTransactions")
 
   @@map("professionals")
 }
@@ -56,62 +57,77 @@ model Professional {
 // TRANSACTIONS & REQUESTS
 // ---------------------------------------------
 model ServiceRequest {
-  id             String        @id @default(uuid()) @db.Uuid
-  clientId       String        @map("client_id") @db.Uuid
-  professionalId String        @map("professional_id") @db.Uuid
-  
-  client         Profile       @relation("ClientRequests", fields: [clientId], references: [id], onDelete: Cascade)
-  professional   Professional  @relation("ProfessionalRequests", fields: [professionalId], references: [id], onDelete: Cascade)
-  
-  description    String
-  proposedPrice  Decimal?      @map("proposed_price") @db.Decimal(10, 2)
-  scheduledDate  DateTime?     @map("scheduled_date")
-  
-  status         RequestStatus @default(PENDING)
-  isUnlocked     Boolean       @default(false) @map("is_unlocked")
-  
-  // Campos do Epic 1: Diagnóstico Visual (Leads Premium)
-  isPremiumLead  Boolean       @default(false) @map("is_premium_lead")
-  coinPrice      Int           @default(15)    @map("coin_price") // Custo fixo em moedas para destravar
-  aiDiagnosis    Json?         @map("ai_diagnosis") // Guarda o problema, materiais, e range de custo
-  imageUrl       String?       @map("image_url") // Foto enviada pelo cliente
-  
-  milestones     Milestone[]   @relation("RequestMilestones")
+  id             String @id @default(uuid()) @db.Uuid
+  clientId       String @map("client_id") @db.Uuid
+  professionalId String @map("professional_id") @db.Uuid
 
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
+  client       Profile      @relation("ClientRequests", fields: [clientId], references: [id], onDelete: Cascade)
+  professional Professional @relation("ProfessionalRequests", fields: [professionalId], references: [id], onDelete: Cascade)
+
+  description   String
+  proposedPrice Decimal?  @map("proposed_price") @db.Decimal(10, 2)
+  scheduledDate DateTime? @map("scheduled_date")
+
+  status     RequestStatus @default(PENDING)
+  isUnlocked Boolean       @default(false) @map("is_unlocked")
+
+  // Campos do Epic 1: Diagnóstico Visual (Leads Premium)
+  isPremiumLead Boolean @default(false) @map("is_premium_lead")
+  coinPrice     Int     @default(15) @map("coin_price") // Custo fixo em moedas para destravar
+  aiDiagnosis   Json?   @map("ai_diagnosis") // Guarda o problema, materiais, e range de custo
+  imageUrl      String? @map("image_url") // Foto enviada pelo cliente
+
+  milestones Milestone[]   @relation("RequestMilestones")
+  messages   ChatMessage[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("service_requests")
 }
 
 model Milestone {
-  id               String          @id @default(uuid()) @db.Uuid
-  requestId        String          @map("request_id") @db.Uuid
-  request          ServiceRequest  @relation("RequestMilestones", fields: [requestId], references: [id], onDelete: Cascade)
-  
+  id        String         @id @default(uuid()) @db.Uuid
+  requestId String         @map("request_id") @db.Uuid
+  request   ServiceRequest @relation("RequestMilestones", fields: [requestId], references: [id], onDelete: Cascade)
+
   description      String
   amountPercentage Int             @map("amount_percentage")
   status           MilestoneStatus @default(PENDING)
   proofImageUrl    String?         @map("proof_image_url")
-  
-  createdAt        DateTime        @default(now()) @map("created_at")
-  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("milestones")
 }
 
 model Transaction {
-  id              String             @id @default(uuid()) @db.Uuid
-  professionalId  String             @map("professional_id") @db.Uuid
-  professional    Professional       @relation("ProfessionalTransactions", fields: [professionalId], references: [id], onDelete: Cascade)
-  amount          Decimal            @db.Decimal(10, 2)
-  type            String             // 'UNLOCK_LEAD', 'ADD_FUNDS', 'UPGRADE_PRO', 'ESCROW_PAYMENT', 'MILESTONE_RELEASE'
-  paymentMethod   String             // 'pix', 'credit_card', etc.
-  mercadopagoId   String?            @unique
-  status          TransactionStatus  @default(PENDING)
-  createdAt       DateTime           @default(now()) @map("created_at")
+  id             String            @id @default(uuid()) @db.Uuid
+  professionalId String            @map("professional_id") @db.Uuid
+  professional   Professional      @relation("ProfessionalTransactions", fields: [professionalId], references: [id], onDelete: Cascade)
+  amount         Decimal           @db.Decimal(10, 2)
+  type           String // 'UNLOCK_LEAD', 'ADD_FUNDS', 'UPGRADE_PRO', 'ESCROW_PAYMENT', 'MILESTONE_RELEASE'
+  paymentMethod  String // 'pix', 'credit_card', etc.
+  mercadopagoId  String?           @unique @map("mercadopago_id")
+  status         TransactionStatus @default(PENDING)
+  createdAt      DateTime          @default(now()) @map("created_at")
 
   @@map("transactions")
+}
+
+model ChatMessage {
+  id               String   @id @default(uuid()) @db.Uuid
+  serviceRequestId String   @map("service_request_id") @db.Uuid
+  senderId         String   @map("sender_id") @db.Uuid // ID do Profile que enviou
+  content          String
+  isRead           Boolean  @default(false)
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  serviceRequest ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  sender         Profile        @relation(fields: [senderId], references: [id])
+
+  @@map("chat_messages")
 }
 
 // ---------------------------------------------

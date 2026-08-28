@@ -21,7 +21,6 @@ export function ChatBox({
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [inputText, setInputText] = useState('');
-  const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const fetchMessages = async () => {
@@ -44,26 +43,30 @@ export function ChatBox({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = async (e: React.FormEvent) => {
+  const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
 
-    setSending(true);
     const content = inputText;
     setInputText('');
 
-    // Otimista
+    // Otimista: adiciona na tela instantaneamente
     const tempMsg = {
       id: 'temp-' + Date.now(),
       content: content,
       senderId: currentUserId,
       createdAt: new Date(),
+      isPending: true,
     };
     setMessages(prev => [...prev, tempMsg]);
 
-    await sendChatMessage(requestId, content);
-    await fetchMessages();
-    setSending(false);
+    // Envia em background sem travar a interface
+    sendChatMessage(requestId, content).then(() => {
+      fetchMessages();
+    }).catch(err => {
+      console.error('Erro ao enviar mensagem:', err);
+      // Aqui poderíamos remover a mensagem otimista ou marcar como erro
+    });
   };
 
   return (
@@ -105,7 +108,7 @@ export function ChatBox({
           messages.map((msg) => {
             const isMe = msg.senderId === currentUserId;
             return (
-              <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+              <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} ${msg.isPending ? 'opacity-70' : ''}`}>
                 <div 
                   className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
                     isMe 
@@ -133,15 +136,15 @@ export function ChatBox({
           onChange={(e) => setInputText(e.target.value)}
           placeholder="Mensagem..."
           className="flex-1 rounded-md border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]/50 transition-shadow"
-          disabled={sending}
+          autoFocus
         />
         <Button 
           type="submit" 
           size="icon" 
-          disabled={sending || !inputText.trim()}
+          disabled={!inputText.trim()}
           className="rounded-md h-8 w-8 shrink-0 shadow-sm"
         >
-          {sending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+          <Send className="h-3 w-3" />
         </Button>
       </form>
     </div>

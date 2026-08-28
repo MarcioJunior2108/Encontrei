@@ -33,8 +33,8 @@ export function ChatBox({
 
   useEffect(() => {
     fetchMessages();
-    // Polling a cada 5 segundos
-    const interval = setInterval(fetchMessages, 5000);
+    // Polling a cada 3 segundos
+    const interval = setInterval(fetchMessages, 3000);
     return () => clearInterval(interval);
   }, [requestId]);
 

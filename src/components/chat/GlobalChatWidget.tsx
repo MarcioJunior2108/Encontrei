@@ -31,8 +31,8 @@ export function GlobalChatWidget({ currentUserId }: { currentUserId: string }) {
 
   useEffect(() => {
     loadChats();
-    // Polling da lista
-    const interval = setInterval(loadChats, 10000);
+    // Polling da lista a cada 3 segundos
+    const interval = setInterval(loadChats, 3000);
 
     // Escutar eventos customizados de outras partes do app
     const handleOpenChatEvent = (e: any) => {

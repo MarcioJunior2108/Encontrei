@@ -28,7 +28,9 @@ export function SearchResults({ query, category, initialResults = [], aiIntent }
   const filtered = useMemo(() => {
     let results = [...initialResults];
 
-    if (query) {
+    // Se houver intenção da IA, o Prisma já filtrou com sinônimos de forma inteligente.
+    // Só fazemos fallback de filtro manual no frontend se não tiver aiIntent.
+    if (query && !aiIntent) {
       const q = query.toLowerCase();
       results = results.filter(
         p =>

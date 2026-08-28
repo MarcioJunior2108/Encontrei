@@ -36,6 +36,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             Retorne EXCLUSIVAMENTE um JSON:
             {
               "profession": "Nome da profissão principal (ex: Encanador, Eletricista)",
+              "profession_synonyms": ["sinonimo1", "sinonimo2"], // Títulos equivalentes (ex: se for Programador, incluir Desenvolvedor, Engenheiro de Software)
               "keywords": ["palavra1", "palavra2"], // Palavras-chave do problema
               "city": "Nome da cidade se mencionada, senao null"
             }`
@@ -61,6 +62,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     if (aiIntent.profession) {
       orConditions.push({ headline: { contains: aiIntent.profession, mode: 'insensitive' } });
       orConditions.push({ bio: { contains: aiIntent.profession, mode: 'insensitive' } });
+    }
+
+    if (aiIntent.profession_synonyms && aiIntent.profession_synonyms.length > 0) {
+      aiIntent.profession_synonyms.forEach((syn: string) => {
+        orConditions.push({ headline: { contains: syn, mode: 'insensitive' } });
+        orConditions.push({ bio: { contains: syn, mode: 'insensitive' } });
+      });
     }
     
     if (aiIntent.keywords && aiIntent.keywords.length > 0) {

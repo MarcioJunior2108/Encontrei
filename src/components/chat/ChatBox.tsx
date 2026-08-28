@@ -63,20 +63,22 @@ export function ChatBox({
   };
 
   return (
-    <div className="flex flex-col h-[400px] border border-[hsl(var(--border))] rounded-lg overflow-hidden bg-[hsl(var(--background))]">
+    <div className="flex flex-col h-[280px] border border-[hsl(var(--border))] rounded-md overflow-hidden bg-[hsl(var(--background))] shadow-sm mt-2">
       {/* Header do Chat */}
-      <div className="bg-[hsl(var(--muted))] px-4 py-3 border-b border-[hsl(var(--border))] flex items-center">
-        <div className="h-8 w-8 rounded-full bg-[hsl(var(--primary))] text-white flex items-center justify-center font-bold mr-3">
-          {participantName.charAt(0).toUpperCase()}
-        </div>
-        <div>
-          <p className="font-semibold text-sm">{participantName}</p>
-          <p className="text-xs text-[hsl(var(--muted-foreground))]">Chat Interno Seguro</p>
+      <div className="bg-[hsl(var(--muted)/0.5)] px-3 py-2 border-b border-[hsl(var(--border))] flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="h-6 w-6 rounded-full bg-[hsl(var(--primary))] text-white flex items-center justify-center font-bold text-xs mr-2 shadow-sm">
+            {participantName.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <p className="font-semibold text-xs text-[hsl(var(--foreground))]">{participantName}</p>
+            <p className="text-[10px] text-[hsl(var(--muted-foreground))] leading-none mt-0.5">Chat Interno</p>
+          </div>
         </div>
       </div>
 
       {/* Área de Mensagens */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+      <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50/30">
         {loading && messages.length === 0 ? (
           <div className="flex justify-center items-center h-full">
             <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
@@ -111,22 +113,22 @@ export function ChatBox({
       </div>
 
       {/* Área de Input */}
-      <form onSubmit={handleSend} className="p-3 bg-white border-t border-[hsl(var(--border))] flex gap-2">
+      <form onSubmit={handleSend} className="p-2 bg-white border-t border-[hsl(var(--border))] flex gap-2 items-center">
         <input 
           type="text" 
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Digite sua mensagem..."
-          className="flex-1 rounded-full border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/50"
+          placeholder="Mensagem..."
+          className="flex-1 rounded-md border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[hsl(var(--primary))]/50 transition-shadow"
           disabled={sending}
         />
         <Button 
           type="submit" 
           size="icon" 
           disabled={sending || !inputText.trim()}
-          className="rounded-full h-10 w-10 shrink-0"
+          className="rounded-md h-8 w-8 shrink-0 shadow-sm"
         >
-          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          {sending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
         </Button>
       </form>
     </div>

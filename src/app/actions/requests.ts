@@ -61,24 +61,23 @@ export async function createServiceRequest({
       const professionalName = professional.profile.name || 'Profissional';
       const clientName = clientProfile.name || 'Um cliente';
       
-      // Copywriting Persuasiva e Urgente
-      let message = `🚨 *Novo Lead ${isPremiumLead ? 'Premium ' : ''}na sua região!*\n\nOlá *${professionalName}*, o cliente *${clientName}* acabou de solicitar um orçamento para você.\n`;
+      // Copy AIDA: Atenção → Interesse → Desejo → Ação (sem preço na mensagem inicial)
+      const firstName = professionalName.split(' ')[0];
+      let message = `🚨 *${firstName}, você tem um cliente esperando!*\n\nAlguém na sua região está buscando exatamente o seu serviço e pediu um orçamento agora.`;
 
       if (isPremiumLead) {
-        message += `📸 _Ele enviou uma foto detalhada do problema._\n\n`;
-      } else {
-        message += `\n`;
+        message += `\n\n📸 _O cliente enviou uma foto detalhada do problema — lead qualificado!_`;
       }
 
-      message += `💰 *Desbloqueie agora por R$ 15 e garanta esse serviço antes da concorrência!*\n\n`;
+      message += `\n\n⚡ *Seja o primeiro a responder e feche o serviço antes da concorrência.*`;
 
       if (isUnclaimed) {
         const claimToken = professional.profile.claimToken;
         const magicLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.acheiyou.com.br'}/claim?token=${claimToken}`;
-        message += `👉 *Clique no link abaixo para ativar sua conta e ver o pedido:*\n${magicLink}\n\nEstamos aguardando você! 🚀`;
+        message += `\n\n👉 Ver o pedido agora:\n${magicLink}`;
       } else {
-        const loginLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.acheiyou.com.br'}/login`;
-        message += `👉 *Clique no link abaixo para acessar seu painel e desbloquear o contato:*\n${loginLink}\n\nAja rápido! 🚀`;
+        const loginLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.acheiyou.com.br'}/profissional`;
+        message += `\n\n👉 Ver o pedido agora:\n${loginLink}`;
       }
 
       // Envia de forma não bloqueante (não usamos await se não quisermos segurar o carregamento, 

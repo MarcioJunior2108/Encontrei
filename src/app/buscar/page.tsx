@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Header } from '@/components/layout/Header';
 import { SearchResults } from '@/components/search/SearchResults';
+import { IntentInput } from '@/components/intent/IntentInput';
 import { prisma } from '@/lib/prisma';
 import OpenAI from 'openai';
 import { Suspense } from 'react';
-import { Loader2 } from 'lucide-react';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -19,16 +19,16 @@ interface SearchPageProps {
   searchParams: Promise<{ q?: string; categoria?: string }>;
 }
 
-// ─── Prompt ultra-compacto pra gpt-4o-mini responder em ~500ms ───────────────
+// Prompt ultra-compacto pra gpt-4o-mini responder em ~500ms
 const buildSystemPrompt = (q: string) =>
   `Plataforma de serviços BR. Busca: "${q}". JSON SOMENTE:
 {"profession":"profissão principal","synonyms":["sin1","sin2"],"city":null}`;
 
-// ─── Sub-componente com busca paralela: IA + DB ao mesmo tempo ───────────────
-async function AISearchRunner({ q, categoria }: { q?: string; categoria?: string }) {
+// Sub-componente: executa IA + DB em paralelo e retorna só os resultados
+async function SearchResultsAI({ q, categoria }: { q?: string; categoria?: string }) {
   let aiIntent: any = null;
 
-  // Promise da IA — prompt mínimo, max_tokens=60, timeout 4s
+  // IA e DB disparam em paralelo
   const aiPromise =
     q && q.length > 2
       ? openai.chat.completions
@@ -45,26 +45,10 @@ async function AISearchRunner({ q, categoria }: { q?: string; categoria?: string
           .catch(() => null)
       : Promise.resolve(null);
 
-  // Promise do DB com busca simples (fallback rápido enquanto IA pensa)
-  const simpleLookup = q
-    ? prisma.professional.findMany({
-        select: { id: true },
-        where: {
-          OR: [
-            { headline: { contains: q, mode: 'insensitive' } },
-            { bio: { contains: q, mode: 'insensitive' } },
-            { profile: { name: { contains: q, mode: 'insensitive' } } },
-          ],
-        },
-        take: 1,
-      })
-    : Promise.resolve([]);
-
-  // Rodar IA e simpleLookup juntos (paralelismo real)
-  const [intent] = await Promise.all([aiPromise, simpleLookup]);
+  const [intent] = await Promise.all([aiPromise]);
   aiIntent = intent;
 
-  // Montar filtro Prisma rico (usando sinônimos da IA se disponíveis)
+  // Montar filtro Prisma rico com sinônimos da IA
   let whereClause: any = undefined;
 
   if (aiIntent) {
@@ -81,7 +65,7 @@ async function AISearchRunner({ q, categoria }: { q?: string; categoria?: string
       orConditions.push({ bio: { contains: syn, mode: 'insensitive' } });
     });
 
-    // Fallback: busca pelo texto original também
+    // Sempre inclui o texto original como fallback
     if (q) {
       orConditions.push({ headline: { contains: q, mode: 'insensitive' } });
       orConditions.push({ bio: { contains: q, mode: 'insensitive' } });
@@ -89,7 +73,7 @@ async function AISearchRunner({ q, categoria }: { q?: string; categoria?: string
 
     whereClause = {
       AND: [
-        { OR: orConditions.length > 0 ? orConditions : [{ headline: { contains: q, mode: 'insensitive' } }] },
+        { OR: orConditions },
         aiIntent.city ? { profile: { city: { contains: aiIntent.city, mode: 'insensitive' } } } : {},
       ],
     };
@@ -107,11 +91,8 @@ async function AISearchRunner({ q, categoria }: { q?: string; categoria?: string
   const professionals = await prisma.professional.findMany({
     include: { profile: true },
     where: whereClause,
-    orderBy: [
-      { planType: 'desc' },
-      { verificationStatus: 'desc' },
-    ],
-    take: 50, // limitar para não explodir em tabelas grandes
+    orderBy: [{ planType: 'desc' }, { verificationStatus: 'desc' }],
+    take: 50,
   });
 
   const formattedResults = professionals.map((p) => ({
@@ -152,29 +133,57 @@ async function AISearchRunner({ q, categoria }: { q?: string; categoria?: string
   );
 }
 
+// Skeleton de resultados — mesmo layout da página real sem dados
+function ResultsSkeleton({ query }: { query?: string }) {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 animate-pulse">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <div className="h-6 w-48 bg-slate-200 rounded-md mb-2" />
+          {query && <div className="h-4 w-32 bg-slate-100 rounded-md" />}
+        </div>
+        <div className="h-9 w-40 bg-slate-100 rounded-full" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="rounded-2xl border border-slate-200 p-4 space-y-3 bg-white">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 bg-slate-200 rounded-full shrink-0" />
+              <div className="space-y-1.5 flex-1">
+                <div className="h-4 bg-slate-200 rounded w-3/4" />
+                <div className="h-3 bg-slate-100 rounded w-1/2" />
+              </div>
+            </div>
+            <div className="h-3 bg-slate-100 rounded w-full" />
+            <div className="h-3 bg-slate-100 rounded w-4/5" />
+            <div className="flex gap-2 pt-1">
+              <div className="h-5 w-16 bg-slate-100 rounded-full" />
+              <div className="h-5 w-20 bg-slate-100 rounded-full" />
+            </div>
+            <div className="h-8 bg-slate-200 rounded-lg mt-2" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q, categoria } = await searchParams;
 
   return (
     <main id="main-content">
+      {/* Header e barra de busca carregam IMEDIATAMENTE — fora do Suspense */}
       <Header />
-      <Suspense
-        fallback={
-          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-            <div className="relative">
-              <div className="w-14 h-14 rounded-full border-4 border-[hsl(var(--primary)/0.2)] border-t-[hsl(var(--primary))] animate-spin" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-5 h-5 bg-[hsl(var(--primary)/0.15)] rounded-full animate-pulse" />
-              </div>
-            </div>
-            <div className="text-center">
-              <p className="font-semibold text-[hsl(var(--foreground))]">IA analisando sua busca...</p>
-              <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Buscando profissionais com sinônimos inteligentes</p>
-            </div>
-          </div>
-        }
-      >
-        <AISearchRunner q={q} categoria={categoria} />
+      <div className="sticky top-16 z-30 bg-[hsl(var(--background)/0.95)] backdrop-blur-md border-b border-[hsl(var(--border))] py-4 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto">
+          <IntentInput defaultValue={q} />
+        </div>
+      </div>
+
+      {/* Só os resultados ficam em streaming/suspense */}
+      <Suspense fallback={<ResultsSkeleton query={q} />}>
+        <SearchResultsAI q={q} categoria={categoria} />
       </Suspense>
     </main>
   );

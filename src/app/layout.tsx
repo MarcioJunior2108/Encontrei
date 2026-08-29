@@ -4,6 +4,7 @@ import { Providers } from '@/providers';
 import { SplashScreen } from '@/components/SplashScreen';
 import { GlobalChatWidget } from '@/components/chat/GlobalChatWidget';
 import { getCurrentProfile } from '@/app/actions/user';
+import { GoogleAnalytics } from '@/components/scripts/GoogleAnalytics';
 import './globals.css';
 
 const geistSans = Geist({
@@ -82,6 +83,7 @@ export default async function RootLayout({
     >
       <body className="font-sans antialiased">
         <SplashScreen />
+        <GoogleAnalytics />
         <Providers>{children}</Providers>
         
         {/* Chat Flutuante Global para usuários logados */}

@@ -34,29 +34,30 @@ export async function updateProfessionalProfile(formData: FormData) {
   console.log('---------------------------');
   
   try {
-    await prisma.profile.update({
-      where: { id: user.id },
-      data: {
-        city,
-        state,
-        ...(avatarUrl && { avatarUrl })
-      }
-    });
-
-    await prisma.professional.upsert({
-      where: { userId: user.id },
-      create: {
-        userId: user.id,
-        headline,
-        bio,
-        basePrice,
-      },
-      update: {
-        headline,
-        bio,
-        basePrice,
-      }
-    });
+    await Promise.all([
+      prisma.profile.update({
+        where: { id: user.id },
+        data: {
+          city,
+          state,
+          ...(avatarUrl && { avatarUrl })
+        }
+      }),
+      prisma.professional.upsert({
+        where: { userId: user.id },
+        create: {
+          userId: user.id,
+          headline,
+          bio,
+          basePrice,
+        },
+        update: {
+          headline,
+          bio,
+          basePrice,
+        }
+      })
+    ]);
     
     revalidatePath('/profissional');
     return { success: true };

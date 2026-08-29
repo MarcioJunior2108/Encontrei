@@ -17,10 +17,12 @@ export function ProfileSettings({ profile }: ProfileSettingsProps) {
   
   const professional = profile?.professional;
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setLoading(true);
     setMessage('');
     
+    const formData = new FormData(e.currentTarget);
     const result = await updateProfessionalProfile(formData);
     
     if (result.error) {
@@ -39,7 +41,7 @@ export function ProfileSettings({ profile }: ProfileSettingsProps) {
           <CardTitle className="text-xl">Configurações do Perfil</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2 flex flex-col items-center">
               <div className="relative w-24 h-24 rounded-full overflow-hidden bg-[hsl(var(--muted))] border-2 border-[hsl(var(--border))]">
                 {previewUrl ? (

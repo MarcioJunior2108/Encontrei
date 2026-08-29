@@ -51,6 +51,10 @@ export default async function ProfessionalDashboardPage() {
     ...professionalData,
     basePrice: professionalData.basePrice ? Number(professionalData.basePrice) : null,
     walletBalance: professionalData.walletBalance ? Number(professionalData.walletBalance) : 0,
+    receivedRequests: professionalData.receivedRequests.map((req: any) => ({
+      ...req,
+      proposedPrice: req.proposedPrice ? Number(req.proposedPrice) : null
+    }))
   } : null;
 
   return (

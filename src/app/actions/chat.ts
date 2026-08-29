@@ -33,7 +33,17 @@ export async function getActiveChats() {
       orderBy: { updatedAt: 'desc' }
     });
 
-    return { success: true, chats: requests };
+    const serializedRequests = requests.map((req: any) => ({
+      ...req,
+      proposedPrice: req.proposedPrice ? Number(req.proposedPrice) : null,
+      professional: req.professional ? {
+        ...req.professional,
+        basePrice: req.professional.basePrice ? Number(req.professional.basePrice) : null,
+        walletBalance: req.professional.walletBalance ? Number(req.professional.walletBalance) : 0,
+      } : null
+    }));
+
+    return { success: true, chats: serializedRequests };
   } catch (error) {
     console.error('Erro ao buscar chats ativos:', error);
     return { error: 'Falha ao buscar conversas' };

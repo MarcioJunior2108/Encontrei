@@ -14,10 +14,7 @@ export function GlobalChatWidget({ currentUserId }: { currentUserId: string }) {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const pathname = usePathname();
-  // Não mostrar na página de login, etc.
   const hideOnPaths = ['/login', '/register', '/'];
-  if (hideOnPaths.includes(pathname || '')) return null;
-
   const loadChats = async () => {
     setLoading(true);
     const res = await getActiveChats();
@@ -58,6 +55,8 @@ export function GlobalChatWidget({ currentUserId }: { currentUserId: string }) {
   };
 
   const activeChatData = chats.find(c => c.id === activeChatId);
+
+  if (hideOnPaths.includes(pathname || '')) return null;
 
   return (
     <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 flex flex-col items-end">

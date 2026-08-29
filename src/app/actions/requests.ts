@@ -74,10 +74,10 @@ export async function createServiceRequest({
 
       if (isUnclaimed) {
         const claimToken = professional.profile.claimToken;
-        const magicLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://seu-site.com.br'}/claim?token=${claimToken}`;
+        const magicLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.acheiyou.com.br'}/claim?token=${claimToken}`;
         message += `👉 *Clique no link abaixo para ativar sua conta e ver o pedido:*\n${magicLink}\n\nEstamos aguardando você! 🚀`;
       } else {
-        const loginLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://seu-site.com.br'}/login`;
+        const loginLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.acheiyou.com.br'}/login`;
         message += `👉 *Clique no link abaixo para acessar seu painel e desbloquear o contato:*\n${loginLink}\n\nAja rápido! 🚀`;
       }
 

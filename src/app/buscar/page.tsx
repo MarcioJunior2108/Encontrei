@@ -181,8 +181,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </div>
 
-      {/* Só os resultados ficam em streaming/suspense */}
-      <Suspense fallback={<ResultsSkeleton query={q} />}>
+      {/* Só os resultados ficam em streaming/suspense. A key força o React a mostrar o skeleton ao mudar a busca */}
+      <Suspense key={q || categoria || 'empty'} fallback={<ResultsSkeleton query={q} />}>
         <SearchResultsAI q={q} categoria={categoria} />
       </Suspense>
     </main>

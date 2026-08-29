@@ -61,23 +61,34 @@ export async function createServiceRequest({
       const professionalName = professional.profile.name || 'Profissional';
       const clientName = clientProfile.name || 'Um cliente';
       
-      // Copy AIDA: Atenção → Interesse → Desejo → Ação (sem preço na mensagem inicial)
+      // Copy AIDA: 2 versões — com free lead e sem
       const firstName = professionalName.split(' ')[0];
-      let message = `🚨 *${firstName}, você tem um cliente esperando!*\n\nAlguém na sua região está buscando exatamente o seu serviço e pediu um orçamento agora.`;
+      const hasFreeLeadAvailable = professional.freeLeadsUsed === 0;
+      let message: string;
 
-      if (isPremiumLead) {
-        message += `\n\n📸 _O cliente enviou uma foto detalhada do problema — lead qualificado!_`;
+      if (hasFreeLeadAvailable) {
+        // Versão A: Profissional ainda tem o chat gratuito disponível
+        message = `🎁 *${firstName}, seu primeiro chat é GRATUITO!*\n\nUm cliente na sua região pediu um orçamento agora. Você pode conversar com ele direto pelo chat da AcheiYou sem pagar nada.`;
+        if (isPremiumLead) {
+          message += `\n\n📸 _O cliente enviou uma foto detalhada — lead qualificado!_`;
+        }
+        message += `\n\n⏰ Não perca essa oportunidade — seja o primeiro a responder!`;
+      } else {
+        // Versão B: Já usou o gratuito
+        message = `🚨 *${firstName}, você tem um cliente esperando!*\n\nAlguém na sua região está buscando exatamente o seu serviço e pediu um orçamento agora.`;
+        if (isPremiumLead) {
+          message += `\n\n📸 _O cliente enviou uma foto detalhada do problema — lead qualificado!_`;
+        }
+        message += `\n\n⚡ *Seja o primeiro a responder e feche o serviço antes da concorrência.*`;
       }
-
-      message += `\n\n⚡ *Seja o primeiro a responder e feche o serviço antes da concorrência.*`;
 
       if (isUnclaimed) {
         const claimToken = professional.profile.claimToken;
         const magicLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.acheiyou.com.br'}/claim?token=${claimToken}`;
-        message += `\n\n👉 Ver o pedido agora:\n${magicLink}`;
+        message += `\n\n👉 ${hasFreeLeadAvailable ? 'Conversar agora (grátis)' : 'Ver o pedido agora'}:\n${magicLink}`;
       } else {
         const loginLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.acheiyou.com.br'}/profissional`;
-        message += `\n\n👉 Ver o pedido agora:\n${loginLink}`;
+        message += `\n\n👉 ${hasFreeLeadAvailable ? 'Conversar agora (grátis)' : 'Ver o pedido agora'}:\n${loginLink}`;
       }
 
       // Envia de forma não bloqueante (não usamos await se não quisermos segurar o carregamento, 

@@ -44,6 +44,7 @@ model Professional {
   basePrice          Decimal?           @map("base_price") @db.Decimal(10, 2)
   planType           PlanType           @default(BASIC) @map("plan_type")
   walletBalance      Decimal            @default(0) @map("wallet_balance") @db.Decimal(10, 2)
+  freeLeadsUsed      Int                @default(0) @map("free_leads_used")
   createdAt          DateTime           @default(now()) @map("created_at")
   updatedAt          DateTime           @updatedAt @map("updated_at")
 

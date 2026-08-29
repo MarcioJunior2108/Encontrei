@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { formatCurrency } from '@/lib/utils';
 import { updateRequestStatus } from '@/app/actions/requests';
 import { verifyPaymentStatus } from '@/app/actions/payments';
+import { unlockLeadFree } from '@/app/actions/freeLead';
 
 import { ProfileSettings } from './ProfileSettings';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [checkoutData, setCheckoutData] = useState<{type: string, amount: number, description: string, requestId?: string} | null>(null);
   const [isRejecting, setIsRejecting] = useState<string | null>(null);
+  const [isFreeUnlocking, setIsFreeUnlocking] = useState<string | null>(null);
 
   const handleCheckout = async (type: string, amount: number, description: string, requestId?: string) => {
     setCheckoutData({ type, amount, description, requestId });
@@ -78,9 +80,31 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
     }
   };
 
+  const handleFreeUnlock = async (requestId: string) => {
+    try {
+      setIsFreeUnlocking(requestId);
+      const res = await unlockLeadFree(requestId);
+      if (res.success) {
+        window.location.reload();
+      } else if (res.needsPayment) {
+        // Já usou o gratuito — redireciona para pagamento
+        const req = requests.find((r: any) => r.id === requestId);
+        if (req) handleCheckout('UNLOCK_LEAD', req.coinPrice || 15, 'Desbloqueio de Contato de Cliente', requestId);
+      } else {
+        alert(res.error || 'Erro ao desbloquear.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao desbloquear lead.');
+    } finally {
+      setIsFreeUnlocking(null);
+    }
+  };
+
   const requests = professional?.receivedRequests || [];
   const planType = professional?.planType || 'BASIC';
   const balance = professional?.walletBalance ? Number(professional.walletBalance) : 0;
+  const freeLeadsUsed = professional?.freeLeadsUsed ?? 0;
 
   return (
     <div className="space-y-6">
@@ -102,6 +126,28 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
           <Button size="sm">Ficar Offline</Button>
         </div>
       </div>
+
+      {/* Banner Dourado: Chat Gratuito Disponível */}
+      {freeLeadsUsed === 0 && requests.length > 0 && planType !== 'PRO' && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 p-4 shadow-lg border border-amber-300"
+        >
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+          <div className="relative flex items-center gap-4">
+            <div className="text-3xl">🎁</div>
+            <div className="flex-1">
+              <p className="font-black text-amber-900 text-base leading-tight">Seu 1º Chat é GRATUITO!</p>
+              <p className="text-amber-800 text-sm mt-0.5">Responda agora e negocie com o cliente sem pagar nada. A partir do 2º lead, cada desbloqueio custa R$ 15.</p>
+            </div>
+            <div className="shrink-0 bg-amber-900/20 rounded-xl px-3 py-1.5 text-center">
+              <p className="text-amber-900 font-black text-xl">1</p>
+              <p className="text-amber-900 text-[10px] font-bold uppercase tracking-wider">Grátis</p>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -259,14 +305,31 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                             <>
                               {!isUnlocked ? (
                                 <div className="space-y-2">
-                                  <Button 
-                                    className={`w-full text-white font-semibold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5 ${req.isPremiumLead ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600' : 'bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)]'}`}
-                                    onClick={() => handleCheckout('UNLOCK_LEAD', req.coinPrice || 15, 'Desbloqueio de Contato de Cliente', req.id)}
-                                    disabled={isCheckoutModalOpen || isRejecting === req.id}
-                                  >
-                                    <Phone className="h-4 w-4 mr-2" />
-                                    {req.isPremiumLead ? `Liberar Lead Premium (R$ ${req.coinPrice || 15})` : `Liberar Contato (R$ ${req.coinPrice || 15})`}
-                                  </Button>
+                                  {freeLeadsUsed === 0 && planType !== 'PRO' ? (
+                                    <Button
+                                      className="w-full font-bold shadow-md bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-amber-950 border-0"
+                                      onClick={() => handleFreeUnlock(req.id)}
+                                      disabled={isFreeUnlocking === req.id}
+                                    >
+                                      {isFreeUnlocking === req.id ? (
+                                        <><span className="animate-spin mr-2">⏳</span> Liberando...</>
+                                      ) : (
+                                        <>
+                                          <span className="mr-2">🎁</span>
+                                          Conversar (Grátis)
+                                        </>
+                                      )}
+                                    </Button>
+                                  ) : (
+                                    <Button 
+                                      className={`w-full text-white font-semibold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5 ${req.isPremiumLead ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600' : 'bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)]'}`}
+                                      onClick={() => handleCheckout('UNLOCK_LEAD', req.coinPrice || 15, 'Desbloqueio de Contato de Cliente', req.id)}
+                                      disabled={isCheckoutModalOpen || isRejecting === req.id}
+                                    >
+                                      <Phone className="h-4 w-4 mr-2" />
+                                      {req.isPremiumLead ? `Liberar Lead Premium (R$ ${req.coinPrice || 15})` : `Desbloquear Chat (R$ ${req.coinPrice || 15})`}
+                                    </Button>
+                                  )}
                                   <p className="text-[10px] text-center text-[hsl(var(--muted-foreground))]">
                                     O valor é retornado caso o cliente não responda em 24h.
                                   </p>

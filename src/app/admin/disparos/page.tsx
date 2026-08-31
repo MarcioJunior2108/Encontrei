@@ -41,11 +41,20 @@ export default function BroadcastCRMPage() {
   const [users, setUsers] = useState<TargetUser[]>([]);
   const [message, setMessage] = useState('');
   
-  // Progress states
   const [isSending, setIsSending] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<{ id: string; status: 'success' | 'error'; errorMsg?: string }[]>([]);
+  const [consecutiveErrors, setConsecutiveErrors] = useState(0);
+
+  // Auto-Pause mechanism
+  useEffect(() => {
+    if (consecutiveErrors >= 3) {
+      setIsPaused(true);
+      alert('⚠️ ATENÇÃO: A campanha foi PAUSADA AUTOMATICAMENTE!\n\nDetectamos 3 erros seguidos de envio. Isso quase sempre indica que:\n1. O seu WhatsApp Web/Evolution API foi desconectado.\n2. O seu número sofreu um bloqueio (banimento) do WhatsApp.\n\nVerifique a conexão do seu aparelho antes de tentar retomar a campanha, para não desperdiçar seus contatos da planilha.');
+      setConsecutiveErrors(0);
+    }
+  }, [consecutiveErrors]);
 
   // Parser de Spintax: {Oi|Olá} -> Sorteia um
   const parseSpintax = (text: string) => {
@@ -173,11 +182,14 @@ export default function BroadcastCRMPage() {
 
         if (res.ok && data.success) {
           setResults(prev => [...prev, { id: user.id, status: 'success' }]);
+          setConsecutiveErrors(0);
         } else {
           setResults(prev => [...prev, { id: user.id, status: 'error', errorMsg: data.error || 'Erro desconhecido' }]);
+          setConsecutiveErrors(prev => prev + 1);
         }
       } catch (err: any) {
         setResults(prev => [...prev, { id: user.id, status: 'error', errorMsg: err.message }]);
+        setConsecutiveErrors(prev => prev + 1);
       }
 
       setCurrentIndex(prev => prev + 1);

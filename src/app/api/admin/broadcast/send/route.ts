@@ -16,14 +16,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Telefone e mensagem são obrigatórios' }, { status: 400 });
     }
 
-    // Usa exatamente a mesma função do disparo automático (requests.ts)
-    // — formatação de telefone, delay, "digitando..." — tudo centralizado
     const result = await sendAutomatedWhatsAppMessage(phone, message);
 
     if (!result.success) {
+      // Se a sessão foi perdida, retorna status 503 para o frontend detectar e pausar
+      const statusCode = result.errorCode === 'SESSION_LOST' ? 503 : 500;
       return NextResponse.json(
-        { error: result.error || 'Erro ao enviar via Evolution API' },
-        { status: 500 }
+        { error: result.error || 'Erro ao enviar via Evolution API', errorCode: result.errorCode },
+        { status: statusCode }
       );
     }
 

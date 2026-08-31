@@ -169,11 +169,20 @@ export default function BroadcastCRMPage() {
       return;
     }
     if (users.length === 0) {
-      alert('Faça o upload de uma planilha com contatos antes de disparar.');
+      alert('Adicione contatos antes de disparar.');
       return;
     }
 
-    const confirmMsg = `Tem certeza que deseja iniciar o disparo para ${users.length} números?\n\n- Velocidade: ${speedMode === 'FAST' ? 'Rápida' : speedMode === 'SAFE' ? 'Segura (Anti-ban)' : 'Normal'}\n- Spintax Ativado (A mensagem será variada automaticamente)\n\nDeixe esta aba ABERTA durante todo o processo.`;
+    // ✅ VERIFICAÇÃO DE SESSÃO antes de iniciar
+    const statusRes = await fetch('/api/admin/whatsapp-setup');
+    const statusData = await statusRes.json().catch(() => ({ state: 'error' }));
+    
+    if (statusData.state !== 'open') {
+      alert('❌ SESSÃO DO WHATSAPP DESCONECTADA!\n\nVoce não pode iniciar um disparo com o robô desconectado.\n\nVá em "Robô do WhatsApp" no menu lateral, reconecte e volte para iniciar o disparo.');
+      return;
+    }
+
+    const confirmMsg = `Sessão WhatsApp ativa! Iniciar disparo para ${users.length} números?\n\n- Velocidade: ${speedMode === 'FAST' ? 'Rápida' : speedMode === 'SAFE' ? 'Segura (Anti-ban)' : 'Normal'}\n- Spintax ativado\n\nMantenha esta aba ABERTA durante todo o processo.`;
     if (!confirm(confirmMsg)) return;
 
     setIsSending(true);
@@ -209,17 +218,27 @@ export default function BroadcastCRMPage() {
           })
         });
 
-        const data = await res.json();
+        const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
 
         if (res.ok && data.success) {
           setResults(prev => [...prev, { id: user.id, status: 'success' }]);
           setConsecutiveErrors(0);
         } else {
-          setResults(prev => [...prev, { id: user.id, status: 'error', errorMsg: data.error || 'Erro desconhecido' }]);
+          const errMsg = data.error || 'Erro desconhecido';
+          setResults(prev => [...prev, { id: user.id, status: 'error', errorMsg: errMsg }]);
+
+          // Sessão do WhatsApp perdida: pausa imediato e avisa o usuário
+          if (res.status === 503 || data.errorCode === 'SESSION_LOST') {
+            setIsPaused(true);
+            setIsSending(false);
+            alert('🔴 CAMPANHA PAUSADA!\n\nSua sessão do WhatsApp foi desconectada durante o disparo.\n\nO que fazer agora:\n1. Acesse o menu "Robô do WhatsApp"\n2. Clique em "Desconectar Sessão" para limpar\n3. Gere um novo QR Code e reconecte\n4. Volte aqui e reinicie a campanha\n\nNenhum contato foi perdido da sua planilha.');
+            return;
+          }
+
           setConsecutiveErrors(prev => prev + 1);
         }
       } catch (err: any) {
-        setResults(prev => [...prev, { id: user.id, status: 'error', errorMsg: err.message }]);
+        setResults(prev => [...prev, { id: user.id, status: 'error', errorMsg: 'Erro de rede: ' + err.message }]);
         setConsecutiveErrors(prev => prev + 1);
       }
 

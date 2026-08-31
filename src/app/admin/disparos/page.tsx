@@ -447,6 +447,22 @@ export default function BroadcastCRMPage() {
                     </div>
                   </div>
 
+                  {errorSends > 0 && (
+                    <div className="bg-red-50/50 border border-red-100 rounded-lg p-3 max-h-40 overflow-y-auto">
+                      <h4 className="text-xs font-bold text-red-800 mb-2 uppercase">Detalhes das Falhas:</h4>
+                      <ul className="text-xs space-y-1">
+                        {results.filter(r => r.status === 'error').map((res, i) => {
+                          const errUser = users.find(u => u.id === res.id);
+                          return (
+                            <li key={i} className="text-red-700">
+                              <span className="font-semibold">{errUser?.phone || 'Desconhecido'}:</span> {res.errorMsg}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
+
                   {isSending && (
                     <Button 
                       className="w-full h-12 text-base font-semibold shadow-sm" 

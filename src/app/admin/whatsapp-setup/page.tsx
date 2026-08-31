@@ -88,9 +88,11 @@ export default function WhatsAppSetupPage() {
 
   const disconnectInstance = async () => {
     setActionLoading(true);
+    setError(null);
     try {
       const res = await fetch('/api/admin/whatsapp-setup', { method: 'DELETE' });
-      if (!res.ok) throw new Error('Falha ao desconectar');
+      const data = await res.json().catch(()=>({}));
+      if (!res.ok) throw new Error(data.error || 'Falha ao desconectar na API');
       setStatus('idle');
     } catch (err: any) {
       setError(err.message);

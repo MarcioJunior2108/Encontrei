@@ -121,18 +121,27 @@ export async function DELETE() {
 
     const baseUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
 
-    const response = await fetch(`${baseUrl}/instance/logout/${instanceName}`, {
+    // Tenta fazer o logout gentilmente primeiro
+    await fetch(`${baseUrl}/instance/logout/${instanceName}`, {
+      method: 'DELETE',
+      headers: { 'apikey': apiKey }
+    });
+
+    // Em seguida, força a DELEÇÃO da instância para desbugar/descongelar a Evolution API
+    const response = await fetch(`${baseUrl}/instance/delete/${instanceName}`, {
       method: 'DELETE',
       headers: { 'apikey': apiKey }
     });
 
     if (!response.ok) {
        const err = await response.json().catch(()=>({}));
-       return NextResponse.json({ error: err.message || 'Erro ao desconectar' }, { status: 500 });
+       console.error('[WhatsApp Setup DELETE] Erro ao deletar instância:', err);
+       return NextResponse.json({ error: err.message || err.error || 'Erro ao deletar instância na Evolution API' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
+    console.error('[WhatsApp Setup DELETE] Catch:', error);
+    return NextResponse.json({ error: 'Erro interno ao desconectar' }, { status: 500 });
   }
 }

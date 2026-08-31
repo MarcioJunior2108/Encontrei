@@ -41,6 +41,9 @@ export default function BroadcastCRMPage() {
   const [users, setUsers] = useState<TargetUser[]>([]);
   const [message, setMessage] = useState('');
   
+  const [inputType, setInputType] = useState<'csv' | 'manual'>('csv');
+  const [manualInput, setManualInput] = useState('');
+  
   const [isSending, setIsSending] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -128,6 +131,34 @@ export default function BroadcastCRMPage() {
         setLoading(false);
       }
     });
+  };
+
+  const handleManualSubmit = () => {
+    if (!manualInput.trim()) return;
+    setLoading(true);
+    
+    const rawNumbers = manualInput.split(/[\n,]+/);
+    const parsedUsers: TargetUser[] = [];
+    
+    rawNumbers.forEach((raw, index) => {
+      let phone = raw.replace(/\D/g, '');
+      if (phone.length >= 10 && phone.length <= 11) {
+          phone = '55' + phone;
+      }
+      if (phone.length >= 12) {
+        parsedUsers.push({
+          id: `manual-${index}`,
+          name: 'Profissional',
+          phone: phone,
+          status: 'IMPORTED'
+        });
+      }
+    });
+
+    setUsers(parsedUsers);
+    setLoading(false);
+    setCurrentIndex(0);
+    setResults([]);
   };
 
   const togglePause = () => setIsPaused(!isPaused);
@@ -277,26 +308,66 @@ export default function BroadcastCRMPage() {
             <CardContent className="space-y-6 pt-6">
               
               <div className="space-y-3">
-                <label className="text-sm font-semibold text-[hsl(var(--foreground))]">1. Base de Contatos (CSV)</label>
-                <div className="flex flex-col sm:flex-row gap-4 items-center">
-                  <div className="relative w-full border-2 border-dashed border-[hsl(var(--border))] rounded-lg hover:border-[hsl(var(--primary))] transition-colors bg-[hsl(var(--muted)/0.3)]">
-                    <input 
-                      type="file" 
-                      accept=".csv"
-                      onChange={handleFileUpload}
-                      disabled={isSending || loading}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                    <div className="flex flex-col items-center justify-center py-6 pointer-events-none">
-                      <Upload className="h-8 w-8 text-[hsl(var(--muted-foreground))] mb-2" />
-                      <p className="text-sm font-medium">Clique ou arraste a planilha .CSV</p>
-                      <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Colunas sugeridas: Nome, Telefone</p>
-                    </div>
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-semibold text-[hsl(var(--foreground))]">1. Base de Contatos</label>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setInputType('csv')}
+                      disabled={isSending}
+                      className={cn("text-xs px-3 py-1 rounded-full transition-colors border", inputType === 'csv' ? "bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))]" : "bg-transparent text-muted-foreground")}
+                    >
+                      Planilha CSV
+                    </button>
+                    <button 
+                      onClick={() => setInputType('manual')}
+                      disabled={isSending}
+                      className={cn("text-xs px-3 py-1 rounded-full transition-colors border", inputType === 'manual' ? "bg-[hsl(var(--primary))] text-white border-[hsl(var(--primary))]" : "bg-transparent text-muted-foreground")}
+                    >
+                      Digitar Manualmente
+                    </button>
                   </div>
                 </div>
+
+                {inputType === 'csv' ? (
+                  <div className="flex flex-col sm:flex-row gap-4 items-center">
+                    <div className="relative w-full border-2 border-dashed border-[hsl(var(--border))] rounded-lg hover:border-[hsl(var(--primary))] transition-colors bg-[hsl(var(--muted)/0.3)]">
+                      <input 
+                        type="file" 
+                        accept=".csv"
+                        onChange={handleFileUpload}
+                        disabled={isSending || loading}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <div className="flex flex-col items-center justify-center py-6 pointer-events-none">
+                        <Upload className="h-8 w-8 text-[hsl(var(--muted-foreground))] mb-2" />
+                        <p className="text-sm font-medium">Clique ou arraste a planilha .CSV</p>
+                        <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Colunas sugeridas: Nome, Telefone</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <textarea 
+                      className="w-full min-h-[120px] p-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))]/50 resize-y"
+                      placeholder="Cole os números aqui (um por linha)...&#10;Ex:&#10;71999999999&#10;11988888888"
+                      value={manualInput}
+                      onChange={(e) => setManualInput(e.target.value)}
+                      disabled={isSending}
+                    />
+                    <Button 
+                      variant="secondary" 
+                      className="w-full" 
+                      onClick={handleManualSubmit}
+                      disabled={loading || isSending || !manualInput.trim()}
+                    >
+                      Processar Números Colados
+                    </Button>
+                  </div>
+                )}
+                
                 {loading && (
                    <div className="flex items-center gap-2 text-sm text-[hsl(var(--primary))]">
-                     <Loader2 className="w-4 h-4 animate-spin" /> Lendo planilha...
+                     <Loader2 className="w-4 h-4 animate-spin" /> Processando contatos...
                    </div>
                 )}
                 {!loading && users.length > 0 && (

@@ -52,7 +52,8 @@ export async function sendAutomatedWhatsAppMessage(phone: string, message: strin
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
       console.error('[WhatsApp] Erro na Evolution API:', errData);
-      return { success: false, error: 'Erro na API do WhatsApp' };
+      const exactError = errData.message || errData.error || errData.response?.message?.[0] || 'Erro desconhecido na Evolution API';
+      return { success: false, error: exactError };
     }
 
     console.log(`[WhatsApp] Mensagem enviada com sucesso para ${formattedPhone}!`);

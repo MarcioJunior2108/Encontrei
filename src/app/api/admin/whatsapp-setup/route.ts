@@ -125,7 +125,7 @@ export async function DELETE() {
     await fetch(`${baseUrl}/instance/logout/${instanceName}`, {
       method: 'DELETE',
       headers: { 'apikey': apiKey }
-    });
+    }).catch(() => {});
 
     // Em seguida, força a DELEÇÃO da instância para desbugar/descongelar a Evolution API
     const response = await fetch(`${baseUrl}/instance/delete/${instanceName}`, {
@@ -135,7 +135,13 @@ export async function DELETE() {
 
     if (!response.ok) {
        const err = await response.json().catch(()=>({}));
-       console.error('[WhatsApp Setup DELETE] Erro ao deletar instância:', err);
+       console.error('[WhatsApp Setup DELETE] Erro ao deletar instância:', err, response.status);
+       
+       // Se a instância já não existir ou a API retornar 400 (Bad Request) ao deletar algo inexistente, é sucesso!
+       if (response.status === 404 || response.status === 400) {
+         return NextResponse.json({ success: true });
+       }
+
        return NextResponse.json({ error: err.message || err.error || 'Erro ao deletar instância na Evolution API' }, { status: 500 });
     }
 

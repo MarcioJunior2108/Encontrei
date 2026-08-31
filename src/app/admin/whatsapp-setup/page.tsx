@@ -32,6 +32,33 @@ export default function WhatsAppSetupPage() {
     checkStatus();
   }, []);
 
+  // Auto-refresh QR Code para não expirar
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (status === 'connecting') {
+      interval = setInterval(async () => {
+        try {
+          // Faz o POST silencioso apenas para atualizar a imagem do QR Code
+          const response = await fetch('/api/admin/whatsapp-setup', { method: 'POST' });
+          const data = await response.json();
+
+          if (data.qrcode && data.qrcode.base64) {
+            setQrCode(data.qrcode.base64);
+          } else if (data.instance?.state === 'open') {
+            setStatus('connected');
+          }
+        } catch (err) {
+          console.error('Falha ao atualizar QR Code:', err);
+        }
+      }, 15000); // A cada 15 segundos pega um QR Code novo
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [status]);
+
   const createInstance = async () => {
     setActionLoading(true);
     setError(null);

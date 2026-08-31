@@ -58,17 +58,35 @@ export async function bulkBanUsers(userIds: string[]) {
 export async function bulkDeleteUsers(userIds: string[]) {
   await verifyAdmin();
   
-  // Deleta do Supabase Auth (isso faz o CASCADE para as tabelas 'profiles' e 'professionals')
-  for (const userId of userIds) {
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
-    if (error) {
-      console.error(`Erro ao deletar usuário ${userId}:`, error.message);
-      // Opcional: lidar com erro individualmente ou retornar erro
+  // Buscar perfis para saber quais realmente têm conta de Auth
+  const profiles = await prisma.profile.findMany({
+    where: { id: { in: userIds } },
+    select: { id: true, status: true }
+  });
+
+  // Perfis UNCLAIMED não têm conta no Supabase Auth (foram importados)
+  // Então só tentamos deletar do Auth os que possivelmente têm conta
+  const authUserIds = profiles
+    .filter(p => p.status !== 'UNCLAIMED')
+    .map(p => p.id);
+
+  if (authUserIds.length > 0) {
+    // Deleta em lotes para evitar timeouts e rate limits
+    const chunkSize = 10;
+    for (let i = 0; i < authUserIds.length; i += chunkSize) {
+      const chunk = authUserIds.slice(i, i + chunkSize);
+      await Promise.all(
+        chunk.map(async (userId) => {
+          const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+          if (error && !error.message.includes('not found')) {
+            console.error(`Erro ao deletar usuário Auth ${userId}:`, error.message);
+          }
+        })
+      );
     }
   }
 
-  // Deleta do Prisma explicitamente para garantir que não fiquem órfãos
-  // (caso o CASCADE do Supabase falhe ou não esteja configurado corretamente)
+  // Deleta do Prisma explicitamente para todos os IDs
   await prisma.profile.deleteMany({
     where: { id: { in: userIds } }
   });

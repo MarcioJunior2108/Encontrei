@@ -4,31 +4,36 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, UserCheck, ShieldAlert, TrendingUp } from 'lucide-react';
 
 export default async function AdminUsersPage() {
-  const users = await prisma.profile.findMany({
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      status: true,
-      phone: true,
-    }
-  });
-
-  // Fetch metrics
-  const totalUsers = await prisma.profile.count();
-  const totalProfessionals = await prisma.profile.count({ where: { role: 'PROFESSIONAL' } });
-  const totalClients = await prisma.profile.count({ where: { role: 'CLIENT' } });
-  
-  const activeProfessionals = await prisma.profile.count({ where: { role: 'PROFESSIONAL', status: 'ACTIVE' } });
-  const unclaimedProfessionals = await prisma.profile.count({ where: { role: 'PROFESSIONAL', status: 'UNCLAIMED' } });
-  
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const newUsers30Days = await prisma.profile.count({
-    where: { createdAt: { gte: thirtyDaysAgo } }
-  });
+
+  const [
+    users,
+    totalUsers,
+    totalProfessionals,
+    totalClients,
+    activeProfessionals,
+    unclaimedProfessionals,
+    newUsers30Days
+  ] = await Promise.all([
+    prisma.profile.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        phone: true,
+      }
+    }),
+    prisma.profile.count(),
+    prisma.profile.count({ where: { role: 'PROFESSIONAL' } }),
+    prisma.profile.count({ where: { role: 'CLIENT' } }),
+    prisma.profile.count({ where: { role: 'PROFESSIONAL', status: 'ACTIVE' } }),
+    prisma.profile.count({ where: { role: 'PROFESSIONAL', status: 'UNCLAIMED' } }),
+    prisma.profile.count({ where: { createdAt: { gte: thirtyDaysAgo } } })
+  ]);
 
   return (
     <div className="space-y-8">

@@ -8,14 +8,15 @@ import { Save, UserCircle, Briefcase } from 'lucide-react';
 
 interface ProfileSettingsProps {
   profile: any;
+  professional?: any;
 }
 
-export function ProfileSettings({ profile }: ProfileSettingsProps) {
+export function ProfileSettings({ profile, professional: explicitProfessional }: ProfileSettingsProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(profile?.avatarUrl || null);
   
-  const professional = profile?.professional;
+  const professional = explicitProfessional || profile?.professional;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

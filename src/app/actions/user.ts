@@ -104,3 +104,47 @@ export async function updateUserPhone(phone: string) {
     return { success: false, error: 'Erro ao salvar o telefone. Tente novamente.' };
   }
 }
+
+export async function upgradeToProfessional(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return { success: false, error: 'Usuário não autenticado.' };
+  }
+
+  const service = formData.get('service') as string;
+  const city = formData.get('city') as string;
+
+  if (!service || !city) {
+    return { success: false, error: 'Por favor, preencha o serviço e a cidade.' };
+  }
+
+  try {
+    // 1. Atualizar o Profile com a cidade e o role
+    await prisma.profile.update({
+      where: { id: user.id },
+      data: { 
+        role: 'PROFESSIONAL',
+        city: city
+      }
+    });
+
+    // 2. Criar o registro Professional (apenas os campos que existem no schema)
+    await prisma.professional.create({
+      data: {
+        userId: user.id,
+        headline: service, // "service" é salvo como headline
+        walletBalance: 0,
+        planType: 'BASIC',
+        verificationStatus: 'UNVERIFIED',
+        availability: 'AVAILABLE'
+      }
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erro ao atualizar para conta profissional:', error);
+    return { success: false, error: 'Ocorreu um erro ao atualizar sua conta. Tente novamente.' };
+  }
+}

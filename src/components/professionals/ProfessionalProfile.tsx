@@ -144,7 +144,17 @@ export function ProfessionalProfile({ professional: pro }: { professional: any }
 
                       {/* Badges */}
                       <div className="flex flex-wrap gap-2 mt-3">
-                        {pro.verificationStatus === 'VERIFIED' && (
+                        {pro.planType === 'ELITE' && (
+                          <Badge variant="secondary" className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-none font-semibold px-2.5 py-0.5">
+                            <Star className="h-3 w-3 mr-1 fill-white" /> Selo Ouro
+                          </Badge>
+                        )}
+                        {pro.planType === 'PRO' && (
+                          <Badge variant="secondary" className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-none font-semibold px-2.5 py-0.5">
+                            Selo PRO
+                          </Badge>
+                        )}
+                        {pro.user.verified && (
                           <Badge variant="success">
                             <Shield className="h-3 w-3" aria-hidden="true" /> Verificado
                           </Badge>

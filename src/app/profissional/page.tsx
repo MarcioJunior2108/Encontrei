@@ -27,17 +27,28 @@ export default async function ProfessionalDashboardPage() {
       receivedRequests: {
         include: { client: true },
         orderBy: { createdAt: 'desc' }
+      },
+      transactions: {
+        orderBy: { createdAt: 'desc' },
+        take: 20
       }
     }
+  });
+
+  // Also fetch the requests they made as a client!
+  const clientRequests = await prisma.serviceRequest.findMany({
+    where: { clientId: profile.id },
+    include: { professional: { include: { profile: true } } },
+    orderBy: { createdAt: 'desc' }
   });
 
   // PROTEÇÃO DE DADOS: Ocultar telefone e e-mail do cliente se o lead não estiver pago!
   if (professionalData?.receivedRequests) {
     professionalData.receivedRequests = professionalData.receivedRequests.map((req: any) => {
-      // Se o profissional tem Plano PRO, todos os leads são dele. 
-      // Se ele pagou pelo lead (isUnlocked = true), o lead também é dele.
-      const isLeadAccessible = professionalData.planType === 'PRO' || professionalData.planType === 'ELITE' || req.isUnlocked;
-      
+      // Se for Premium: apenas ELITE ganha grátis. Se for Regular: PRO e ELITE ganham grátis.
+      const isLeadAccessible = 
+        (req.isPremiumLead ? professionalData.planType === 'ELITE' : (professionalData.planType === 'PRO' || professionalData.planType === 'ELITE')) || req.isUnlocked;
+        
       if (!isLeadAccessible && req.client) {
         req.client.email = '[OCULTO]';
         req.client.phone = '[OCULTO]';
@@ -54,14 +65,23 @@ export default async function ProfessionalDashboardPage() {
     receivedRequests: professionalData.receivedRequests.map((req: any) => ({
       ...req,
       proposedPrice: req.proposedPrice ? Number(req.proposedPrice) : null
+    })),
+    transactions: professionalData.transactions.map((t: any) => ({
+      ...t,
+      amount: Number(t.amount)
     }))
   } : null;
+
+  const safeClientRequests = clientRequests.map((req: any) => ({
+    ...req,
+    proposedPrice: req.proposedPrice ? Number(req.proposedPrice) : null
+  }));
 
   return (
     <main id="main-content" className="min-h-dvh bg-[hsl(var(--background))]">
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <PortalOverview profile={profile} professional={safeProfessionalData} />
+        <PortalOverview profile={profile} professional={safeProfessionalData} clientRequests={safeClientRequests} />
       </div>
     </main>
   );

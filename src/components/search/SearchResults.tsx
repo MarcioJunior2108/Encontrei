@@ -199,9 +199,21 @@ export function SearchResults({ query, category, initialResults = [], aiIntent }
                         <div className="flex items-center gap-3">
                           <Avatar src={pro.avatarUrl} name={pro.name} verified={pro.verified} size="lg" />
                           <div>
-                            <h3 className="font-semibold text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))] transition-colors text-sm">
-                              {pro.name}
-                            </h3>
+                            <div className="flex items-center flex-wrap gap-2">
+                              <h3 className="font-semibold text-[hsl(var(--foreground))] group-hover:text-[hsl(var(--primary))] transition-colors text-sm">
+                                {pro.name}
+                              </h3>
+                              {pro.planType === 'ELITE' && (
+                                <Badge variant="secondary" className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-none font-semibold px-2 py-0.5 flex items-center gap-1 shrink-0 text-[10px]">
+                                  <Star className="h-2.5 w-2.5 fill-white" /> Selo Ouro
+                                </Badge>
+                              )}
+                              {pro.planType === 'PRO' && (
+                                <Badge variant="secondary" className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-none font-semibold px-2 py-0.5 shrink-0 text-[10px]">
+                                  Selo PRO
+                                </Badge>
+                              )}
+                            </div>
                             <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 line-clamp-1">
                               {pro.headline}
                             </p>
@@ -283,9 +295,21 @@ export function SearchResults({ query, category, initialResults = [], aiIntent }
                         <Avatar src={pro.avatarUrl} name={pro.name} verified={pro.verified} size="lg" />
                         <div className="flex-1 min-w-0 pt-1">
                           <div className="flex items-center justify-between gap-2">
-                            <h3 className="font-bold text-lg text-[hsl(var(--foreground))] truncate group-hover:text-[hsl(var(--primary))] transition-colors">
-                              {pro.name}
-                            </h3>
+                            <div className="flex items-center flex-wrap gap-2">
+                              <h3 className="font-bold text-lg text-[hsl(var(--foreground))] truncate group-hover:text-[hsl(var(--primary))] transition-colors">
+                                {pro.name}
+                              </h3>
+                              {pro.planType === 'ELITE' && (
+                                <Badge variant="secondary" className="bg-gradient-to-r from-amber-400 to-yellow-500 text-white border-none font-semibold px-2 py-0.5 flex items-center gap-1 shrink-0 text-[10px]">
+                                  <Star className="h-2.5 w-2.5 fill-white" /> Selo Ouro
+                                </Badge>
+                              )}
+                              {pro.planType === 'PRO' && (
+                                <Badge variant="secondary" className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-none font-semibold px-2 py-0.5 shrink-0 text-[10px]">
+                                  Selo PRO
+                                </Badge>
+                              )}
+                            </div>
                             {pro.availableToday && (
                               <Badge variant="success" className="flex-shrink-0 text-[10px]">
                                 <Zap className="h-2.5 w-2.5" aria-hidden="true" />

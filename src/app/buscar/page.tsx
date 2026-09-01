@@ -106,6 +106,7 @@ async function SearchResultsAI({ q, categoria }: { q?: string; categoria?: strin
     verified: p.verificationStatus === 'VERIFIED',
     headline: p.headline || 'Profissional',
     bio: p.bio || 'Sem descrição.',
+    planType: p.planType,
     categories: [],
     location: {
       city: p.profile.city || 'São Paulo',

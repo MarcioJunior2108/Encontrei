@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Activity, Clock, FileText, Star } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { DashboardRequests } from '@/components/dashboard/DashboardRequests';
+import { UpgradeToProCard } from '@/components/dashboard/UpgradeToProCard';
 
 export const metadata: Metadata = {
   title: 'Meu Painel',
@@ -53,6 +54,12 @@ export default async function DashboardPage() {
         <div className="mb-12 relative z-10">
           <AICopilotSearch size="large" autoFocus />
         </div>
+
+        {profile.role === 'CLIENT' && (
+          <div className="mb-8">
+            <UpgradeToProCard />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[

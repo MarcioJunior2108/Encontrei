@@ -45,6 +45,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     },
     headline: p.headline || 'Profissional',
     bio: p.bio || 'Sem descrição.',
+    planType: p.planType,
     categories: [], // Add real categories later
     services: [], // Add real services later
     location: { 

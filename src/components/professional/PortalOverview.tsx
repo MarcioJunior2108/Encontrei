@@ -18,11 +18,20 @@ import { verifyPaymentStatus } from '@/app/actions/payments';
 import { unlockLeadFree } from '@/app/actions/freeLead';
 
 import { ProfileSettings } from './ProfileSettings';
+import { PlanosView } from './PlanosView';
+import { WalletView } from './WalletView';
 import { Badge } from '@/components/ui/badge';
 import { MercadoPagoModal } from '@/components/checkout/MercadoPagoModal';
+import { DashboardRequests } from '@/components/dashboard/DashboardRequests';
 
-export function PortalOverview({ profile, professional }: { profile: any, professional?: any }) {
-  const [activeTab, setActiveTab] = useState('overview');
+interface PortalOverviewProps {
+  profile: any;
+  professional: any;
+  clientRequests?: any[];
+}
+
+export function PortalOverview({ profile, professional, clientRequests = [] }: PortalOverviewProps) {
+  const [activeTab, setActiveTab] = useState('geral');
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [checkoutData, setCheckoutData] = useState<{type: string, amount: number, description: string, requestId?: string} | null>(null);
   const [isRejecting, setIsRejecting] = useState<string | null>(null);
@@ -105,6 +114,18 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
   const planType = professional?.planType || 'BASIC';
   const balance = professional?.walletBalance ? Number(professional.walletBalance) : 0;
   const freeLeadsUsed = professional?.freeLeadsUsed ?? 0;
+  const isPro = planType === 'PRO';
+  const isElite = planType === 'ELITE';
+
+  const TABS = [
+    { id: 'geral', label: 'Visão Geral', hidden: false },
+    { id: 'pedidos', label: 'Meus Pedidos', hidden: false },
+    { id: 'agenda', label: 'Agenda', hidden: !isPro && !isElite },
+    { id: 'metricas', label: 'Metricas', hidden: !isPro && !isElite },
+    { id: 'pagamentos', label: 'Pagamentos', hidden: false },
+    { id: 'assinatura', label: 'Assinatura', hidden: false },
+    { id: 'perfil', label: 'Meu Perfil', hidden: false },
+  ];
 
   return (
     <div className="space-y-6">
@@ -185,17 +206,17 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
       <div className="mt-8">
         <div className="border-b border-[hsl(var(--border))] mb-6">
           <div className="flex items-center gap-6 text-sm font-medium">
-            {['overview', 'agenda', 'metricas', 'pagamentos', 'perfil'].map((tab) => (
+            {TABS.filter(t => !t.hidden).map((tab) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
                 className={`pb-3 border-b-2 transition-colors capitalize ${
-                  activeTab === tab
+                  activeTab === tab.id
                     ? 'border-[hsl(var(--primary))] text-[hsl(var(--primary))]'
                     : 'border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'
                 }`}
               >
-                {tab === 'overview' ? 'Visão Geral' : tab === 'perfil' ? 'Meu Perfil' : tab}
+                {tab.label}
               </button>
             ))}
           </div>
@@ -207,7 +228,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {activeTab === 'overview' && (
+          {activeTab === 'geral' && (
             <div className="space-y-4">
               {requests.length === 0 ? (
                 <div className="py-12 text-center text-[hsl(var(--muted-foreground))]">
@@ -215,7 +236,8 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                 </div>
               ) : (
                 requests.map((req: any) => {
-                  const isUnlocked = planType === 'PRO' || planType === 'ELITE' || req.isUnlocked;
+                  const isUnlocked = 
+                    (req.isPremiumLead ? planType === 'ELITE' : (planType === 'PRO' || planType === 'ELITE')) || req.isUnlocked;
                   const clientFirstName = req.client.name ? req.client.name.split(' ')[0] : 'Cliente';
                   const maskedName = isUnlocked ? req.client.name : `${clientFirstName} ***`;
                   
@@ -422,64 +444,38 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
             </div>
           )}
           {activeTab === 'pagamentos' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-bold mb-2">Seu Plano Atual</h3>
-                  <div className="flex items-center gap-3 mb-6">
-                    <Badge variant={planType === 'PRO' ? 'primary' : 'secondary'} className="text-lg py-1 px-3">
-                      {planType === 'PRO' ? 'Plano PRO' : 'Plano Básico'}
-                    </Badge>
+            <WalletView 
+              planType={planType} 
+              transactions={professional?.transactions || []}
+              onGoToPlans={() => setActiveTab('assinatura')}
+            />
+          )}
+          {activeTab === 'pedidos' && (
+            <div className="bg-[hsl(var(--card))] rounded-xl border border-[hsl(var(--border))] overflow-hidden">
+              <div className="px-6 py-4 border-b border-[hsl(var(--border))] flex items-center justify-between">
+                <h2 className="font-semibold text-[hsl(var(--foreground))]">Solicitações que você fez como cliente</h2>
+              </div>
+              <div className="p-0">
+                {clientRequests.length === 0 ? (
+                  <div className="py-12 text-center">
+                    <p className="text-sm font-medium text-[hsl(var(--foreground))]">Você ainda não tem pedidos como cliente</p>
+                    <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Navegue pelos profissionais e peça um orçamento!</p>
                   </div>
-                  
-                  {planType === 'BASIC' ? (
-                    <div className="space-y-4">
-                      <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                        No plano básico, você paga uma pequena taxa (R$ 10) para desbloquear o contato dos clientes que te mandam pedidos.
-                      </p>
-                      <Button 
-                        className="w-full"
-                        onClick={() => handleCheckout('UPGRADE_PRO', 97, 'Assinatura Plano PRO Mensal')}
-                        disabled={isCheckoutModalOpen}
-                      >
-                        <Star className="h-4 w-4 mr-2" />
-                        Fazer Upgrade para PRO (R$ 97/mês)
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                        Você tem acesso ilimitado a todos os pedidos e aparece no topo das buscas!
-                      </p>
-                      <Button variant="outline" className="w-full">Gerenciar Assinatura</Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-bold mb-2">Sua Carteira</h3>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))] mb-6">Saldo para desbloquear contatos (Plano Básico).</p>
-                  
-                  <div className="text-4xl font-black mb-6">
-                    {formatCurrency(balance)}
-                  </div>
-                  
-                  <Button 
-                    className="w-full mb-2 bg-[hsl(var(--success))] hover:bg-[hsl(var(--success-muted))] hover:text-[hsl(var(--success))] text-white"
-                    onClick={() => handleCheckout('ADD_FUNDS', 50, 'Adicionar R$50 na Carteira AcheiYou')}
-                    disabled={isCheckoutModalOpen}
-                  >
-                    <Wallet className="h-4 w-4 mr-2" />
-                    Adicionar Créditos (R$ 50)
-                  </Button>
-                </CardContent>
-              </Card>
+                ) : (
+                  <DashboardRequests requests={clientRequests} profileId={profile.id} />
+                )}
+              </div>
             </div>
           )}
           {activeTab === 'perfil' && (
-            <ProfileSettings profile={profile} />
+            <ProfileSettings profile={profile} professional={professional} />
+          )}
+
+          {activeTab === 'assinatura' && (
+            <PlanosView 
+              currentPlan={planType} 
+              onUpgrade={handleCheckout} 
+            />
           )}
         </motion.div>
       </div>

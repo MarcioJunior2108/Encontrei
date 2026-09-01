@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { IntentInput } from '@/components/intent/IntentInput';
 
 export function HomeFooter() {
@@ -25,10 +26,20 @@ export function HomeFooter() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
             <div className="col-span-2 sm:col-span-1">
               <Link href="/" className="flex items-center gap-2 mb-4">
-                <div className="h-7 w-7 rounded-[var(--radius-md)] bg-[hsl(var(--primary))] flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">E</span>
-                </div>
-                <span className="font-semibold text-[hsl(var(--foreground))]">AcheiYou</span>
+                <Image 
+                  src="/logo.png" 
+                  alt="AcheiYou Logo" 
+                  width={140} 
+                  height={40} 
+                  className="h-8 w-auto object-contain dark:hidden"
+                />
+                <Image 
+                  src="/logo-dark.png" 
+                  alt="AcheiYou Logo" 
+                  width={140} 
+                  height={40} 
+                  className="h-8 w-auto object-contain hidden dark:block"
+                />
               </Link>
               <p className="text-sm text-[hsl(var(--muted-foreground))] leading-relaxed max-w-[200px]">
                 Transformando intenção humana em ação.

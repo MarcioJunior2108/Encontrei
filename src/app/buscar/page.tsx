@@ -57,18 +57,21 @@ async function SearchResultsAI({ q, categoria }: { q?: string; categoria?: strin
     if (aiIntent.profession) {
       orConditions.push({ headline: { contains: aiIntent.profession, mode: 'insensitive' } });
       orConditions.push({ bio: { contains: aiIntent.profession, mode: 'insensitive' } });
+      orConditions.push({ profile: { name: { contains: aiIntent.profession, mode: 'insensitive' } } });
     }
 
     const synonyms: string[] = aiIntent.synonyms ?? aiIntent.profession_synonyms ?? [];
     synonyms.forEach((syn: string) => {
       orConditions.push({ headline: { contains: syn, mode: 'insensitive' } });
       orConditions.push({ bio: { contains: syn, mode: 'insensitive' } });
+      orConditions.push({ profile: { name: { contains: syn, mode: 'insensitive' } } });
     });
 
     // Sempre inclui o texto original como fallback
     if (q) {
       orConditions.push({ headline: { contains: q, mode: 'insensitive' } });
       orConditions.push({ bio: { contains: q, mode: 'insensitive' } });
+      orConditions.push({ profile: { name: { contains: q, mode: 'insensitive' } } });
     }
 
     whereClause = {

@@ -36,7 +36,7 @@ export default async function ProfessionalDashboardPage() {
     professionalData.receivedRequests = professionalData.receivedRequests.map((req: any) => {
       // Se o profissional tem Plano PRO, todos os leads são dele. 
       // Se ele pagou pelo lead (isUnlocked = true), o lead também é dele.
-      const isLeadAccessible = professionalData.planType === 'PRO' || req.isUnlocked;
+      const isLeadAccessible = professionalData.planType === 'PRO' || professionalData.planType === 'ELITE' || req.isUnlocked;
       
       if (!isLeadAccessible && req.client) {
         req.client.email = '[OCULTO]';

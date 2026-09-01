@@ -162,6 +162,7 @@ enum Availability {
 enum PlanType {
   BASIC
   PRO
+  ELITE
 }
 
 enum RequestStatus {

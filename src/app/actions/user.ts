@@ -21,7 +21,36 @@ export async function getCurrentProfile() {
           where: { email: user.email }
         });
         if (existingProfile && existingProfile.id !== user.id) {
-          await prisma.profile.delete({ where: { id: existingProfile.id } });
+          const profileId = existingProfile.id;
+
+          // Cascade delete chat messages and service requests where they are clients
+          await prisma.chatMessage.deleteMany({
+            where: { senderId: profileId }
+          });
+          await prisma.serviceRequest.deleteMany({
+            where: { clientId: profileId }
+          });
+
+          // Check for professional profile and cascade delete its relations
+          const professional = await prisma.professional.findUnique({
+            where: { userId: profileId },
+            select: { id: true }
+          });
+
+          if (professional) {
+            await prisma.serviceRequest.deleteMany({
+              where: { professionalId: professional.id }
+            });
+            await prisma.transaction.deleteMany({
+              where: { professionalId: professional.id }
+            });
+            await prisma.professional.delete({
+              where: { id: professional.id }
+            });
+          }
+
+          // Finally, delete the old profile
+          await prisma.profile.delete({ where: { id: profileId } });
         }
       }
 

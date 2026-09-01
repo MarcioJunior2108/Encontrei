@@ -141,18 +141,45 @@ export function SearchResults({ query, category, initialResults = [], aiIntent }
         </div>
 
         {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <SearchX className="h-12 w-12 text-[hsl(var(--muted-foreground)/0.5)] mb-4" />
-            <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-2">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center py-24 text-center"
+          >
+            <div className="relative mb-8">
+              {/* Radar Rings */}
+              <motion.div 
+                animate={{ scale: [1, 1.8, 1], opacity: [0.3, 0, 0.3] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 rounded-full bg-[hsl(var(--primary)/0.2)] blur-xl"
+              />
+              <motion.div 
+                animate={{ scale: [0.8, 1.5, 0.8], opacity: [0.5, 0, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 rounded-full border border-[hsl(var(--primary)/0.3)]"
+              />
+              <motion.div 
+                animate={{ scale: [1, 1.3, 1], opacity: [0.8, 0, 0.8] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                className="absolute inset-0 rounded-full border border-[hsl(var(--primary)/0.5)]"
+              />
+              
+              {/* Center Icon */}
+              <div className="relative h-20 w-20 bg-[hsl(var(--card))] rounded-full border border-[hsl(var(--border))] shadow-lg flex items-center justify-center z-10">
+                <SearchX className="h-8 w-8 text-[hsl(var(--muted-foreground))]" />
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2">
               Nenhum profissional encontrado
             </h2>
             <p className="text-sm text-[hsl(var(--muted-foreground))] max-w-sm mb-6">
-              Tente ajustar seus filtros ou buscar por outro termo.
+              Ainda não temos profissionais dessa categoria na sua região, ou os filtros estão muito restritos. Tente buscar por outro termo.
             </p>
-            <Button variant="outline" onClick={() => { setVerifiedOnly(false); setAvailableOnly(false); }}>
+            <Button variant="outline" className="rounded-full px-6" onClick={() => { setVerifiedOnly(false); setAvailableOnly(false); }}>
               Limpar filtros
             </Button>
-          </div>
+          </motion.div>
         )}
 
         <motion.div

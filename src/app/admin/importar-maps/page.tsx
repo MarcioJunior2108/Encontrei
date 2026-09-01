@@ -109,7 +109,41 @@ export default function ImportarMapsPage() {
 
             if (phone.length >= 8) {
               const name = nameKey ? String(row[nameKey] || 'Profissional Local') : 'Profissional Local';
-              const service = defaultService ? defaultService : (categoryKey ? String(row[categoryKey] || 'Serviços') : 'Serviços');
+              
+              const inferServiceFromName = (n: string): string => {
+                const lower = n.toLowerCase();
+                if (lower.includes('energia solar') || lower.includes('fotovoltaica') || lower.includes('solar')) return 'Energia Solar';
+                if (lower.includes('eletricista') || lower.includes('elétrica') || lower.includes('eletrica')) return 'Eletricista';
+                if (lower.includes('encanador') || lower.includes('hidráulica') || lower.includes('hidraulica')) return 'Encanador';
+                if (lower.includes('pintor') || lower.includes('pintura')) return 'Pintor';
+                if (lower.includes('marceneiro') || lower.includes('marcenaria') || lower.includes('móveis')) return 'Marceneiro';
+                if (lower.includes('pedreiro') || lower.includes('construção') || lower.includes('reforma')) return 'Pedreiro';
+                if (lower.includes('psicólog') || lower.includes('psicolog') || lower.includes('terapia')) return 'Psicólogo';
+                if (lower.includes('advogad') || lower.includes('advocacia')) return 'Advogado';
+                if (lower.includes('dentista') || lower.includes('odontolog') || lower.includes('odonto')) return 'Dentista';
+                if (lower.includes('limpeza') || lower.includes('faxina') || lower.includes('diarista')) return 'Limpeza / Faxina';
+                if (lower.includes('ar condicionado') || lower.includes('refrigeração') || lower.includes('climatização')) return 'Ar Condicionado';
+                if (lower.includes('mecanic') || lower.includes('mecânic') || lower.includes('oficina') || lower.includes('auto center')) return 'Mecânico';
+                if (lower.includes('estetic') || lower.includes('beleza') || lower.includes('salao') || lower.includes('salão') || lower.includes('cabelereir') || lower.includes('barbearia') || lower.includes('barber')) return 'Beleza & Estética';
+                if (lower.includes('fisioterap')) return 'Fisioterapeuta';
+                if (lower.includes('nutricionist')) return 'Nutricionista';
+                if (lower.includes('veterinari') || lower.includes('pet shop')) return 'Veterinário / Pet Shop';
+                if (lower.includes('contabil') || lower.includes('contador') || lower.includes('contabilidade')) return 'Contador';
+                if (lower.includes('fotograf') || lower.includes('foto e video')) return 'Fotógrafo';
+                return 'Serviços';
+              };
+
+              let service = defaultService;
+              if (!service) {
+                const inferred = inferServiceFromName(name);
+                if (inferred !== 'Serviços') {
+                  service = inferred;
+                } else if (categoryKey && row[categoryKey]) {
+                  service = String(row[categoryKey]);
+                } else {
+                  service = 'Serviços';
+                }
+              }
               
               let city = defaultCity || 'Sua Cidade';
               const address = addressKey ? String(row[addressKey] || '') : '';

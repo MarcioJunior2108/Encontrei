@@ -128,7 +128,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
       </div>
 
       {/* Banner Dourado: Chat Gratuito Disponível */}
-      {freeLeadsUsed === 0 && requests.length > 0 && planType !== 'PRO' && (
+      {freeLeadsUsed === 0 && requests.length > 0 && planType !== 'PRO' && planType !== 'ELITE' && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -215,7 +215,7 @@ export function PortalOverview({ profile, professional }: { profile: any, profes
                 </div>
               ) : (
                 requests.map((req: any) => {
-                  const isUnlocked = planType === 'PRO' || req.isUnlocked;
+                  const isUnlocked = planType === 'PRO' || planType === 'ELITE' || req.isUnlocked;
                   const clientFirstName = req.client.name ? req.client.name.split(' ')[0] : 'Cliente';
                   const maskedName = isUnlocked ? req.client.name : `${clientFirstName} ***`;
                   

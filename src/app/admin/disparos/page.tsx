@@ -49,6 +49,9 @@ export default function BroadcastCRMPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<{ id: string; status: 'success' | 'error'; errorMsg?: string }[]>([]);
   const [consecutiveErrors, setConsecutiveErrors] = useState(0);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationDone, setValidationDone] = useState(false);
+  const [removedCount, setRemovedCount] = useState(0);
 
   // Auto-Pause mechanism
   useEffect(() => {
@@ -162,6 +165,51 @@ export default function BroadcastCRMPage() {
   };
 
   const togglePause = () => setIsPaused(!isPaused);
+
+  const validateNumbers = async () => {
+    if (users.length === 0) {
+      alert('Adicione contatos primeiro antes de validar.');
+      return;
+    }
+    setIsValidating(true);
+    setValidationDone(false);
+    try {
+      const phones = users.map(u => u.phone);
+      // Valida em lotes de 50 para não sobrecarregar a API
+      const BATCH = 50;
+      const validPhones = new Set<string>();
+      const invalidPhones = new Set<string>();
+
+      for (let i = 0; i < phones.length; i += BATCH) {
+        const batch = phones.slice(i, i + BATCH);
+        const res = await fetch('/api/admin/broadcast/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phones: batch })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao validar');
+        (data.valid || []).forEach((p: string) => validPhones.add(p));
+        (data.invalid || []).forEach((p: string) => invalidPhones.add(p));
+      }
+
+      // Filtra a lista mantendo apenas os válidos
+      const filtered = users.filter(u => {
+        const clean = u.phone.replace(/\D/g, '');
+        const withCode = clean.startsWith('55') ? clean : '55' + clean;
+        return validPhones.has(withCode) || !invalidPhones.has(withCode);
+      });
+
+      const removed = users.length - filtered.length;
+      setRemovedCount(removed);
+      setUsers(filtered);
+      setValidationDone(true);
+    } catch (err: any) {
+      alert('Erro na validação: ' + err.message);
+    } finally {
+      setIsValidating(false);
+    }
+  };
 
   const startBroadcast = async () => {
     if (!message.trim()) {
@@ -390,11 +438,44 @@ export default function BroadcastCRMPage() {
                    </div>
                 )}
                 {!loading && users.length > 0 && (
-                  <div className="flex items-center gap-2 text-sm pt-2">
-                    <div className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">
-                      {users.length} contatos extraídos
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm pt-2">
+                      <div className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">
+                        {users.length} contatos extraídos
+                      </div>
+                      <span className="text-[hsl(var(--muted-foreground))]">prontos para disparo.</span>
                     </div>
-                    <span className="text-[hsl(var(--muted-foreground))]">prontos para disparo.</span>
+
+                    {/* Botão de validação */}
+                    {!isSending && (
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={validateNumbers}
+                          disabled={isValidating || isSending}
+                          className="w-full flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg border-2 border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isValidating ? (
+                            <><Loader2 className="w-4 h-4 animate-spin" /> Verificando números no WhatsApp...</>
+                          ) : (
+                            <><Smartphone className="w-4 h-4" /> ✅ Validar Números (Remover sem WhatsApp)</>
+                          )}
+                        </button>
+
+                        {validationDone && (
+                          <div className={cn(
+                            "text-xs rounded-lg p-3 border font-medium",
+                            removedCount > 0
+                              ? "bg-amber-50 border-amber-200 text-amber-800"
+                              : "bg-emerald-50 border-emerald-200 text-emerald-800"
+                          )}>
+                            {removedCount > 0
+                              ? `⚠️ ${removedCount} número(s) sem WhatsApp foram removidos. Restaram ${users.length} contatos válidos.`
+                              : `✅ Todos os ${users.length} números possuem WhatsApp! Pode disparar com segurança.`
+                            }
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

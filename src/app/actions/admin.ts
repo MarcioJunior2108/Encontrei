@@ -86,7 +86,40 @@ export async function bulkDeleteUsers(userIds: string[]) {
     }
   }
 
-  // Deleta do Prisma explicitamente para todos os IDs
+  // 1. Limpar registros relacionados que poderiam violar Foreign Keys
+  // Chat messages enviadas por esses perfis
+  await prisma.chatMessage.deleteMany({
+    where: { senderId: { in: userIds } }
+  });
+
+  // Service requests onde esses perfis são clientes
+  await prisma.serviceRequest.deleteMany({
+    where: { clientId: { in: userIds } }
+  });
+
+  // Buscar profissionais atrelados aos profiles para limpar dependências se houver
+  const professionalRecords = await prisma.professional.findMany({
+    where: { userId: { in: userIds } },
+    select: { id: true }
+  });
+  const profIds = professionalRecords.map(p => p.id);
+
+  if (profIds.length > 0) {
+    // Limpar Service Requests recebidos por esses profissionais
+    await prisma.serviceRequest.deleteMany({
+      where: { professionalId: { in: profIds } }
+    });
+    // Limpar transações
+    await prisma.transaction.deleteMany({
+      where: { professionalId: { in: profIds } }
+    });
+    // Limpar profissionais
+    await prisma.professional.deleteMany({
+      where: { id: { in: profIds } }
+    });
+  }
+
+  // 2. Deleta do Prisma explicitamente para todos os IDs
   await prisma.profile.deleteMany({
     where: { id: { in: userIds } }
   });

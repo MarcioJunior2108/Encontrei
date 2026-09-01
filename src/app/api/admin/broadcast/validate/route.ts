@@ -35,6 +35,9 @@ export async function POST(req: Request) {
       return clean.startsWith('55') ? clean : `55${clean}`;
     });
 
+    // Remove duplicatas
+    const uniqueFormattedPhones = Array.from(new Set(formattedPhones));
+
     // Chama o endpoint de verificação em lote da Evolution API
     const response = await fetch(`${baseUrl}/chat/whatsappNumbers/${instanceName}`, {
       method: 'POST',
@@ -42,7 +45,7 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json',
         'apikey': apiKey
       },
-      body: JSON.stringify({ numbers: formattedPhones })
+      body: JSON.stringify({ numbers: uniqueFormattedPhones })
     });
 
     if (!response.ok) {

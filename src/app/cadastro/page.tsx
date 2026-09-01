@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,15 @@ export default function CadastroPage() {
   const [loading, setLoading] = useState(false);
   const [accountType, setAccountType] = useState<'CLIENT' | 'PROFESSIONAL'>('CLIENT');
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('type') === 'professional') {
+        setAccountType('PROFESSIONAL');
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

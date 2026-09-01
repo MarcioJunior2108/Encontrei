@@ -1,20 +1,62 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import Papa from 'papaparse';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Upload, MapPin, CheckCircle2, AlertTriangle, Users, FileSpreadsheet } from 'lucide-react';
+import { Loader2, Upload, MapPin, CheckCircle2, AlertTriangle, Users, FileSpreadsheet, Smartphone, Phone, Filter } from 'lucide-react';
 
 interface ExtractedProfessional {
   id: string;
   name: string;
   phone: string;
+  rawPhone: string;
+  phoneType: 'MOBILE' | 'LANDLINE' | 'INVALID';
   city: string;
   state: string;
   service: string;
   basePrice: number;
+}
+
+// Analisador inteligente de telefones brasileiros
+function parseBrazilianPhone(raw: string): { phone: string; type: 'MOBILE' | 'LANDLINE' | 'INVALID' } {
+  let cleaned = raw.replace(/\D/g, '');
+
+  // Se começar com 55 e tiver 12 ou 13 dígitos, remove o 55 para analisar DDD + Número
+  if (cleaned.startsWith('55') && (cleaned.length === 12 || cleaned.length === 13)) {
+    cleaned = cleaned.substring(2);
+  }
+
+  // 11 dígitos = Celular (DDD + 9 Dígitos)
+  if (cleaned.length === 11) {
+    const thirdDigit = cleaned.charAt(2);
+    if (thirdDigit === '9') {
+      return { phone: cleaned, type: 'MOBILE' };
+    }
+    return { phone: cleaned, type: 'LANDLINE' };
+  }
+
+  // 10 dígitos = Fixo ou Celular antigo de 8 dígitos
+  if (cleaned.length === 10) {
+    const thirdDigit = cleaned.charAt(2);
+    // Se o primeiro dígito do número for 2, 3, 4 ou 5 = Telefone Fixo
+    if (['2', '3', '4', '5'].includes(thirdDigit)) {
+      return { phone: cleaned, type: 'LANDLINE' };
+    }
+    // Se o primeiro dígito for 6, 7, 8 ou 9 = Celular antigo que faltou o 9
+    if (['6', '7', '8', '9'].includes(thirdDigit)) {
+      const ddd = cleaned.substring(0, 2);
+      const number = cleaned.substring(2);
+      return { phone: `${ddd}9${number}`, type: 'MOBILE' };
+    }
+  }
+
+  if (cleaned.length >= 8) {
+    return { phone: cleaned, type: 'LANDLINE' };
+  }
+
+  return { phone: cleaned, type: 'INVALID' };
 }
 
 export default function ImportarMapsPage() {
@@ -51,7 +93,6 @@ export default function ImportarMapsPage() {
             throw new Error('O arquivo CSV está vazio.');
           }
 
-          // Tentar adivinhar as colunas baseadas em nomes comuns de exportação
           const firstRow = rows[0];
           const keys = Object.keys(firstRow).map(k => k.toLowerCase());
           
@@ -63,22 +104,16 @@ export default function ImportarMapsPage() {
           const parsedData: ExtractedProfessional[] = [];
 
           rows.forEach((row, index) => {
-            let phone = phoneKey ? String(row[phoneKey] || '') : '';
-            // Limpa o telefone mantendo apenas números e o +
-            phone = phone.replace(/[^\d+]/g, '');
+            const rawPhone = phoneKey ? String(row[phoneKey] || '') : '';
+            const { phone, type } = parseBrazilianPhone(rawPhone);
 
-            // Só importar se tiver um número de telefone válido (pelo menos 10 dígitos)
-            if (phone.length >= 10) {
+            if (phone.length >= 8) {
               const name = nameKey ? String(row[nameKey] || 'Profissional Local') : 'Profissional Local';
-              
-              // Se o usuário digitou um Serviço Padrão, ele tem prioridade. Senão, usa o do CSV.
               const service = defaultService ? defaultService : (categoryKey ? String(row[categoryKey] || 'Serviços') : 'Serviços');
               
-              // Se o usuário digitou uma Cidade Padrão, ela tem prioridade.
               let city = defaultCity || 'Sua Cidade';
               const address = addressKey ? String(row[addressKey] || '') : '';
               if (address && !defaultCity) {
-                // Heurística muito simples para pegar a cidade se não foi forçada
                 const parts = address.split('-');
                 if (parts.length >= 2) {
                   const possibleCity = parts[parts.length - 2].trim().split(',').pop()?.trim();
@@ -90,10 +125,12 @@ export default function ImportarMapsPage() {
                 id: `csv-${index}`,
                 name: name,
                 phone: phone,
+                rawPhone: rawPhone,
+                phoneType: type,
                 city: city,
-                state: 'BA', // Você pode parametrizar isso também
+                state: 'BA',
                 service: service,
-                basePrice: Math.floor(Math.random() * 100) + 50, // Preço base aleatório para o perfil sombra
+                basePrice: Math.floor(Math.random() * 100) + 50,
               });
             }
           });
@@ -103,12 +140,14 @@ export default function ImportarMapsPage() {
           }
 
           setExtractedData(parsedData);
-          setSelectedIds(new Set(parsedData.map(p => p.id)));
+          // Por padrão, seleciona AUTOMATICAMENTE apenas os que são Celular (WhatsApp)
+          const mobileOnlyIds = new Set(parsedData.filter(p => p.phoneType === 'MOBILE').map(p => p.id));
+          setSelectedIds(mobileOnlyIds.size > 0 ? mobileOnlyIds : new Set(parsedData.map(p => p.id)));
         } catch (err: any) {
           setError(err.message || 'Erro ao processar o arquivo CSV.');
         } finally {
           setIsExtracting(false);
-          if (fileInputRef.current) fileInputRef.current.value = ''; // reseta o input
+          if (fileInputRef.current) fileInputRef.current.value = '';
         }
       },
       error: (error) => {
@@ -128,6 +167,21 @@ export default function ImportarMapsPage() {
     setSelectedIds(newSelection);
   };
 
+  const selectOnlyMobiles = () => {
+    setSelectedIds(new Set(extractedData.filter(p => p.phoneType === 'MOBILE').map(p => p.id)));
+  };
+
+  const selectAll = () => {
+    setSelectedIds(new Set(extractedData.map(p => p.id)));
+  };
+
+  const clearAll = () => {
+    setSelectedIds(new Set());
+  };
+
+  const mobileCount = useMemo(() => extractedData.filter(p => p.phoneType === 'MOBILE').length, [extractedData]);
+  const landlineCount = useMemo(() => extractedData.filter(p => p.phoneType === 'LANDLINE').length, [extractedData]);
+
   const handleImport = async () => {
     const selectedProfessionals = extractedData.filter(p => selectedIds.has(p.id));
     if (selectedProfessionals.length === 0) return;
@@ -142,7 +196,7 @@ export default function ImportarMapsPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer development-secret`
         },
-        body: JSON.stringify(selectedProfessionals.map(({ id, ...rest }) => rest))
+        body: JSON.stringify(selectedProfessionals.map(({ id, rawPhone, phoneType, ...rest }) => rest))
       });
 
       const data = await response.json();
@@ -165,7 +219,7 @@ export default function ImportarMapsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Importar do Google Maps (CSV)</h1>
         <p className="text-[hsl(var(--muted-foreground))] mt-1">
-          Faça o upload de uma planilha (CSV) gerada por uma extensão do Google Maps para criar Perfis Sombra instantaneamente.
+          Faça o upload do CSV do Google Maps. O sistema separa automaticamente Celulares (WhatsApp) de Telefones Fixos.
         </p>
       </div>
 
@@ -218,8 +272,8 @@ export default function ImportarMapsPage() {
             {isExtracting ? (
               <>
                 <Loader2 className="h-10 w-10 text-emerald-500 animate-spin mb-4" />
-                <h3 className="text-lg font-medium text-emerald-700 dark:text-emerald-400">Processando Planilha...</h3>
-                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Isso pode levar alguns segundos dependendo do tamanho.</p>
+                <h3 className="text-lg font-medium text-emerald-700 dark:text-emerald-400">Processando e Analisando Telefones...</h3>
+                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Identificando Celulares e Fixos automaticamente.</p>
               </>
             ) : (
               <>
@@ -248,7 +302,7 @@ export default function ImportarMapsPage() {
           {importSuccess && (
             <div className="mt-4 p-4 rounded-md bg-emerald-500/10 text-emerald-600 flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 shrink-0" />
-              <p className="text-sm font-medium">Sucesso! {importSuccess.imported} profissionais foram importados da planilha e agora possuem um Perfil Sombra aguardando reivindicação.</p>
+              <p className="text-sm font-medium">Sucesso! {importSuccess.imported} profissionais foram importados e agora possuem um Perfil Sombra pronto para disparo e reivindicação.</p>
             </div>
           )}
         </CardContent>
@@ -257,13 +311,52 @@ export default function ImportarMapsPage() {
       {extractedData.length > 0 && (
         <Card className="border-emerald-500/20 shadow-sm">
           <CardHeader className="bg-emerald-500/5 border-b">
-            <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
-              <Users className="h-5 w-5" />
-              Dados Encontrados na Planilha ({extractedData.length})
-            </CardTitle>
-            <CardDescription>
-              Apenas contatos com número de telefone foram extraídos. Selecione quais deseja importar.
-            </CardDescription>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+                  <Users className="h-5 w-5" />
+                  Dados Encontrados ({extractedData.length})
+                </CardTitle>
+                <CardDescription className="mt-1 flex items-center gap-3">
+                  <span className="inline-flex items-center gap-1 font-semibold text-emerald-600">
+                    <Smartphone className="w-3.5 h-3.5" /> {mobileCount} Celular/WhatsApp
+                  </span>
+                  <span>•</span>
+                  <span className="inline-flex items-center gap-1 text-slate-500 font-medium">
+                    <Phone className="w-3.5 h-3.5" /> {landlineCount} Fixo
+                  </span>
+                </CardDescription>
+              </div>
+
+              {/* Botões Rápidos de Filtro */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={selectOnlyMobiles}
+                  className="text-xs bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
+                >
+                  <Smartphone className="w-3.5 h-3.5 mr-1" />
+                  Apenas WhatsApp ({mobileCount})
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={selectAll}
+                  className="text-xs"
+                >
+                  Todos ({extractedData.length})
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={clearAll}
+                  className="text-xs text-muted-foreground"
+                >
+                  Desmarcar
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto max-h-[500px]">
@@ -273,7 +366,7 @@ export default function ImportarMapsPage() {
                     <th className="px-4 py-3 w-12 text-center">
                       <input 
                         type="checkbox" 
-                        checked={selectedIds.size === extractedData.length}
+                        checked={selectedIds.size === extractedData.length && extractedData.length > 0}
                         onChange={() => {
                           if (selectedIds.size === extractedData.length) {
                             setSelectedIds(new Set());
@@ -285,7 +378,8 @@ export default function ImportarMapsPage() {
                       />
                     </th>
                     <th className="px-4 py-3">Nome / Local</th>
-                    <th className="px-4 py-3">Telefone</th>
+                    <th className="px-4 py-3">Tipo</th>
+                    <th className="px-4 py-3">Telefone Formatado</th>
                     <th className="px-4 py-3">Serviço</th>
                   </tr>
                 </thead>
@@ -311,7 +405,20 @@ export default function ImportarMapsPage() {
                           <MapPin className="h-3 w-3 shrink-0" /> {prof.city}, {prof.state}
                         </div>
                       </td>
-                      <td className="px-4 py-4 font-mono text-sm whitespace-nowrap">{prof.phone}</td>
+                      <td className="px-4 py-4 whitespace-nowrap">
+                        {prof.phoneType === 'MOBILE' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <Smartphone className="w-3 h-3" /> WhatsApp
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                            <Phone className="w-3 h-3" /> Fixo
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-4 font-mono text-sm whitespace-nowrap">
+                        {prof.phone}
+                      </td>
                       <td className="px-4 py-4">
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[hsl(var(--primary-muted))] text-[hsl(var(--primary))] truncate max-w-[200px]" title={prof.service}>
                           {prof.service}
@@ -325,7 +432,7 @@ export default function ImportarMapsPage() {
           </CardContent>
           <CardFooter className="bg-[hsl(var(--muted))] flex justify-between items-center p-4">
             <div className="text-sm text-[hsl(var(--muted-foreground))]">
-              {selectedIds.size} de {extractedData.length} selecionados
+              <span className="font-semibold text-[hsl(var(--foreground))]">{selectedIds.size}</span> de {extractedData.length} selecionados
             </div>
             <Button 
               onClick={handleImport} 
@@ -344,3 +451,4 @@ export default function ImportarMapsPage() {
     </div>
   );
 }
+

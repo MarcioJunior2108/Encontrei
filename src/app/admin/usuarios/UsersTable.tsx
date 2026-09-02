@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Shield, Ban, Search, Trash2 } from 'lucide-react';
+import { Shield, Ban, Search, Trash2, MessageCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { bulkBanUsers, bulkDeleteUsers, banUser, promoteToAdmin } from '@/app/actions/admin';
 
@@ -198,6 +198,25 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
+                      {u.phone && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200" 
+                          title="Conversar no WhatsApp"
+                          asChild
+                        >
+                          <a 
+                            href={`https://wa.me/${u.phone.replace(/\D/g, '')}?text=${encodeURIComponent(
+                              `Olá ${u.name ? u.name.split(' ')[0] : ''}! Tudo bem? Sou da equipe do Encontrei.`
+                            )}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      )}
                       {u.role !== 'ADMIN' && (
                         <Button 
                           variant="outline" 

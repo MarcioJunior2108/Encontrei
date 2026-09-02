@@ -1,37 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { signup, loginWithGoogle } from '@/app/actions/auth';
-import { AlertCircle, Briefcase, ShoppingBag } from 'lucide-react';
+import { AlertCircle, Briefcase, ShoppingBag, Loader2 } from 'lucide-react';
 import { Slottable } from '@radix-ui/react-slot';
-import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
-function NextUrlInput() {
+function CadastroContent() {
   const searchParams = useSearchParams();
   const next = searchParams.get('next');
-  if (!next) return null;
-  return <input type="hidden" name="next" value={next} />;
-}
+  
+  // Detecta se é profissional já no primeiro render imediato
+  const typeParam = (searchParams.get('type') || searchParams.get('tipo') || searchParams.get('role') || '').toLowerCase();
+  const initialIsPro = typeParam === 'professional' || typeParam === 'profissional' || typeParam === 'pro' || searchParams.has('pro');
 
-export default function CadastroPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [accountType, setAccountType] = useState<'CLIENT' | 'PROFESSIONAL'>('CLIENT');
+  const [accountType, setAccountType] = useState<'CLIENT' | 'PROFESSIONAL'>(initialIsPro ? 'PROFESSIONAL' : 'CLIENT');
   const [googleLoading, setGoogleLoading] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('type') === 'professional') {
-        setAccountType('PROFESSIONAL');
-      }
+    if (initialIsPro) {
+      setAccountType('PROFESSIONAL');
     }
-  }, []);
+  }, [initialIsPro]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,13 +48,8 @@ export default function CadastroPage() {
     const formData = new FormData();
     formData.set('role', accountType);
     
-    // Grab 'next' from URL directly to avoid Next.js Suspense issues with useSearchParams at root level
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const nextParam = urlParams.get('next');
-      if (nextParam) {
-        formData.set('next', nextParam);
-      }
+    if (next) {
+      formData.set('next', next);
     }
     
     await loginWithGoogle(formData);
@@ -173,9 +164,7 @@ export default function CadastroPage() {
               </div>
             )}
             
-            <Suspense fallback={null}>
-              <NextUrlInput />
-            </Suspense>
+            {next && <input type="hidden" name="next" value={next} />}
             
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-[hsl(var(--foreground))] mb-1.5">
@@ -242,5 +231,17 @@ export default function CadastroPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function CadastroPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-dvh flex items-center justify-center bg-[hsl(var(--background))]">
+        <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--primary))]" />
+      </div>
+    }>
+      <CadastroContent />
+    </Suspense>
   );
 }

@@ -731,7 +731,7 @@ export default function BroadcastCRMPage() {
                     disabled={isSending}
                     className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 px-2 py-1 rounded transition-colors font-medium border"
                   >
-                    + {{nome}}
+                    + {'{{nome}}'}
                   </button>
                   <button 
                     onClick={() => insertVariable('{{saudacao}}')}
@@ -739,14 +739,14 @@ export default function BroadcastCRMPage() {
                     className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300 border border-emerald-200 px-2 py-1 rounded transition-colors font-medium"
                     title="Bom dia / Boa tarde / Boa noite dinâmico"
                   >
-                    + {{saudacao}} (Hora)
+                    + {'{{saudacao}} (Hora)'}
                   </button>
                   <button 
                     onClick={() => insertVariable('{Opção1|Opção2|Opção3}')}
                     disabled={isSending}
                     className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300 border border-indigo-200 px-2 py-1 rounded transition-colors font-medium"
                   >
-                    + {Spintax|Sinônimos}
+                    + {'{Spintax|Sinônimos}'}
                   </button>
                 </div>
 

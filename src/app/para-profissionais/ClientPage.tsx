@@ -23,7 +23,19 @@ import {
   ShieldCheck,
   ArrowDown,
   Check,
-  Search
+  Search,
+  Wrench,
+  Paintbrush,
+  Truck,
+  Leaf,
+  Hammer,
+  Wind,
+  Camera,
+  Home,
+  Monitor,
+  Droplets,
+  Sparkles,
+  Lightbulb
 } from 'lucide-react';
 import { HomeFooter } from '@/components/home/HomeFooter';
 
@@ -41,8 +53,19 @@ const staggerContainer = {
   }
 };
 
+// Estilos de animação para o ticker
+const tickerStyle = `
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .ticker-track { animation: ticker 47s linear infinite; }
+  .ticker-track:hover { animation-play-state: paused; }
+`;
+
 export function ParaProfissionaisClient() {
   const [activeToast, setActiveToast] = useState(0);
+  const [serviceValue, setServiceValue] = useState(300);
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -57,6 +80,38 @@ export function ParaProfissionaisClient() {
     { name: "Juliana T.", service: "Limpeza", city: "Belo Horizonte, MG" },
     { name: "Marcos R.", service: "Fretes", city: "Rio de Janeiro, RJ" },
   ];
+
+  const tickerItems = [
+    { icon: Zap, text: "Eletricista", city: "Salvador, BA" },
+    { icon: Paintbrush, text: "Pintor", city: "Fortaleza, CE" },
+    { icon: Droplets, text: "Encanador", city: "São Paulo, SP" },
+    { icon: Truck, text: "Frete", city: "Rio de Janeiro, RJ" },
+    { icon: Sparkles, text: "Limpeza", city: "Curitiba, PR" },
+    { icon: Building, text: "Reformas", city: "Belo Horizonte, MG" },
+    { icon: Leaf, text: "Jardineiro", city: "Manaus, AM" },
+    { icon: Hammer, text: "Marceneiro", city: "Porto Alegre, RS" },
+    { icon: Wind, text: "Ar-condicionado", city: "Recife, PE" },
+    { icon: Camera, text: "Fotógrafo", city: "Brasília, DF" },
+    { icon: Home, text: "Diarista", city: "Goiânia, GO" },
+    { icon: Monitor, text: "TI / Suporte", city: "Florianópolis, SC" },
+  ];
+
+  const categories = [
+    { icon: Zap, label: "Eletricista", hot: true },
+    { icon: Droplets, label: "Encanador", hot: true },
+    { icon: Paintbrush, label: "Pintor", hot: true },
+    { icon: Sparkles, label: "Limpeza", hot: false },
+    { icon: Truck, label: "Fretes", hot: true },
+    { icon: Building, label: "Reformas", hot: false },
+    { icon: Leaf, label: "Jardineiro", hot: false },
+    { icon: Hammer, label: "Marceneiro", hot: false },
+    { icon: Wind, label: "Ar-condicionado", hot: true },
+    { icon: Home, label: "Diarista", hot: false },
+    { icon: Monitor, label: "TI / Suporte", hot: false },
+    { icon: Camera, label: "Fotógrafo", hot: false },
+  ];
+
+  const netROI = serviceValue - 99;
 
   return (
     <main className="min-h-dvh bg-[#080d19] font-sans text-slate-50 selection:bg-blue-600 selection:text-white pb-16 md:pb-0" id="main-content">
@@ -143,11 +198,19 @@ export function ParaProfissionaisClient() {
                 
                 <div className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-3">
                   <div className="flex -space-x-3 mr-2">
-                    <div className="w-8 h-8 rounded-full border-2 border-[#080d19] bg-blue-600 flex items-center justify-center text-xs font-bold text-white shadow-sm z-40">A</div>
-                    <div className="w-8 h-8 rounded-full border-2 border-[#080d19] bg-emerald-600 flex items-center justify-center text-xs font-bold text-white shadow-sm z-30">M</div>
-                    <div className="w-8 h-8 rounded-full border-2 border-[#080d19] bg-purple-600 flex items-center justify-center text-xs font-bold text-white shadow-sm z-20">J</div>
-                    <div className="w-8 h-8 rounded-full border-2 border-[#080d19] bg-orange-600 flex items-center justify-center text-xs font-bold text-white shadow-sm z-10">C</div>
-                    <div className="w-8 h-8 rounded-full border-2 border-[#080d19] bg-slate-700 flex items-center justify-center text-xs font-bold text-white shadow-sm z-0">+</div>
+                    <div className="w-10 h-10 rounded-full border-2 border-[#080d19] overflow-hidden shadow-md z-40 ring-1 ring-slate-700">
+                      <Image src="/avatars/avatar1.jpg" alt="Cliente" width={40} height={40} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="w-10 h-10 rounded-full border-2 border-[#080d19] overflow-hidden shadow-md z-30 ring-1 ring-slate-700">
+                      <Image src="/avatars/avatar2.jpg" alt="Cliente" width={40} height={40} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="w-10 h-10 rounded-full border-2 border-[#080d19] overflow-hidden shadow-md z-20 ring-1 ring-slate-700">
+                      <Image src="/avatars/avatar3.jpg" alt="Cliente" width={40} height={40} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="w-10 h-10 rounded-full border-2 border-[#080d19] overflow-hidden shadow-md z-10 ring-1 ring-slate-700">
+                      <Image src="/avatars/avatar4.jpg" alt="Cliente" width={40} height={40} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="w-10 h-10 rounded-full border-2 border-[#080d19] bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-300 shadow-md z-0 ring-1 ring-slate-700">+</div>
                   </div>
                   <span className="text-sm text-slate-300 font-medium">Mais de <strong className="text-white">1.000 clientes</strong> buscando serviços todos os dias.</span>
                 </div>
@@ -225,6 +288,78 @@ export function ParaProfissionaisClient() {
             </motion.div>
 
           </div>
+        </div>
+      </section>
+
+      {/* TICKER - BUSCAS AO VIVO */}
+      <section className="py-5 bg-[#050914] border-y border-slate-800/80 overflow-hidden">
+        <style>{tickerStyle}</style>
+        <div className="relative">
+          {/* Fade esquerdo */}
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#050914] to-transparent z-10 pointer-events-none"></div>
+          {/* Fade direito */}
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#050914] to-transparent z-10 pointer-events-none"></div>
+          
+          <div className="flex ticker-track w-max">
+            {[...tickerItems, ...tickerItems].map((item, i) => (
+              <div key={i} className="flex items-center gap-2 mx-6 py-2 whitespace-nowrap">
+                <div className="w-7 h-7 rounded-lg bg-slate-700/80 flex items-center justify-center shrink-0">
+                  <item.icon className="w-4 h-4 text-slate-300" />
+                </div>
+                <span className="text-sm font-bold text-slate-300">{item.text}</span>
+                <span className="text-slate-600 text-xs font-medium flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />{item.city}
+                </span>
+                <span className="inline-flex items-center gap-1 bg-emerald-900/40 border border-emerald-700/40 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  buscando agora
+                </span>
+                <span className="w-1 h-1 rounded-full bg-slate-700 mx-4"></span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CATEGORIAS MAIS BUSCADAS */}
+      <section className="py-20 bg-[#080d19]">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <p className="text-xs font-bold tracking-widest uppercase text-blue-400 mb-3">Demanda na plataforma</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Seu serviço já está sendo procurado.</h2>
+            <p className="text-slate-400 mt-3 text-lg font-medium">Estes são os serviços mais buscados por clientes na plataforma agora.</p>
+          </motion.div>
+
+          <motion.div
+            initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}
+            className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4"
+          >
+            {categories.map((cat, i) => (
+              <motion.div key={i} variants={fadeInUp}
+                className="relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/80 transition-all duration-300 cursor-default group"
+              >
+                {cat.hot && (
+                  <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest shadow-lg shadow-blue-900/60">
+                    top
+                  </span>
+                )}
+                <div className="w-12 h-12 rounded-2xl bg-slate-800 group-hover:bg-blue-900/40 flex items-center justify-center group-hover:scale-110 transition-all duration-300 border border-slate-700 group-hover:border-blue-500/40">
+                  <cat.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-400 transition-colors" />
+                </div>
+                <span className="text-xs font-bold text-slate-300 text-center leading-tight">{cat.label}</span>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.4 }}
+            className="mt-10 text-center"
+          >
+            <p className="text-slate-500 font-medium">O seu serviço não está na lista? Também aceitamos <strong className="text-slate-300">dezenas de outras categorias</strong>.</p>
+          </motion.div>
         </div>
       </section>
 
@@ -424,26 +559,55 @@ export function ParaProfissionaisClient() {
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             
-            {/* Valor */}
+            {/* Calculadora de ROI */}
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
+              <motion.p variants={fadeInUp} className="text-xs font-bold tracking-widest uppercase text-blue-400 mb-4">Calculadora de retorno</motion.p>
               <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                Quanto vale encontrar um novo cliente?
+                Quanto você ganha com 1 serviço por mês?
               </motion.h2>
               <motion.p variants={fadeInUp} className="text-xl text-slate-400 font-medium mb-10 leading-relaxed">
-                Um único serviço fechado pode valer muito mais do que o custo de manter sua presença profissional ativa na plataforma.
+                Ajuste o valor do seu serviço e veja o retorno líquido após o plano.
               </motion.p>
-              
-              <div className="space-y-8 mb-10">
-                <motion.div variants={fadeInUp} className="flex items-start gap-5 p-6 rounded-2xl bg-slate-900/50 border border-slate-800">
-                  <div className="w-8 h-8 rounded-full bg-emerald-900/50 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/30">
-                    <Check className="w-5 h-5 text-emerald-400" />
+
+              <motion.div variants={fadeInUp} className="p-8 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-8">
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <label className="text-sm font-bold text-slate-300 uppercase tracking-wider">Valor médio do seu serviço</label>
+                    <span className="text-2xl font-black text-white">R$ {serviceValue.toLocaleString('pt-BR')}</span>
                   </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-white">Cadastro gratuito para começar</h4>
-                    <p className="text-slate-400 font-medium mt-2">Você pode criar seu perfil sem cartão e conhecer a plataforma antes de decidir pela continuidade.</p>
+                  <input
+                    type="range"
+                    min="100"
+                    max="3000"
+                    step="50"
+                    value={serviceValue}
+                    onChange={(e) => setServiceValue(Number(e.target.value))}
+                    className="w-full h-2 bg-slate-700 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(59,130,246,0.7)] [&::-webkit-slider-thumb]:cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-slate-600 mt-2 font-semibold">
+                    <span>R$ 100</span>
+                    <span>R$ 3.000</span>
                   </div>
-                </motion.div>
-              </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-5 rounded-2xl bg-slate-800/80 border border-slate-700 text-center">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Plano mensal</p>
+                    <p className="text-2xl font-black text-slate-300">R$ 99</p>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-emerald-900/40 border border-emerald-500/30 text-center">
+                    <p className="text-xs font-bold text-emerald-400 uppercase tracking-wide mb-2">Lucro líquido</p>
+                    <p className="text-2xl font-black text-emerald-400">R$ {netROI.toLocaleString('pt-BR')}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-blue-900/20 border border-blue-700/30">
+                  <p className="text-sm font-semibold text-blue-300 text-center flex items-center justify-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-blue-400 shrink-0" />
+                    Fechar <strong>1 serviço</strong> de R$ {serviceValue.toLocaleString('pt-BR')} já paga o plano e ainda sobra <strong className="text-emerald-400">R$ {netROI.toLocaleString('pt-BR')}</strong> de lucro.
+                  </p>
+                </div>
+              </motion.div>
             </motion.div>
 
             {/* Preço */}

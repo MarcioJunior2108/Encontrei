@@ -131,8 +131,8 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
 
   return (
     <div className="space-y-6">
-      {/* Banner de Perfil Incompleto */}
-      {localIsIncomplete && (
+      {/* Banner de Perfil Incompleto ou Upsell */}
+      {localIsIncomplete ? (
         <motion.div 
           initial={{ opacity: 0, y: -20 }} 
           animate={{ opacity: 1, y: 0 }}
@@ -160,7 +160,33 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
             </Button>
           </div>
         </motion.div>
-      )}
+      ) : planType === 'BASIC' ? (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-orange-50 to-amber-50 border-l-4 border-orange-500 p-4 rounded-r-md shadow-sm"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center">
+              <TrendingUp className="h-6 w-6 text-orange-500 mr-3 shrink-0 mt-0.5 sm:mt-0" />
+              <div>
+                <h3 className="text-orange-800 font-bold text-sm sm:text-base">Seu perfil está ativo, mas com Baixa Visibilidade!</h3>
+                <p className="text-orange-700 text-xs sm:text-sm mt-1">
+                  Profissionais <strong>PRO</strong> e <strong>ELITE</strong> estão aparecendo antes de você nas buscas e levando os orçamentos.
+                </p>
+              </div>
+            </div>
+            <Button 
+              size="sm"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shrink-0 shadow-sm border-0"
+              onClick={() => handleCheckout('PRO_PLAN', 48.50, 'Assinatura Plano PRO')}
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              Turbinar Perfil Agora
+            </Button>
+          </div>
+        </motion.div>
+      ) : null}
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">

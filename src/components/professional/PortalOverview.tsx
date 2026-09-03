@@ -32,7 +32,7 @@ interface PortalOverviewProps {
 }
 
 export function PortalOverview({ profile, professional, clientRequests = [] }: PortalOverviewProps) {
-  const initialIsIncomplete = !professional?.headline || !professional?.city || !professional?.bio;
+  const initialIsIncomplete = !professional?.headline || !professional?.city;
   const [localIsIncomplete, setLocalIsIncomplete] = useState(initialIsIncomplete);
   
   const [activeTab, setActiveTab] = useState(localIsIncomplete ? 'perfil' : 'geral');
@@ -164,25 +164,26 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
         <motion.div 
           initial={{ opacity: 0, y: -20 }} 
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-orange-50 to-amber-50 border-l-4 border-orange-500 p-4 rounded-r-md shadow-sm"
+          className="bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-600 p-4 rounded-r-md shadow-sm"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start sm:items-center">
-              <TrendingUp className="h-6 w-6 text-orange-500 mr-3 shrink-0 mt-0.5 sm:mt-0" />
+              <AlertCircle className="h-6 w-6 text-red-600 mr-3 shrink-0 mt-0.5 sm:mt-0" />
               <div>
-                <h3 className="text-orange-800 font-bold text-sm sm:text-base">Seu perfil está ativo, mas com Baixa Visibilidade!</h3>
-                <p className="text-orange-700 text-xs sm:text-sm mt-1">
-                  Profissionais <strong>PRO</strong> e <strong>ELITE</strong> estão aparecendo antes de você nas buscas e levando os orçamentos.
+                <h3 className="text-red-900 font-bold text-sm sm:text-base">ALERTA: Você está perdendo 80% dos clientes da sua região!</h3>
+                <p className="text-red-800 text-xs sm:text-sm mt-1">
+                  Seu perfil está no fim da fila. Profissionais <strong>PRO</strong> e <strong>ELITE</strong> estão aparecendo no topo das buscas e fechando os orçamentos que deveriam ser seus. 
+                  <span className="block mt-1 font-semibold text-red-900">Pare de deixar dinheiro na mesa. Assuma o controle hoje.</span>
                 </p>
               </div>
             </div>
             <Button 
               size="sm"
-              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shrink-0 shadow-sm border-0"
+              className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white shrink-0 shadow-lg border-0 px-6 py-5 h-auto text-sm font-bold uppercase tracking-wider animate-pulse hover:animate-none transition-all"
               onClick={() => handleCheckout('PRO_PLAN', 48.50, 'Assinatura Plano PRO')}
             >
-              <Sparkles className="h-4 w-4 mr-2" />
-              Turbinar Perfil Agora
+              <Sparkles className="h-5 w-5 mr-2" />
+              Quero Dominar as Buscas
             </Button>
           </div>
         </motion.div>

@@ -31,7 +31,9 @@ interface PortalOverviewProps {
 }
 
 export function PortalOverview({ profile, professional, clientRequests = [] }: PortalOverviewProps) {
-  const [activeTab, setActiveTab] = useState('geral');
+  const isIncomplete = !professional?.headline || !professional?.city || !professional?.bio;
+  
+  const [activeTab, setActiveTab] = useState(isIncomplete ? 'perfil' : 'geral');
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [checkoutData, setCheckoutData] = useState<{type: string, amount: number, description: string, requestId?: string} | null>(null);
   const [isRejecting, setIsRejecting] = useState<string | null>(null);
@@ -43,8 +45,6 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
   };
 
   const handleCheckoutSuccess = async (paymentId: string) => {
-    // Para funcionar no localhost onde o Webhook do Mercado Pago não chega,
-    // nós fazemos uma verificação manual do status da transação.
     if (paymentId) {
       const result = await verifyPaymentStatus(paymentId);
       if (result.success && result.status === 'approved') {
@@ -96,7 +96,6 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
       if (res.success) {
         window.location.reload();
       } else if (res.needsPayment) {
-        // Já usou o gratuito — redireciona para pagamento
         const req = requests.find((r: any) => r.id === requestId);
         if (req) handleCheckout('UNLOCK_LEAD', req.coinPrice || 15, 'Desbloqueio de Contato de Cliente', requestId);
       } else {
@@ -129,6 +128,37 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
 
   return (
     <div className="space-y-6">
+      {/* Banner de Perfil Incompleto */}
+      {isIncomplete && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md shadow-sm"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center">
+              <AlertCircle className="h-6 w-6 text-red-500 mr-3 shrink-0 mt-0.5 sm:mt-0" />
+              <div>
+                <h3 className="text-red-800 font-bold text-sm sm:text-base">Atenção: Seu perfil está invisível!</h3>
+                <p className="text-red-700 text-xs sm:text-sm mt-1">
+                  Você não aparecerá nas buscas para os clientes até preencher sua <strong>Especialidade</strong>, <strong>Resumo</strong> e <strong>Cidade</strong> na aba Meu Perfil.
+                </p>
+              </div>
+            </div>
+            <Button 
+              size="sm"
+              className="bg-red-600 hover:bg-red-700 text-white shrink-0 shadow-sm"
+              onClick={() => {
+                setActiveTab('perfil');
+                document.getElementById('perfil-form')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Completar Perfil Agora
+            </Button>
+          </div>
+        </motion.div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>

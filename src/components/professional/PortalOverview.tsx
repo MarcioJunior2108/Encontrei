@@ -32,9 +32,10 @@ interface PortalOverviewProps {
 }
 
 export function PortalOverview({ profile, professional, clientRequests = [] }: PortalOverviewProps) {
-  const isIncomplete = !professional?.headline || !professional?.city || !professional?.bio;
+  const initialIsIncomplete = !professional?.headline || !professional?.city || !professional?.bio;
+  const [localIsIncomplete, setLocalIsIncomplete] = useState(initialIsIncomplete);
   
-  const [activeTab, setActiveTab] = useState(isIncomplete ? 'perfil' : 'geral');
+  const [activeTab, setActiveTab] = useState(localIsIncomplete ? 'perfil' : 'geral');
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [isUpsellModalOpen, setIsUpsellModalOpen] = useState(false);
   const [checkoutData, setCheckoutData] = useState<{type: string, amount: number, description: string, requestId?: string} | null>(null);
@@ -131,7 +132,7 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
   return (
     <div className="space-y-6">
       {/* Banner de Perfil Incompleto */}
-      {isIncomplete && (
+      {localIsIncomplete && (
         <motion.div 
           initial={{ opacity: 0, y: -20 }} 
           animate={{ opacity: 1, y: 0 }}
@@ -263,7 +264,7 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
           {activeTab === 'geral' && (
             <div className="space-y-4">
               {/* Gamificação de Visibilidade - Somente para Plano Básico */}
-              {planType === 'BASIC' && !isIncomplete && (
+              {planType === 'BASIC' && !localIsIncomplete && (
                 <Card className="border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.1)] overflow-hidden">
                   <div className="bg-gradient-to-r from-red-50 to-orange-50 border-b border-red-100 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-4">
@@ -291,7 +292,7 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
               )}
 
               {/* Gamificação de Visibilidade - PRO/ELITE */}
-              {(planType === 'PRO' || planType === 'ELITE') && !isIncomplete && (
+              {(planType === 'PRO' || planType === 'ELITE') && !localIsIncomplete && (
                 <Card className="border-green-500/30 bg-green-50/50 overflow-hidden">
                   <div className="p-4 flex items-center gap-4">
                     <div className="bg-green-500 text-white p-2 rounded-full shrink-0">
@@ -551,6 +552,7 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
               profile={profile} 
               professional={professional} 
               onProfileSaved={(plan) => {
+                setLocalIsIncomplete(false);
                 if (plan === 'BASIC') {
                   setIsUpsellModalOpen(true);
                 }

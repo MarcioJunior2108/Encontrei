@@ -208,7 +208,7 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                         >
                           <a 
                             href={`https://wa.me/${u.phone.replace(/\D/g, '')}?text=${encodeURIComponent(
-                              `Olá ${u.name ? u.name.split(' ')[0] : ''}! Tudo bem? Sou da equipe do Encontrei.`
+                              `Olá ${u.name ? u.name.split(' ')[0] : ''}! Tudo bem? Sou da equipe do AcheiYou!`
                             )}`}
                             target="_blank"
                             rel="noreferrer"

@@ -47,7 +47,8 @@ export function Header() {
         setProfile(data);
         const isPro = data.role === 'PROFESSIONAL';
         const missingHeadline = isPro && !data.professional?.headline;
-        if (!data.phone || missingHeadline) {
+        const missingLocation = isPro && (!data.city || !data.state);
+        if (!data.phone || missingHeadline || missingLocation) {
           setShowPhoneModal(true);
         }
       }
@@ -279,6 +280,8 @@ export function Header() {
         isProfessional={profile?.role === 'PROFESSIONAL'}
         initialPhone={profile?.phone || ''}
         initialHeadline={profile?.professional?.headline || ''}
+        initialCity={profile?.city || ''}
+        initialState={profile?.state || ''}
       />
     </>
   );

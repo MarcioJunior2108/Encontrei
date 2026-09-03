@@ -116,14 +116,22 @@ export async function completeMiniOnboarding(formData: FormData) {
   const phone = formData.get('phone') as string;
   const headline = formData.get('headline') as string;
   const bio = formData.get('bio') as string;
+  const city = formData.get('city') as string;
+  const state = formData.get('state') as string;
 
   try {
     const profile = await prisma.profile.findUnique({ where: { id: user.id } });
     
-    if (phone) {
+    // Atualiza Profile (telefone, cidade, estado se fornecidos)
+    const profileUpdateData: any = {};
+    if (phone) profileUpdateData.phone = phone;
+    if (city) profileUpdateData.city = city;
+    if (state) profileUpdateData.state = state;
+
+    if (Object.keys(profileUpdateData).length > 0) {
       await prisma.profile.update({
         where: { id: user.id },
-        data: { phone }
+        data: profileUpdateData
       });
     }
 

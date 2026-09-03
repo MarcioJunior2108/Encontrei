@@ -12,19 +12,25 @@ interface PhoneRequestModalProps {
   isProfessional?: boolean;
   initialPhone?: string;
   initialHeadline?: string;
+  initialCity?: string;
+  initialState?: string;
 }
 
-export function PhoneRequestModal({ isOpen, onSuccess, isProfessional, initialPhone, initialHeadline }: PhoneRequestModalProps) {
+export function PhoneRequestModal({ isOpen, onSuccess, isProfessional, initialPhone, initialHeadline, initialCity, initialState }: PhoneRequestModalProps) {
   const [phone, setPhone] = useState(initialPhone || '');
   const [headline, setHeadline] = useState(initialHeadline || '');
   const [bio, setBio] = useState('');
+  const [city, setCity] = useState(initialCity || '');
+  const [state, setState] = useState(initialState || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialPhone) setPhone(initialPhone);
     if (initialHeadline) setHeadline(initialHeadline);
-  }, [initialPhone, initialHeadline]);
+    if (initialCity) setCity(initialCity);
+    if (initialState) setState(initialState);
+  }, [initialPhone, initialHeadline, initialCity, initialState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +47,11 @@ export function PhoneRequestModal({ isOpen, onSuccess, isProfessional, initialPh
       return;
     }
 
+    if (isProfessional && (!city.trim() || !state.trim())) {
+      setError('Por favor, informe sua cidade e estado.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const formData = new FormData();
@@ -48,6 +59,8 @@ export function PhoneRequestModal({ isOpen, onSuccess, isProfessional, initialPh
       if (isProfessional) {
         formData.append('headline', headline);
         formData.append('bio', bio);
+        formData.append('city', city);
+        formData.append('state', state);
       }
 
       const res = await completeMiniOnboarding(formData);
@@ -137,46 +150,84 @@ export function PhoneRequestModal({ isOpen, onSuccess, isProfessional, initialPh
               </div>
             )}
 
-            {isProfessional && (!initialHeadline) && (
+            {isProfessional && (!initialHeadline || !initialCity || !initialState) && (
               <div className="text-left space-y-4">
-                <div>
-                  <label htmlFor="headline" className="block text-sm font-medium mb-1">
-                    Sua profissão ou serviço principal
-                  </label>
-                  <div className="relative">
-                    <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
-                    <input
-                      id="headline"
-                      type="text"
-                      placeholder="Ex: Eletricista, Encanador, Pedreiro..."
-                      value={headline}
-                      onChange={(e) => setHeadline(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] transition-all"
-                      autoFocus={!!initialPhone}
-                      required
-                    />
+                {(!initialCity || !initialState) && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="city" className="block text-sm font-medium mb-1">
+                        Cidade
+                      </label>
+                      <input
+                        id="city"
+                        type="text"
+                        placeholder="Sua cidade"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] transition-all"
+                        required={!initialCity}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="state" className="block text-sm font-medium mb-1">
+                        Estado (UF)
+                      </label>
+                      <input
+                        id="state"
+                        type="text"
+                        placeholder="Ex: SP"
+                        maxLength={2}
+                        value={state}
+                        onChange={(e) => setState(e.target.value)}
+                        className="w-full px-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] transition-all uppercase"
+                        required={!initialState}
+                      />
+                    </div>
                   </div>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
-                    Isso é o que vai aparecer em destaque nas buscas.
-                  </p>
-                </div>
+                )}
                 
-                <div>
-                  <label htmlFor="bio" className="block text-sm font-medium mb-1">
-                    Descrição (opcional)
-                  </label>
-                  <div className="relative">
-                    <FileText className="absolute left-3 top-3 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
-                    <textarea
-                      id="bio"
-                      placeholder="Fale um pouco sobre o seu trabalho..."
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
-                      rows={3}
-                      className="w-full pl-10 pr-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] transition-all resize-none"
-                    />
-                  </div>
-                </div>
+                {!initialHeadline && (
+                  <>
+                    <div>
+                      <label htmlFor="headline" className="block text-sm font-medium mb-1">
+                        Sua profissão ou serviço principal
+                      </label>
+                      <div className="relative">
+                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+                        <input
+                          id="headline"
+                          type="text"
+                          placeholder="Ex: Eletricista, Encanador, Pedreiro..."
+                          value={headline}
+                          onChange={(e) => setHeadline(e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] transition-all"
+                          autoFocus={!!initialPhone}
+                          required
+                        />
+                      </div>
+                      <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
+                        Isso é o que vai aparecer em destaque nas buscas.
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="bio" className="block text-sm font-medium mb-1">
+                        Descrição (opcional)
+                      </label>
+                      <div className="relative">
+                        <FileText className="absolute left-3 top-3 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+                        <textarea
+                          id="bio"
+                          placeholder="Fale um pouco sobre o seu trabalho..."
+                          value={bio}
+                          onChange={(e) => setBio(e.target.value)}
+                          rows={3}
+                          className="w-full pl-10 pr-4 py-3 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-lg focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] transition-all resize-none"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 

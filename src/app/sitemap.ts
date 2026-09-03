@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://acheiyou.app';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.acheiyou.com.br';
 
   // Buscar todos os profissionais para gerar as URLs dinâmicas de perfil
   const professionals = await prisma.professional.findMany({

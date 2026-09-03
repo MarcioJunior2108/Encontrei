@@ -20,6 +20,9 @@ import { unlockLeadFree } from '@/app/actions/freeLead';
 import { ProfileSettings } from './ProfileSettings';
 import { PlanosView } from './PlanosView';
 import { WalletView } from './WalletView';
+import { Badge } from '@/components/ui/badge';
+import { MercadoPagoModal } from '@/components/checkout/MercadoPagoModal';
+import { DashboardRequests } from '@/components/dashboard/DashboardRequests';
 import { UpsellModal } from './UpsellModal';
 
 interface PortalOverviewProps {

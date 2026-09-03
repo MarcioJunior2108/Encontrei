@@ -32,7 +32,7 @@ interface PortalOverviewProps {
 }
 
 export function PortalOverview({ profile, professional, clientRequests = [] }: PortalOverviewProps) {
-  const initialIsIncomplete = !professional?.headline || !professional?.city;
+  const initialIsIncomplete = !professional?.headline || !profile?.city;
   const [localIsIncomplete, setLocalIsIncomplete] = useState(initialIsIncomplete);
   
   const [activeTab, setActiveTab] = useState(localIsIncomplete ? 'perfil' : 'geral');
@@ -144,7 +144,7 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
               <div>
                 <h3 className="text-red-800 font-bold text-sm sm:text-base">Atenção: Seu perfil está invisível!</h3>
                 <p className="text-red-700 text-xs sm:text-sm mt-1">
-                  Você não aparecerá nas buscas para os clientes até preencher sua <strong>Especialidade</strong>, <strong>Resumo</strong> e <strong>Cidade</strong> na aba Meu Perfil.
+                  Você não aparecerá nas buscas para os clientes até preencher sua <strong>Especialidade</strong> e <strong>Cidade</strong> na aba Meu Perfil.
                 </p>
               </div>
             </div>

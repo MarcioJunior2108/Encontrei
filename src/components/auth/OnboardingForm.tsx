@@ -15,10 +15,10 @@ export function OnboardingForm({ profile }: { profile: any }) {
   const isProfessional = profile.role === 'PROFESSIONAL';
 
   const [formData, setFormData] = useState({
-    city: 'São Paulo',
-    state: 'SP',
-    phone: '',
-    headline: ''
+    city: profile.city || 'São Paulo',
+    state: profile.state || 'SP',
+    phone: profile.phone || '',
+    headline: profile.professional?.headline || ''
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

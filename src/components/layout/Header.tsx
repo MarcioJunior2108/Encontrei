@@ -45,7 +45,9 @@ export function Header() {
     getCurrentProfile().then((data) => {
       if (data) {
         setProfile(data);
-        if (!data.phone) {
+        const isPro = data.role === 'PROFESSIONAL';
+        const missingHeadline = isPro && !data.professional?.headline;
+        if (!data.phone || missingHeadline) {
           setShowPhoneModal(true);
         }
       }
@@ -274,6 +276,9 @@ export function Header() {
       <PhoneRequestModal 
         isOpen={showPhoneModal} 
         onSuccess={() => setShowPhoneModal(false)} 
+        isProfessional={profile?.role === 'PROFESSIONAL'}
+        initialPhone={profile?.phone || ''}
+        initialHeadline={profile?.professional?.headline || ''}
       />
     </>
   );

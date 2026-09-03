@@ -105,6 +105,42 @@ export async function updateUserPhone(phone: string) {
   }
 }
 
+export async function completeMiniOnboarding(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return { success: false, error: 'Usuário não autenticado.' };
+  }
+
+  const phone = formData.get('phone') as string;
+  const headline = formData.get('headline') as string;
+  const bio = formData.get('bio') as string;
+
+  try {
+    const profile = await prisma.profile.findUnique({ where: { id: user.id } });
+    
+    if (phone) {
+      await prisma.profile.update({
+        where: { id: user.id },
+        data: { phone }
+      });
+    }
+
+    if (profile?.role === 'PROFESSIONAL' && headline) {
+      await prisma.professional.update({
+        where: { userId: user.id },
+        data: { headline, bio: bio || null }
+      });
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Erro ao completar mini onboarding:', error);
+    return { success: false, error: 'Erro ao salvar os dados. Tente novamente.' };
+  }
+}
+
 export async function upgradeToProfessional(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

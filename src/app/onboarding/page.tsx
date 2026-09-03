@@ -15,10 +15,16 @@ export default async function OnboardingPage() {
     redirect('/login');
   }
 
-  // Se já tiver telefone cadastrado, significa que já fez onboarding
-  // Redireciona para o painel correto
-  if (profile.phone) {
-    if (profile.role === 'PROFESSIONAL') {
+  // Verifica se o onboarding está completo
+  const isProfessional = profile.role === 'PROFESSIONAL';
+  const hasPhone = !!profile.phone;
+  const hasHeadline = !!profile.professional?.headline;
+
+  const isComplete = isProfessional ? (hasPhone && hasHeadline) : hasPhone;
+
+  // Se já tiver completado, redireciona para o painel correto
+  if (isComplete) {
+    if (isProfessional) {
       redirect('/profissional');
     } else {
       redirect('/dashboard');

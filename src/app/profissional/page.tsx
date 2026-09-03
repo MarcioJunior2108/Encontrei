@@ -21,6 +21,8 @@ export default async function ProfessionalDashboardPage() {
     redirect('/dashboard');
   }
 
+
+
   const professionalData = await prisma.professional.findUnique({
     where: { userId: profile.id },
     include: {

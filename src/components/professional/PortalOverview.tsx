@@ -20,9 +20,6 @@ import { unlockLeadFree } from '@/app/actions/freeLead';
 import { ProfileSettings } from './ProfileSettings';
 import { PlanosView } from './PlanosView';
 import { WalletView } from './WalletView';
-import { Badge } from '@/components/ui/badge';
-import { MercadoPagoModal } from '@/components/checkout/MercadoPagoModal';
-import { DashboardRequests } from '@/components/dashboard/DashboardRequests';
 import { UpsellModal } from './UpsellModal';
 
 interface PortalOverviewProps {
@@ -180,7 +177,7 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
             <Button 
               size="sm"
               className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white shrink-0 shadow-lg border-0 px-6 py-5 h-auto text-sm font-bold uppercase tracking-wider animate-pulse hover:animate-none transition-all"
-              onClick={() => handleCheckout('PRO_PLAN', 48.50, 'Assinatura Plano PRO')}
+              onClick={() => handleCheckout('PRO_PLAN', 97.00, 'Assinatura Plano PRO')}
             >
               <Sparkles className="h-5 w-5 mr-2" />
               Quero Dominar as Buscas

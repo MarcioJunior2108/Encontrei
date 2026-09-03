@@ -5,6 +5,7 @@ import { SplashScreen } from '@/components/SplashScreen';
 import { GlobalChatWidget } from '@/components/chat/GlobalChatWidget';
 import { getCurrentProfile } from '@/app/actions/user';
 import { GoogleAnalytics } from '@/components/scripts/GoogleAnalytics';
+import { RecentActivityToast } from '@/components/professional/RecentActivityToast';
 import './globals.css';
 
 const geistSans = Geist({
@@ -88,6 +89,9 @@ export default async function RootLayout({
         
         {/* Chat Flutuante Global para usuários logados */}
         {profile && <GlobalChatWidget currentUserId={profile.id} />}
+        
+        {/* Notificação Global de Atividade (Fomo/Social Proof) */}
+        <RecentActivityToast />
         
         <script
           dangerouslySetInnerHTML={{

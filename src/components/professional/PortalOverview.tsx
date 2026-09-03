@@ -23,6 +23,7 @@ import { WalletView } from './WalletView';
 import { Badge } from '@/components/ui/badge';
 import { MercadoPagoModal } from '@/components/checkout/MercadoPagoModal';
 import { DashboardRequests } from '@/components/dashboard/DashboardRequests';
+import { UpsellModal } from './UpsellModal';
 
 interface PortalOverviewProps {
   profile: any;
@@ -35,6 +36,7 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
   
   const [activeTab, setActiveTab] = useState(isIncomplete ? 'perfil' : 'geral');
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [isUpsellModalOpen, setIsUpsellModalOpen] = useState(false);
   const [checkoutData, setCheckoutData] = useState<{type: string, amount: number, description: string, requestId?: string} | null>(null);
   const [isRejecting, setIsRejecting] = useState<string | null>(null);
   const [isFreeUnlocking, setIsFreeUnlocking] = useState<string | null>(null);
@@ -260,6 +262,53 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
         >
           {activeTab === 'geral' && (
             <div className="space-y-4">
+              {/* Gamificação de Visibilidade - Somente para Plano Básico */}
+              {planType === 'BASIC' && !isIncomplete && (
+                <Card className="border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.1)] overflow-hidden">
+                  <div className="bg-gradient-to-r from-red-50 to-orange-50 border-b border-red-100 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <div className="bg-white p-2 rounded-full shadow-sm shrink-0 border border-red-100">
+                        <TrendingUp className="h-6 w-6 text-red-500" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-red-900 text-lg flex items-center gap-2">
+                          Status de Visibilidade: <span className="bg-red-600 text-white px-2 py-0.5 rounded text-xs uppercase tracking-widest">Baixa</span>
+                        </h3>
+                        <p className="text-red-700 text-sm mt-1 max-w-lg">
+                          Você está perdendo a maioria dos orçamentos da sua região. Clientes dificilmente chegam até o final da fila de buscas.
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      className="shrink-0 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md border-0 group"
+                      onClick={() => handleCheckout('PRO_PLAN', 59.90, 'Assinatura Plano PRO')} // Ajustar o valor do plano e ID conforme a real necessidade
+                    >
+                      <Sparkles className="h-4 w-4 mr-2 group-hover:animate-pulse" />
+                      Turbinar Perfil (Desconto 50%)
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              {/* Gamificação de Visibilidade - PRO/ELITE */}
+              {(planType === 'PRO' || planType === 'ELITE') && !isIncomplete && (
+                <Card className="border-green-500/30 bg-green-50/50 overflow-hidden">
+                  <div className="p-4 flex items-center gap-4">
+                    <div className="bg-green-500 text-white p-2 rounded-full shrink-0">
+                      <CheckCircle2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-green-900 text-sm flex items-center gap-2">
+                        Status de Visibilidade: <span className="bg-green-600 text-white px-2 py-0.5 rounded text-[10px] uppercase tracking-widest">MÁXIMA</span>
+                      </h3>
+                      <p className="text-green-800 text-xs mt-0.5">
+                        Seu perfil está no topo das buscas da região. Você tem prioridade nos orçamentos!
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
               {requests.length === 0 ? (
                 <div className="py-12 text-center text-[hsl(var(--muted-foreground))]">
                   Você ainda não recebeu nenhuma solicitação de orçamento.
@@ -498,7 +547,15 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
             </div>
           )}
           {activeTab === 'perfil' && (
-            <ProfileSettings profile={profile} professional={professional} />
+            <ProfileSettings 
+              profile={profile} 
+              professional={professional} 
+              onProfileSaved={(plan) => {
+                if (plan === 'BASIC') {
+                  setIsUpsellModalOpen(true);
+                }
+              }}
+            />
           )}
 
           {activeTab === 'assinatura' && (
@@ -520,6 +577,16 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
           onSuccess={handleCheckoutSuccess}
         />
       )}
+
+      {/* Modal de Upsell Imediato (OTO) */}
+      <UpsellModal 
+        isOpen={isUpsellModalOpen}
+        onClose={() => setIsUpsellModalOpen(false)}
+        onUpgrade={() => {
+          setIsUpsellModalOpen(false);
+          handleCheckout('PRO_PLAN', 59.90, 'Assinatura Plano PRO');
+        }}
+      />
     </div>
   );
 }

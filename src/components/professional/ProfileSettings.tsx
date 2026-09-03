@@ -9,9 +9,10 @@ import { Save, UserCircle, Briefcase } from 'lucide-react';
 interface ProfileSettingsProps {
   profile: any;
   professional?: any;
+  onProfileSaved?: (plan: string) => void;
 }
 
-export function ProfileSettings({ profile, professional: explicitProfessional }: ProfileSettingsProps) {
+export function ProfileSettings({ profile, professional: explicitProfessional, onProfileSaved }: ProfileSettingsProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(profile?.avatarUrl || null);
@@ -30,6 +31,10 @@ export function ProfileSettings({ profile, professional: explicitProfessional }:
       setMessage(result.error);
     } else {
       setMessage('Perfil atualizado com sucesso!');
+      // Dispara o OTO Modal no parent se for plano básico
+      if (onProfileSaved) {
+        onProfileSaved(professional?.planType || 'BASIC');
+      }
     }
     
     setLoading(false);

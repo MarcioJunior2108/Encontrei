@@ -20,6 +20,9 @@ export default function WhatsAppSetupPage() {
         const data = await res.json();
         if (data.state === 'open') {
           setStatus('connected');
+        } else if (data.state === 'error') {
+          setStatus('error');
+          setError(data.error || 'Não foi possível conectar com o servidor da Evolution API. Verifique se o servidor está online e as variáveis de ambiente corretas.');
         } else {
           setStatus('idle');
         }

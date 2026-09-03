@@ -23,6 +23,9 @@ export async function POST() {
 
     const baseUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
 
+    const controller1 = new AbortController();
+    const timeout1 = setTimeout(() => controller1.abort(), 8000);
+
     // Primeiro, vamos tentar criar a instância (se já existir, ele retorna erro, aí tentamos pegar o QR code)
     let response = await fetch(`${baseUrl}/instance/create`, {
       method: 'POST',
@@ -34,8 +37,9 @@ export async function POST() {
         instanceName: instanceName,
         qrcode: true,
         integration: 'WHATSAPP-BAILEYS'
-      })
-    });
+      }),
+      signal: controller1.signal
+    }).finally(() => clearTimeout(timeout1));
 
     let data = await response.json().catch(() => ({}));
 
@@ -44,12 +48,16 @@ export async function POST() {
 
     if (!response.ok || !qrcodeBase64) {
       const errorMsg = data.message || data.error || 'Erro desconhecido na Evolution API';
+      const controller2 = new AbortController();
+      const timeout2 = setTimeout(() => controller2.abort(), 5000);
+
       const connectResponse = await fetch(`${baseUrl}/instance/connect/${instanceName}`, {
         method: 'GET',
         headers: {
           'apikey': apiKey
-        }
-      });
+        },
+        signal: controller2.signal
+      }).finally(() => clearTimeout(timeout2));
       const connectData = await connectResponse.json();
       
       if (!connectResponse.ok && connectData.error !== 'Instance already connected' && !connectData?.instance?.state) {
@@ -95,16 +103,21 @@ export async function GET() {
 
     const baseUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const response = await fetch(`${baseUrl}/instance/connectionState/${instanceName}`, {
-      headers: { 'apikey': apiKey }
-    });
+      headers: { 'apikey': apiKey },
+      signal: controller.signal
+    }).finally(() => clearTimeout(timeoutId));
     
     if (!response.ok) return NextResponse.json({ state: 'disconnected' });
     
     const data = await response.json();
     return NextResponse.json({ state: data?.instance?.state || 'disconnected' });
-  } catch (error) {
-    return NextResponse.json({ state: 'error' }, { status: 500 });
+  } catch (error: any) {
+    console.error('[WhatsApp Setup GET] Erro:', error);
+    return NextResponse.json({ state: 'error', error: error.message }, { status: 500 });
   }
 }
 

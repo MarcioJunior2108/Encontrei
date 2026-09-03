@@ -282,7 +282,7 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
                     </div>
                     <Button 
                       className="shrink-0 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md border-0 group"
-                      onClick={() => handleCheckout('PRO_PLAN', 59.90, 'Assinatura Plano PRO')} // Ajustar o valor do plano e ID conforme a real necessidade
+                      onClick={() => handleCheckout('PRO_PLAN', 48.50, 'Assinatura Plano PRO')} // Ajustar o valor do plano e ID conforme a real necessidade
                     >
                       <Sparkles className="h-4 w-4 mr-2 group-hover:animate-pulse" />
                       Turbinar Perfil (Desconto 50%)
@@ -586,7 +586,7 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
         onClose={() => setIsUpsellModalOpen(false)}
         onUpgrade={() => {
           setIsUpsellModalOpen(false);
-          handleCheckout('PRO_PLAN', 59.90, 'Assinatura Plano PRO');
+          handleCheckout('PRO_PLAN', 48.50, 'Assinatura Plano PRO');
         }}
       />
     </div>

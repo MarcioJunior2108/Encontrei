@@ -51,7 +51,8 @@ async function CategoryCityResults({ categoria, cidade }: { categoria: string; c
   const categoryName = unslugify(categoria);
   const cityName = unslugify(cidade);
 
-  const professionals = await prisma.professional.findMany({
+  // Busca do banco de dados sem orderBy de planType, pois o SQL ordena alfabeticamente (PRO > ELITE > BASIC)
+  const professionalsRaw = await prisma.professional.findMany({
     include: { profile: true },
     where: {
       AND: [
@@ -65,8 +66,27 @@ async function CategoryCityResults({ categoria, cidade }: { categoria: string; c
         { profile: { city: { contains: cityName, mode: 'insensitive' } } },
       ]
     },
-    orderBy: [{ planType: 'desc' }, { verificationStatus: 'desc' }],
     take: 50,
+  });
+
+  // Ordenação manual em memória para respeitar a hierarquia dos planos: ELITE > PRO > BASIC
+  const planWeights: Record<string, number> = {
+    ELITE: 3,
+    PRO: 2,
+    BASIC: 1
+  };
+
+  const professionals = professionalsRaw.sort((a, b) => {
+    // 1. Order por Plano (Maior peso primeiro)
+    const weightA = planWeights[a.planType] || 0;
+    const weightB = planWeights[b.planType] || 0;
+    if (weightA !== weightB) {
+      return weightB - weightA;
+    }
+    // 2. Order por Verificação
+    const verifA = a.verificationStatus === 'VERIFIED' ? 1 : 0;
+    const verifB = b.verificationStatus === 'VERIFIED' ? 1 : 0;
+    return verifB - verifA;
   });
 
   const formattedResults = professionals.map((p) => ({

@@ -14,10 +14,10 @@ export function PlanosView({ currentPlan, onUpgrade }: { currentPlan: string, on
       period: '/mês',
       description: 'Ideal para quem está começando na plataforma.',
       features: [
-        'Perfil na plataforma',
-        'Receba pedidos de orçamento',
-        'Compre leads individualmente',
-        'Suporte padrão'
+        'Perfil público na plataforma',
+        'Receba pedidos na sua região',
+        'Pague apenas pelo lead que quiser',
+        'Suporte via e-mail'
       ],
       buttonText: 'Seu Plano Atual',
       buttonVariant: 'outline' as const,
@@ -29,12 +29,12 @@ export function PlanosView({ currentPlan, onUpgrade }: { currentPlan: string, on
       name: 'Profissional',
       price: 'R$ 97',
       period: '/mês',
-      description: 'Para profissionais que querem mais clientes todo dia.',
+      description: 'Para profissionais que querem lotar a agenda todo dia.',
       features: [
-        'Acesso ILIMITADO a todos os leads',
+        'Acesso ILIMITADO aos orçamentos',
         'Destaque nas buscas (Selo PRO)',
-        'Contato direto com o cliente',
-        'Sem taxas extras por orçamento'
+        'Botão direto para o WhatsApp do cliente',
+        'Custo ZERO por orçamentos liberados'
       ],
       buttonText: currentPlan === 'PRO' ? 'Seu Plano Atual' : 'Assinar PRO',
       buttonVariant: 'default' as const,
@@ -47,12 +47,12 @@ export function PlanosView({ currentPlan, onUpgrade }: { currentPlan: string, on
       name: 'Elite',
       price: 'R$ 197',
       period: '/mês',
-      description: 'O plano definitivo para escalar seu negócio.',
+      description: 'Domine sua região com IA e prioridade máxima.',
       features: [
         'Tudo do plano Profissional',
-        'Leads Premium com IA (exclusivo)',
-        'Prioridade máxima nas buscas',
-        'Selos de Verificação Ouro'
+        'Acesso aos Leads Premium com IA',
+        'Topo das buscas na sua cidade',
+        'Selo de Verificação Ouro exclusivo'
       ],
       buttonText: currentPlan === 'ELITE' ? 'Seu Plano Atual' : 'Assinar ELITE',
       buttonVariant: 'default' as const,

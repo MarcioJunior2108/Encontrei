@@ -9,7 +9,7 @@ import { AgendaView } from './AgendaView';
 import { Button } from '@/components/ui/button';
 import { 
   Bell, Wallet, TrendingUp, Star, Clock, CheckCircle2, 
-  Settings, User, MapPin, Calendar, FileText, ChevronRight, MessageSquare, Lock, AlertCircle, Phone, LockKeyhole, Sparkles
+  Settings, User, MapPin, Calendar, FileText, ChevronRight, MessageSquare, Lock, AlertCircle, Phone, LockKeyhole, Sparkles, Share2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
@@ -335,6 +335,44 @@ export function PortalOverview({ profile, professional, clientRequests = [] }: P
                   </div>
                 </Card>
               )}
+
+              {/* Gamificação de Compartilhamento (Sinais Sociais / Backlinks) - Para todos os planos */}
+              <Card className="border-[hsl(var(--primary)/0.2)] bg-gradient-to-r from-[hsl(var(--card))] to-[hsl(var(--primary)/0.02)] overflow-hidden">
+                <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] p-2 rounded-full shrink-0">
+                      <Share2 className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-[hsl(var(--foreground))] text-sm sm:text-base flex items-center gap-2">
+                        Multiplique seus Orçamentos! <span className="bg-[hsl(var(--primary))] text-white px-2 py-0.5 rounded text-[10px] uppercase tracking-widest">+300% Cliques</span>
+                      </h3>
+                      <p className="text-[hsl(var(--muted-foreground))] text-xs sm:text-sm mt-0.5">
+                        Compartilhe seu perfil AcheiYou no <strong>WhatsApp</strong>, <strong>Instagram</strong> e grupos do <strong>Facebook</strong>. O Google percebe isso e coloca seu perfil no topo das buscas orgânicas!
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    className="shrink-0 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary)/0.9)] text-white shadow-md border-0"
+                    onClick={() => {
+                      const url = `https://acheiyou.app/perfil/${professional?.id}`;
+                      if (navigator.share) {
+                        navigator.share({
+                          title: 'Meu Perfil Profissional',
+                          text: 'Confira meu perfil profissional e solicite um orçamento!',
+                          url: url,
+                        }).catch(console.error);
+                      } else {
+                        navigator.clipboard.writeText(url);
+                        alert('Link copiado para a área de transferência!');
+                      }
+                    }}
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Compartilhar Meu Perfil
+                  </Button>
+                </div>
+              </Card>
 
               {requests.length === 0 ? (
                 <div className="py-12 text-center text-[hsl(var(--muted-foreground))]">

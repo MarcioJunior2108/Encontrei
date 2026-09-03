@@ -26,14 +26,14 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
 
   const filteredUsers = initialUsers.filter((u) => {
     // Busca por Nome ou Email
-    const searchMatch = !searchTerm || 
-      (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false) || 
+    const searchMatch = !searchTerm ||
+      (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
       (u.email?.toLowerCase().includes(searchTerm.toLowerCase()) || false);
-    
+
     // Busca por Telefone
-    const phoneMatch = !phoneTerm || 
+    const phoneMatch = !phoneTerm ||
       (u.phone?.includes(phoneTerm) || false);
-      
+
     // Filtro por Status
     const statusMatch = statusFilter === 'ALL' || u.status === statusFilter;
 
@@ -49,7 +49,7 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
   };
 
   const toggleUser = (id: string) => {
-    setSelectedUserIds(prev => 
+    setSelectedUserIds(prev =>
       prev.includes(id) ? prev.filter(uid => uid !== id) : [...prev, id]
     );
   };
@@ -89,7 +89,7 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
       <CardHeader>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <CardTitle>Todos os Usuários ({filteredUsers.length})</CardTitle>
-          
+
           <div className="flex flex-wrap gap-3">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
@@ -100,7 +100,7 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
+
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
               <Input
@@ -147,8 +147,8 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
             <thead className="text-xs text-[hsl(var(--muted-foreground))] uppercase bg-[hsl(var(--muted))] border-b border-[hsl(var(--border))]">
               <tr>
                 <th className="px-4 py-3 rounded-tl-lg w-10">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="rounded border-[hsl(var(--border))] bg-transparent"
                     checked={selectedUserIds.length > 0 && selectedUserIds.length === filteredUsers.length}
                     onChange={toggleAll}
@@ -172,8 +172,8 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
               {filteredUsers.map((u) => (
                 <tr key={u.id} className={`border-b border-[hsl(var(--border))] last:border-0 hover:bg-[hsl(var(--muted)/0.3)] transition-colors ${selectedUserIds.includes(u.id) ? 'bg-[hsl(var(--primary-muted)/0.5)]' : ''}`}>
                   <td className="px-4 py-4">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       className="rounded border-[hsl(var(--border))] bg-transparent"
                       checked={selectedUserIds.includes(u.id)}
                       onChange={() => toggleUser(u.id)}
@@ -199,14 +199,14 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
                       {u.phone && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200" 
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200"
                           title="Conversar no WhatsApp"
                           asChild
                         >
-                          <a 
+                          <a
                             href={`https://wa.me/${u.phone.replace(/\D/g, '')}?text=${encodeURIComponent(
                               `Olá ${u.name ? u.name.split(' ')[0] : ''}! Tudo bem? Sou da equipe do AcheiYou!`
                             )}`}
@@ -218,9 +218,9 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                         </Button>
                       )}
                       {u.role !== 'ADMIN' && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           title="Promover a Admin"
                           onClick={() => handlePromote(u.id, u.name)}
                           disabled={isProcessing}
@@ -228,10 +228,10 @@ export function UsersTable({ initialUsers }: { initialUsers: User[] }) {
                           <Shield className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-red-500 hover:text-red-500 hover:bg-red-500/10" 
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-500 hover:text-red-500 hover:bg-red-500/10"
                         title="Banir Usuário"
                         onClick={() => handleBan(u.id, u.name)}
                         disabled={isProcessing}

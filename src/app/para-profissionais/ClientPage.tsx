@@ -733,29 +733,7 @@ export function ParaProfissionaisClient() {
 
       <HomeFooter />
 
-      {/* FOMO TOAST (Live Activity) */}
-      <div className="fixed bottom-24 md:bottom-8 left-4 md:left-8 z-50 pointer-events-none">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeToast}
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ duration: 0.4 }}
-            className="bg-slate-900/90 backdrop-blur-xl border border-slate-700 shadow-[0_10px_40px_rgba(0,0,0,0.5)] rounded-2xl p-4 flex items-start gap-4 max-w-[320px]"
-          >
-            <div className="w-10 h-10 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
-              <Zap className="w-5 h-5 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-300 leading-snug">
-                <strong className="text-white">{toasts[activeToast].name}</strong> de {toasts[activeToast].city} acabou de pedir orçamento para <strong className="text-blue-400">{toasts[activeToast].service}</strong>.
-              </p>
-              <p className="text-xs text-slate-500 mt-1 font-semibold">Agora mesmo</p>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
+
 
       {/* STICKY CTA MOBILE */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#080d19]/90 backdrop-blur-xl border-t border-slate-800 z-50 md:hidden shadow-[0_-10px_40px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-full duration-500 delay-1000">

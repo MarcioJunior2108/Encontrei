@@ -14,8 +14,24 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'AcheiYou',
+    url: 'https://acheiyou.app',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://acheiyou.app/buscar?q={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <main className="min-h-dvh bg-[hsl(var(--background))]" id="main-content">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
       <HeroSection />
       <CategoriesSection />

@@ -18,9 +18,29 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
   
   if (!pro) return { title: 'Profissional não encontrado' };
   
+  const title = `${pro.profile.name || 'Profissional'} — ${pro.headline || 'Especialista'} em ${pro.profile.city || 'Sua Região'} | AcheiYou`;
+  const description = pro.bio ? pro.bio.substring(0, 160) : `Encontre os melhores serviços de ${pro.headline} com ${pro.profile.name} no AcheiYou.`;
+  const url = `https://acheiyou.app/perfil/${pro.id}`;
+
   return {
-    title: `${pro.profile.name || 'Profissional'} — AcheiYou`,
-    description: pro.bio || 'Perfil de profissional no AcheiYou.',
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'profile',
+      images: pro.profile.avatarUrl ? [{ url: pro.profile.avatarUrl }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: pro.profile.avatarUrl ? [pro.profile.avatarUrl] : [],
+    }
   };
 }
 
@@ -69,8 +89,32 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     availableToday: p.availability === 'AVAILABLE',
   };
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    name: formattedPro.user.name,
+    image: formattedPro.user.avatar,
+    description: formattedPro.bio,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: formattedPro.location.city,
+      addressRegion: formattedPro.location.state,
+      addressCountry: 'BR',
+    },
+    priceRange: `R$${formattedPro.priceRange.min} - R$${formattedPro.priceRange.max}`,
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: formattedPro.reputation.rating,
+      reviewCount: formattedPro.reputation.reviewCount || 1, // fallback so schema doesn't fail
+    }
+  };
+
   return (
     <main id="main-content">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
       <Suspense fallback={<div className="h-screen w-full flex items-center justify-center">Carregando perfil...</div>}>
         <ProfessionalProfile professional={formattedPro} />

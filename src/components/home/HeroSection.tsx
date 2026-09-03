@@ -96,8 +96,12 @@ export function HeroSection() {
       {/* Main content */}
       <div className="relative z-10 w-full max-w-3xl mx-auto text-center">
 
-        {/* Main heading */}
-        <motion.h1
+        {/* Main heading - Semantic SEO Optimized */}
+        <h1 className="sr-only">Encontre Profissionais, Especialistas e Serviços Locais | AcheiYou</h1>
+        
+        {/* Visual heading */}
+        <motion.h2
+          aria-hidden="true"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -106,7 +110,7 @@ export function HeroSection() {
           <span className="text-[hsl(var(--foreground))]">O que você</span>
           <br />
           <span className="gradient-text">precisa?</span>
-        </motion.h1>
+        </motion.h2>
 
         {/* Subtitle */}
         <motion.p

@@ -84,7 +84,7 @@ export async function POST() {
   } catch (error: any) {
     console.error('[WhatsApp Setup API] Erro:', error);
     return NextResponse.json(
-      { error: 'Erro interno ao comunicar com a Evolution API.' },
+      { error: `Falha na conexão com a Evolution API em ${process.env.EVOLUTION_API_URL}. O servidor pode estar offline ou inacessível. Detalhe: ${error.message}` },
       { status: 500 }
     );
   }

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Send, Loader2, ArrowLeft } from 'lucide-react';
 import { getChatMessages, sendChatMessage } from '@/app/actions/chat';
+import { createClient } from '@/lib/supabase/client';
 
 export function ChatBox({ 
   requestId, 
@@ -33,10 +34,45 @@ export function ChatBox({
 
   useEffect(() => {
     fetchMessages();
-    // Polling a cada 3 segundos
-    const interval = setInterval(fetchMessages, 3000);
-    return () => clearInterval(interval);
-  }, [requestId]);
+    
+    const supabase = createClient();
+    
+    // Configurar Realtime para essa sala de chat específica
+    const channel = supabase
+      .channel(`chat_box_${requestId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `service_request_id=eq.${requestId}`
+        },
+        (payload) => {
+          const newMessage = payload.new;
+          // Adiciona a nova mensagem se não for a do próprio usuário (otimista já cuida das dele)
+          if (newMessage.sender_id !== currentUserId) {
+            setMessages(prev => {
+              // Verifica se a mensagem já existe para evitar duplicações
+              if (prev.some(m => m.id === newMessage.id)) return prev;
+              
+              return [...prev, {
+                id: newMessage.id,
+                content: newMessage.content,
+                senderId: newMessage.sender_id,
+                createdAt: newMessage.created_at,
+                isRead: newMessage.is_read
+              }];
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [requestId, currentUserId]);
 
   useEffect(() => {
     // Scroll para a última mensagem

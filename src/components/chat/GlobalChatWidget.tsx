@@ -5,6 +5,7 @@ import { MessageSquare, X, ChevronLeft, Loader2 } from 'lucide-react';
 import { getActiveChats } from '@/app/actions/chat';
 import { ChatBox } from './ChatBox';
 import { usePathname } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 export function GlobalChatWidget({ currentUserId }: { currentUserId: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,8 +29,19 @@ export function GlobalChatWidget({ currentUserId }: { currentUserId: string }) {
 
   useEffect(() => {
     loadChats();
-    // Polling da lista a cada 3 segundos
-    const interval = setInterval(loadChats, 3000);
+    
+    const supabase = createClient();
+    
+    // Inscrever para atualizações em tempo real nas mensagens de chat
+    const channel = supabase
+      .channel('global_chats_updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_messages' }, () => {
+        loadChats();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'service_requests' }, () => {
+        loadChats();
+      })
+      .subscribe();
 
     // Escutar eventos customizados de outras partes do app
     const handleOpenChatEvent = (e: any) => {
@@ -41,7 +53,7 @@ export function GlobalChatWidget({ currentUserId }: { currentUserId: string }) {
     window.addEventListener('open-chat', handleOpenChatEvent);
 
     return () => {
-      clearInterval(interval);
+      supabase.removeChannel(channel);
       window.removeEventListener('open-chat', handleOpenChatEvent);
     };
   }, []);
